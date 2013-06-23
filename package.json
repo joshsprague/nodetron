@@ -1,0 +1,19 @@
+{
+  "name": "nodetron",
+  "version": "0.0.1",
+  "description": "A peer-to-peer, nearly-server-less, client-side web app framework using WebRTC.",
+  "main": "server/app.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bchu/nodetron.git"
+  },
+  "author": "Brian Chu",
+  "readmeFilename": "README.md",
+  "gitHead": "0d23c9f4301fe1f215e28330d0e3caad17d6b266",
+  "bugs": {
+    "url": "https://github.com/bchu/nodetron/issues"
+  }
+}
