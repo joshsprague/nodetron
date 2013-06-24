@@ -6,11 +6,11 @@ A conceptual overview. Let's see if this is even possible!
 
 A peer-to-peer, nearly-server-less, client-side web app framework (library) using WebRTC. Basically a platform upon which other developers can build peer-to-peer, nearly-server-less client-side apps. Applications that are built with this framework will be rich client apps that control and store ALL user state/data locally (possibly through HTML5 IndexedDB or the filesystem sandbox). All data validation and access permissions are handled by the client.
 
-There are several challenges. The first problem is discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One problem is we need to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized -  the server shouldn't know the email.
+There are several challenges. The first problem is discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One problem is we need to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.
 
 Technologies: WebRTC, MongoDB, Express.js. Possibly Socket.io, HTML5 IndexedDB, AppCache and/or some implementation of a DHT (Kademlia).
 
-If we have time, a demo/showcase app in AngularJS.
+Time permitting, a demo/showcase app in AngularJS.
 
 ##Approach
 
@@ -35,7 +35,7 @@ The range of approaches has various tradeoffs in our value propositions:
 
 * Client must be active (browser window open) to send/receive requests.
 
-**Approaches we can take and the value propositions present:**
+**Approaches to take and the value propositions present:**
 
 1. Central server stores personally identifiable information in a DB. All queries are handled against this DB. Server routes you. We try to minimize the amount of personal info available, but you still have to authenticate against this server, and give it some private info.
     * pro: some privacy (chats, photos, etc), access redundancy (if you know how to connect with someone already)
