@@ -12,6 +12,21 @@ Technologies: WebRTC, MongoDB, Express.js. Possibly Socket.io, HTML5 IndexedDB, 
 
 Time permitting, a demo/showcase app in AngularJS.
 
+##Deliverables
+
+1. Web Worker abstraction that exposes a mongo, REST-ful, or other-style async API.
+    * have dev access html5 IndexedDB directly; OR through wrapper.
+2. Web Worker abstraction itself communicates with a server/p2p interface/protocol with which it can
+    * register itself as a new client
+    * send discovery queries (server or p2p) and cache results (connection info)
+    * broadcast/publish information about itself
+    * if decentralized, receive info about other nodes and/or respond to discovery queries
+    * establish connections and transfer data
+3. Server and/or p2p network that:
+    * implements NAT traversal (use a library)
+    * if decentralized, bootstraps nodes
+    * depending on protocol, redirects requests; OR directly transmits connections; OR neither.
+
 ##Approach
 
 "Node" is interchangeable with "client".
