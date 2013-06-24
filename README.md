@@ -6,52 +6,87 @@ A conceptual overview. Let's see if this is even possible!
 
 A peer-to-peer, nearly-server-less, client-side web app framework (library) using WebRTC. Basically a platform upon which other developers can build peer-to-peer, nearly-server-less client-side apps. Applications that are built with this framework will be rich client apps that control and store ALL user state/data locally (possibly through HTML5 IndexedDB or the filesystem sandbox). All data validation and access permissions are handled by the client.
 
-One possible direction towards even less reliance on a server is to implement some sort of DHT (distributed hash table).
+There are several challenges. The first problem is discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One problem is we need to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized -  the server shouldn't know the email.
 
-There are several challenges. The first problem is discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). One problem is we need to find a way for one app to query the server like so: "connect me with the user whose email is __," since we want data to be decentralized -  the server shouldn't know the email.
-
-One possibility: Joe has the app open in his browser and he wants data from Sarah and knows her email. He sends (a hash?) of her email to the server (which has a hash of all the emails of all users?). Then the request is routed to Sarah. Sarah can accept or decline. The server then handles giving Joe/Sarah info about connecting with each other if Sarah accepts.
-
-Another possibility: Joe sends the server a hash of Sarah's email. The server sends that hash and some metadata to every client. When Sarah's client recognizes the hash as her email's hash, Sarah makes a request to Joe with the unhashed email (so Joe can verify Sarah).
-
-Technologies: WebRTC, MongoDB, Express.js. Possibly Socket.io, HTML5 IndexedDB, AppCahce and/or some implementation of a DHT.
+Technologies: WebRTC, MongoDB, Express.js. Possibly Socket.io, HTML5 IndexedDB, AppCache and/or some implementation of a DHT (Kademlia).
 
 If we have time, a demo/showcase app in AngularJS.
 
-##Random notes on approach and challenges:
+##Approach
 
 "Node" is interchangeable with "client".
 
-*Two workarounds/alternatives to some of the various problems outlined*:
+On a higher level, the range of possible approaches ranges from:
 
-1. Assume anonymity - no such concept as mutual verification/authentication
-2. Use trackers (trusted servers that refer peers to each other - there can be several) like BitTorrent. Users of this framework have to set these up themselves (we can set up a basic one).
+* highly-centralized, MVP-oriented, highly-focused, with lots of coding right out of the gate.
+to  
+* highly-decentralized, exploration-oriented, breadth-focused, with lots of reading and small technical demos right out of the gate.
 
-Introducing a DHT brings up a lot of security/verification issues.
+**Value propositions:**
+
+The range of approaches has various tradeoffs in our value propositions:
+
+* privacy - outside parties cannot inspect private info
+* (server) access redundancy - if central server goes down you can still exchange data with others.
+* (server) discovery redundancy - if central server goes down you can still discover other clients.
+* security - no single point of attack.
+
+**Inherent drawbacks:**
+
+* Client must be active (browser window open) to send/receive requests.
+
+**Approaches we can take and the value propositions present:**
+
+1. Central server stores personally identifiable information in a DB. All queries are handled against this DB. Server routes you. We try to minimize the amount of personal info available, but you still have to authenticate against this server, and give it some private info.
+    * pro: some privacy (chats, photos, etc), access redundancy (if you know how to connect with someone already)
+    * con: must authenticate, relies on one central server
+2. Central server stores only public info available to all. Anyone can query without authenticating.
+    * pro: some privacy (less than #1), access redundancy
+    * con: limits discoverable vectors, relies on one central server
+3. Central server stores hashes of public info, people must know the value of the query.
+    * pro, some more privacy, access redundancy
+    * con: many categories of hashes vulnerable to dictionary attacks (i.e. city of birth), esp since hashes are public, relies on one central server
+4. Central server is only used to redirect queries to ALL nodes. Those nodes respond directly to you.
+    * pro: full privacy, access redundancy
+    * con: latency inefficient, can't discover offline users
+
+The above approaches are fairly centralized. Now we look at more centralized approaches. Each of these approaches still relies on the central server for NAT traversal and for bootstrapping nodes (introducing a new node to its first node).
+
+5. Each client keeps a local copy of central DB with hashes of public info, continually synced with peers thru WebRTC/initial server
+    * pro: full access/discovery redundancy
+    * con: many types of hashed info vulnerable to dictionary attacks, large data storage requirement (50-100mb?)
+6. Each client keeps a local copy of how to contact each other peer, nothing else, continually synced. Queries are broadcast to everyone in hashed form, then wait for response.
+    * pro: full privacy, access/discovery redundancy
+    * con: latency/network inefficient, can't discover offline peers
+7. Each client keeps full copy of how to contact others, sends a request that is sent to a few nodes and hops around.
+   * pro: full privacy, access/discovery redundancy
+   * con: security issues (spoofing), latency inefficient, can't discover offline peers.
+8. Add a DHT (distributed hash table) with each key as a hashed, stringified query (JSON.stringify({hometown:'Palo Alto'})), and the value as a full list of all users.
+    * pro: mostly-full privacy, access/discovery redundancy
+    * con: security issues with strength of hashing, large number of keys required (latency inefficient), security issues.
+
+Other approaches off the range:
+
+1. A DHT or central server that stores key-value pairs with the key being a unique id and the value being connection info. Then you must tweet or otherwise send the key to others manually.
+2. Use a system of trackers (supernodes, trusted peers) like BitTorrent. App developers would have to set up these trackers.
+3. Assume everyone is anonymous and set up interactions with that assumption.
+4. Implement a Facebook OpenGraph-like protocol where people are responsible for hosting a reference to their info.
+   * or piggyback off FB OG.
+
+##Random Notes:
 
 A DHT is basically a hash table that is split up among all the users (with some redundancy). When you want to find a key in the DHT, you search all the nodes you know about (or some optimized subset). The usual optimization is to have some sort of distance function that gives you log(n) lookup time (a la binary search) - you only search nodes that are "closer" (by some computed function) to the key you want. Those nodes pass along the search. There are open source implementations we can look at.
 
-The DHT will record all available resources. Unsure of what the key-value pairs will consist of.
-
-Investigate whether a central server is really necessary for 1) NAT traversal, and 2) listing all users. Can NAT traversal and SDP (Session Description Protocol) be negotiated by the network?
-
 Speculation: use OAuth for id/key?
-
-Another feature: querying nodes. Let's say you know your friend's email. The user list that all users have only has three pieces of info: public key, connection info(?), and another key that authenticates this app as being actually what it is (?).
-You send out a hashed version of their email. The node that responds with the right email is verified as your friend. Or do a broadcast/propagation to all nodes, the node that returns the answer to the hash is the right target.
 
 Clients might need to mutually pass and store tokens. Spoofing can go in either direction, so requester need to verify requestee, and requestee needs to verify requester.
 
-Another drawback: client must be active (browser window open) to send/receive requests.
+Have the central server contain users and their associated public keys. Each message a user sends contains a signature that is verified with their private keys. Need to use this method for broadcast methods?
 
-Clients still need to know the key for a user - needs to be a way to discover users. Public broadcast? But then attackers can mimic id's. Public broadcast with associated public keys?
-
-Have the central server contain users and their associated public keys. Each message a user sends contains a signature that is verified with their private keys.
-
-Using a DHT also has major security issues. I think the fact that we only use DHT for routing should ameliorate this issue. The client side will need to have robust access permissions and validation, so that even if a node's routing is hacked the worse case scenario is that the node simply cannot access stuff.
-
-Actually, a security problem could be that a client could think that route X routes to a trusted friend when in fact that route goes to an attacker. Solved by signatures?
+Using a DHT also has major security issues. I think the fact that we only use DHT for routing should ameliorate this issue. The client side will need to have robust access permissions and validation, so that even if a node's routing is hacked the worse case scenario is that the node simply cannot access stuff. A security problem could be that a client could think that route X routes to a trusted friend when in fact that route goes to an attacker, and private data is leaked that way. Solved by signatures?
 
 Also, if multiple apps are using this framework/protocol, need way of distinguishing between requests.
 
-Unique ids - they will simple be randomly generated with a large enough address space as to make collisions statistically improbably (Bitoin does this)
+Unique ids - they will simple be randomly generated with a large enough address space as to make collisions statistically improbable (Bitoin does this, as does git).
+
+
