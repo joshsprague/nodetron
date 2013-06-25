@@ -12,6 +12,8 @@ files = [
   'client/components/node-uuid/uuid.js',
   'client/components/q/q.min.js',
   'http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js',
+  'http://cdn.peerjs.com/0/peer.min.js',
+
 
   MOCHA,
   MOCHA_ADAPTER,
