@@ -17,7 +17,7 @@ files = [
   MOCHA,
   MOCHA_ADAPTER,
   'node_modules/chai/chai.js',
-  'test/setup.js',
+  'test/client/setup.js',
   {pattern: 'client/index.html', included:false},
   'client/*.js',
   'test/client/unit/**/*.js'
