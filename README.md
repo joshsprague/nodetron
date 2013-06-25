@@ -2,9 +2,10 @@
 
 A conceptual overview. Let's see if this is even possible!
 
-###Workflow
+###Instructions
 
-1. See: <https://github.com/bchu/nodetron/wiki/Workflow>
+1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
+2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
 ##Overview
 
