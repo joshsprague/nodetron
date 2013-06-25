@@ -8,25 +8,27 @@ basePath = '';
 
 // list of files / patterns to load in the browser
 files = [
+  MOCHA,
+  MOCHA_ADAPTER,
+  'node_modules/chai/chai.js',
+
   'client/components/socket.io-client/dist/socket.io.min.js/',
   'client/components/node-uuid/uuid.js',
   'client/components/q/q.min.js',
   'http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js',
   'http://cdn.peerjs.com/0/peer.min.js',
-  
-  MOCHA,
-  MOCHA_ADAPTER,
-  'node_modules/chai/chai.js',
-  'test/client/setup.js',
+
   {pattern: 'client/index.html', included:false},
   'client/*.js',
+
+  'test/client/setup.js',
   'test/client/unit/**/*.js'
 ];
 
 
 // list of files to exclude
 exclude = [
-  'components'
+  // 'components'
 ];
 
 
