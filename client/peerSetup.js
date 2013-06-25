@@ -8,7 +8,7 @@ cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
 cfg.meta =  {};
 
 //Setup the new peer object
-var peer = new Peer('some-id', {host: cfg.HOST, port: cfg.PORT, metadata: cfg.meta,  config:cfg.ICE});
+var peer = new Peer( uuid, {host: cfg.HOST, port: cfg.PORT, metadata: cfg.meta,  config:cfg.ICE});
 
 //Listen for incoming connections (direct from the sample)
 peer.on('connection', function(conn){
@@ -18,7 +18,7 @@ peer.on('connection', function(conn){
 });
 
 //Create a new connction (direct from the sample)
-var conn = peer.connect('some-id');
+var conn = peer.connect(uuid);
 conn.on('open', function() {
   conn.send('Hello world!');
 });
