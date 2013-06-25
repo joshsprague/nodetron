@@ -1,7 +1,7 @@
 //initialization
-var uuid = localStorage.get('uuid') || uuid.v4();
-localStorage.set('uuid', uuid);
-var registered = localStorage.get('registered') || false;
+var uuid = localStorage.getItem('uuid') || uuid.v4();
+localStorage.setItem('uuid', uuid);
+var registered = localStorage.getItem('registered') || false;
 var socket = io.connect('http://localhost');
 
 //IndexedDB
