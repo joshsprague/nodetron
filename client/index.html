@@ -2,16 +2,24 @@
 <html>
   <head>
     <meta charset="utf-8">
+
+    <!--External Dependencies -->
+    <script src = "http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js"></script>
     <script src="components/socket.io-client/dist/socket.io.min.js/"></script>
     <script src="components/node-uuid/uuid.js"></script>
     <script src="components/q/q.min.js"></script>
-    <script src = "http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js"></script>
-    <script src="workerInterface.js"></script>
-    <script src="scripts.js"></script>
 
-    <!-- Peer JS  & Setup  -->
+
     <script src="http://cdn.peerjs.com/0/peer.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+    <!-- Peer JS -->
     <script src="peerSetup.js"></script>
+
+    <!-- Web Workers -->
+    <!-- <script src="workerInterface.js"></script>
+    <script src="scripts.js"></script> -->
+
   </head>
 
   <body>
@@ -20,5 +28,7 @@
         //setup code here.
       });
     </script>
+    <input name="connect to user" value="Enter Connection ID">
+    <button class="enter">Enter</button>
   </body>
 </html>
