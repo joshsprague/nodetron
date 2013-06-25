@@ -9,5 +9,8 @@
     "server",
     "lib",
     "demo"
-  ]
+  ],
+  "dependencies": {
+    "socket.io-client": ">=0.9.16"
+  }
 }

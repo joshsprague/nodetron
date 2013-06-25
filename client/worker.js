@@ -4,4 +4,9 @@ this.addEventListener('message', function(e) {
 
 }, false);
 
+this.addEventListener('error', function(event) {
+  console.log('Error!');
+  console.log(event);
+});
+
 //this.close terminates the worker
