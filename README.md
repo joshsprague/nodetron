@@ -2,6 +2,10 @@
 
 A conceptual overview. Let's see if this is even possible!
 
+###Workflow
+
+1. See: <https://github.com/bchu/nodetron/wiki/Workflow>
+
 ##Overview
 
 A peer-to-peer, nearly-server-less, client-side web app framework (library) using WebRTC. Basically a platform upon which other developers can build peer-to-peer, nearly-server-less client-side apps. Applications that are built with this framework will be rich client apps that control and store ALL user state/data locally (possibly through HTML5 IndexedDB or the filesystem sandbox). All data validation and access permissions are handled by the client.
