@@ -4,6 +4,13 @@ A conceptual overview. Let's see if this is even possible!
 
 ###Instructions
 
+1.`grunt server` to run server
+2.`grunt server-unit` to run server unit tests
+3.`grunt client-unit` to run client unit tests
+4.`grunt e2e` to run client e2e tests on Chrome (not implemented yet).
+5.`grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented).
+
+More resources:
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
 2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
