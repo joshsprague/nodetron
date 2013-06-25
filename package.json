@@ -15,5 +15,14 @@
   "gitHead": "0d23c9f4301fe1f215e28330d0e3caad17d6b266",
   "bugs": {
     "url": "https://github.com/bchu/nodetron/issues"
+  },
+  "dependencies": {
+    "grunt": "~0.4.1",
+    "bower": "~0.9.2",
+    "express": "~3.2.6"
+  },
+  "optionalDependencies": {
+    "generator-karma": "~0.3.0",
+    "generator-mocha": "~0.1.1"
   }
 }
