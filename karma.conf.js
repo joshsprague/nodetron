@@ -11,16 +11,18 @@ files = [
   MOCHA,
   MOCHA_ADAPTER,
   'node_modules/chai/chai.js',
+  'node_modules/sinon/lib/sinon.js',
 
   'client/components/socket.io-client/dist/socket.io.min.js/',
   'client/components/node-uuid/uuid.js',
   'client/components/q/q.min.js',
   'http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js',
   'http://cdn.peerjs.com/0/peer.min.js',
+  'http://code.jquery.com/jquery-1.10.1.min.js',
 
   {pattern: 'client/index.html', included:false},
-  'client/*.js',
-
+  {pattern: 'client/worker.js', included:false},
+  {pattern: 'client/*.js'},
   'test/client/setup.js',
   'test/client/unit/**/*.js'
 ];
