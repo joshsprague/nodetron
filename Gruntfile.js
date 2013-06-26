@@ -3,6 +3,25 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    connect: {
+      client: {
+        options: {
+          port: 9000,
+          base: 'client',
+          // Livereload needs connect to insert a cJavascript snippet
+          // in the pages it serves. This requires using a custom connect middleware
+          middleware: function(connect, options) {
+            return [
+              // Load the middleware provided by the livereload plugin
+              // that will take care of inserting the snippet
+              require('grunt-contrib-livereload/lib/utils').livereloadSnippet,
+              // Serve the project folder
+              connect.static(options.base)
+            ];
+          }
+        }
+      }
+    },
     develop: {
       server: {
         file: 'server/app.js'
@@ -29,6 +48,12 @@ module.exports = function (grunt) {
         browsers: ['Chrome', 'Firefox'] //default is just Chrome
       }
     },
+    open: {
+      all: {
+        // Gets the port from the connect configuration
+        path: 'http://localhost:<%= connect.client.options.port%>'
+      }
+    },
     simplemocha: {
       options: {
         globals: ['should'],
@@ -38,8 +63,15 @@ module.exports = function (grunt) {
         ui: 'bdd',
         reporter: 'tap'
       },
-
       all: { src: ['test/server/index.js','test/server/**/*.js'] }
+    },
+    watch: {
+      client: {
+        files: ['client/*'],
+        options: {
+          livereload:true
+        }
+      },
     }
   });
   grunt.registerTask('delayed-livereload', 'delayed livereload', function () {
@@ -50,6 +82,11 @@ module.exports = function (grunt) {
     }, 500);
   });
 
+  grunt.registerTask('client', [
+    'connect:client',
+    'open',
+    'watch:client'
+  ]);
   grunt.registerTask('server', [
     'livereload-start',
     'develop',
