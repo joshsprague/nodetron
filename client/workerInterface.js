@@ -2,7 +2,12 @@ var worker = new Worker('worker.js');
 // call worker with string - use string for compatibility.
 // Can handle other types like File, Blob, ArrayBuffer, JSON, but compatibility is less
 // Normally workers pass objects by copy, not reference.
-worker.postMessage();
+var uuid = localStorage.getItem('uuid') || uuid.v4();
+localStorage.setItem('uuid', uuid);
+var registered = localStorage.getItem('registered') || false;
+localStorage.setItem('registered',registered);
+var msg = {uuid:uuid,reg:registered};
+worker.postMessage(JSON.stringify(msg));
 
 //handle worker responses.
 worker.addEventListener('message', function(e) {

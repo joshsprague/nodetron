@@ -1,7 +1,14 @@
+var debug = function(msg) {
+  postMessage(JSON.stringify({type:'debug',msg:msg}));
+};
+console = {};
+console.log = function(msg) {
+  postMessage(JSON.stringify(msg)||'');
+};
+
+
 //initialization
-var uuid = localStorage.getItem('uuid') || uuid.v4();
-localStorage.setItem('uuid', uuid);
-var registered = localStorage.getItem('registered') || false;
+importScripts('components/socket.io-client/dist/socket.io.min.js');
 var socket = io.connect('http://localhost');
 
 //IndexedDB
@@ -37,15 +44,17 @@ socket.on('users', function (data) {
 
 
 //handle requests from the main loop
-this.addEventListener('message', function(e) {
-  this.postMessage(e.data);
+this.addEventListener('message', function(event) {
+  var data = event.data;
+  this.postMessage(data);
+  if (data.uuid && data.registered) {
+    this.uuid = data.uuid;
+    this.registered = data.registered;
+  }
 
 }, false);
 
 this.addEventListener('error', function(event) {
   console.log('Error!');
-  console.log(event);
+  console.log(JSON.stringify(event));
 });
-
-//this.close terminates the worker
-
