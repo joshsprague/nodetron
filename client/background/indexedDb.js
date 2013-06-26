@@ -13,7 +13,14 @@ var createDB = function(params) {
     var db = event.target.result;
     // Create an objectStore for this database
     console.log('upgrade!');
-    var users = db.createObjectStore("users", {keyPath: 'uuid'});
+    var stores = params.stores;
+    if (!params.stores) {
+      return;
+    }
+    for (var i = 0; i < stores.length; i++) {
+      var store = stores[i];
+      db.createObjectStore(store.name, store.keys);
+    }
   };
   dbRequest.onsuccess = function(event) {
     console.log('got db');
