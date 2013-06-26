@@ -1,11 +1,12 @@
 //Config
 var cfg = {};
-    cfg.HOST = 'localhost';
-    cfg.PORT = '9000';
+    cfg.HOST = 'bsalazar91-server.jit.su';
+    cfg.PORT = '80'; //9000 default for other services
     cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-    cfg.KEY = 'lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
+    cfg.DEBUG = true; //enable debugging by default
+    cfg.KEY = 'peerjs' //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
     cfg.meta =  {};
-    cfg.id = null; //uuid from web worker
+    cfg.id = ''; //uuid from web worker
 
 
 //Connection handler
@@ -20,10 +21,20 @@ var handleConn = function(conn){
 };
 
 //Setup the new peer object
-var peer = new Peer( uuid, {host: cfg.HOST, key: cfg.KEY, port: cfg.PORT, metadata: cfg.meta,  config:cfg.ICE});
+var peer = new Peer( cfg.id, {host: cfg.HOST, debug:cfg.DEBUG, key: cfg.KEY, port: cfg.PORT, metadata: cfg.meta,  config:cfg.ICE});
 
 //For Testing with the peer.js server
 // var peer = new Peer(cfg.id, {key: cfg.KEY, debug:true});
+
+
+// SocketIO for testing user interface data.
+var socket = io.connect("bsalazar91-server.jit.su:80");
+socket.on('users', function (data) {
+  console.log(data);
+  socket.emit('acknowledge', { received: true });
+});
+
+
 
 //Error handling on the peer level object
 peer.on('error', function(err){
