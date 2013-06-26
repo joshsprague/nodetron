@@ -1,15 +1,15 @@
 #Nodetron
 
-A conceptual overview. Let's see if this is even possible!
+Let's see if this is possible!
 
 ###Instructions
 
-1. `grunt client` to run serve client in static server
+1. `grunt client` to serve client in static server
 2. `grunt server` to run server
 3. `grunt server-unit` to run server unit tests
 4. `grunt client-unit` to run client unit tests
 5. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
-6. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented).
+6. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
 More resources:
 
@@ -47,8 +47,8 @@ Time permitting, a demo/showcase app in AngularJS.
 
 On a higher level, the range of possible approaches ranges from:
 
-* highly-centralized, MVP-oriented, highly-focused, with lots of coding right out of the gate.
-to  
+* highly-centralized, MVP-oriented, highly-focused, with lots of coding right out of the gate.  
+-to-  
 * highly-decentralized, exploration-oriented, breadth-focused, with lots of reading and small technical demos right out of the gate.
 
 **Value propositions:**
@@ -63,6 +63,13 @@ The range of approaches has various tradeoffs in our value propositions:
 **Inherent drawbacks:**
 
 * Client must be active (browser window open) to send/receive requests.
+
+**Browser Compatability Notes**
+
+* Web Workers: IE10+
+* IndexedDB: IE10+, should use moz/webkit prefixes, FF10+, CH23+, no Safari
+    * WebSQL shim for Safari and mobile
+* WebRTC: no IE, FF20+, CH26+, no Safari.
 
 **Approaches to take and the value propositions present:**
 
