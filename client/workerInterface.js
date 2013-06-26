@@ -6,7 +6,14 @@ var uuid = localStorage.getItem('uuid') || uuid.v4();
 localStorage.setItem('uuid', uuid);
 var registered = localStorage.getItem('registered') || false;
 localStorage.setItem('registered',registered);
-var msg = {uuid:uuid,reg:registered};
+
+var msg = {
+	init:true,
+	uuid:uuid,
+	registered:registered,
+	dbTitle:'nodetron',
+	dbVersion:1
+};
 worker.postMessage(JSON.stringify(msg));
 
 //handle worker responses.
