@@ -21,8 +21,9 @@ files = [
   'http://code.jquery.com/jquery-1.10.1.min.js',
 
   {pattern: 'client/index.html', included:false},
-  {pattern: 'client/worker.js', included:false},
+  {pattern: 'client/background/workerExternal.js', included:false},
   {pattern: 'client/*.js'},
+  {pattern: 'client/background/*.js'},
   'test/client/setup.js',
   'test/client/unit/**/*.js'
 ];
