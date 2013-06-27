@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 
     <!--External Dependencies -->
-    <script src = "http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js"></script>
+    <script src="http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js"></script>
     <script src="components/socket.io-client/dist/socket.io.min.js"></script>
     <script src="components/node-uuid/uuid.js"></script>
     <script src="components/q/q.min.js"></script>
@@ -27,6 +27,23 @@
           var peerID = $('input').val();
           initiatePeerConnection(peerID);
         });
+
+        //DEBUG CODE:
+        window.getdata = function(string) {
+          var db;
+          var request = indexedDB.open("nodetron");
+          request.onerror = function(event) {
+            console.log('error');
+            console.log(event);
+          };
+          request.onsuccess = function(event) {
+            db = request.result;
+            db.transaction("users").objectStore("users").get(string).onsuccess = function(event) {
+              console.log(event.target.result.name);
+            };
+          };
+        }
+
       });
     </script>
     <input name="connect to user" value="Enter Connection ID">
