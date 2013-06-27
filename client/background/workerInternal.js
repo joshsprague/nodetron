@@ -29,7 +29,7 @@ if (typeof console === 'undefined') {
 
 //init
 window = self;
-importScripts('http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js');
+importScripts('../components/indexedDBShim/dist/IndexedDBShim.min.js');
 window = undefined;
 importScripts('../components/q/q.min.js');
 importScripts('../components/socket.io-client/dist/socket.io.min.js');
