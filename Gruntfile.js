@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     pkg: grunt.file.readJSON('package.json'),
     concurrent: {
       debug: {
-        tasks: ['exec:server','exec:debugger'],
+        tasks: ['exec:debugger','nodemon:debug','open:debug'],
         options: {
           logConcurrentOutput: true
         }
@@ -33,9 +33,6 @@ module.exports = function (grunt) {
     exec: {
       debugger: {
         cmd: 'node-inspector'
-      },
-      server: {
-        cmd: 'node --debug-brk server/peer.js'
       }
     },
     karma: {
@@ -51,20 +48,13 @@ module.exports = function (grunt) {
         browsers: ['Chrome', 'Firefox'] //default is just Chrome
       }
     },
-    nodev: {
-      debugger: {
-        options: {
-          exec: 'node-inspector'
-        }
-      },
+    nodemon: {
       dev: {
         options: {
-          file: 'server/peer.js'
-          // args: ['production'],
+          file: 'server/peer.js',
           // ignoredFiles: ['README.md', 'node_modules/**'],
           // watchedExtensions: ['js', 'coffee'],
           // watchedFolders: ['test', 'tasks'],
-          // debug: true
           // delayTime: 1,
           // cwd: __dirname
         }
@@ -72,9 +62,7 @@ module.exports = function (grunt) {
       debug: {
         options: {
           file: 'server/peer.js',
-          args: ['node-inspector'],
-          // debug: false
-          debug:true
+          debugBreak:true
         }
       }
     },
@@ -82,6 +70,9 @@ module.exports = function (grunt) {
       all: {
         // Gets the port from the connect configuration
         path: 'http://localhost:<%= connect.client.options.port%>'
+      },
+      debug: {
+        path: 'http://0.0.0.0:8080/debug?port=5858'
       }
     },
     simplemocha: {
@@ -119,8 +110,6 @@ module.exports = function (grunt) {
     'nodemon:dev'
   ]);
   grunt.registerTask('server-debug', [
-    // 'exec:debugger',
-    // 'nodev:debug'
     'concurrent:debug'
   ]);
   //simplemocha is for serverside
