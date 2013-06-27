@@ -9,24 +9,25 @@ module.exports = function (grunt) {
         options: {
           logConcurrentOutput: true
         }
+      },
+      all: {
+        tasks:['client','server'],
+        options: {
+          logConcurrentOutput: true
+        }
+      },
+      alldebug: {
+        tasks:['client','concurrent:debug'],
+        options: {
+          logConcurrentOutput: true
+        }
       }
     },
     connect: {
       client: {
         options: {
           port: 8000,
-          base: 'client',
-          // Livereload needs connect to insert a cJavascript snippet
-          // in the pages it serves. This requires using a custom connect middleware
-          middleware: function(connect, options) {
-            return [
-              // Load the middleware provided by the livereload plugin
-              // that will take care of inserting the snippet
-              require('grunt-contrib-livereload/lib/utils').livereloadSnippet,
-              // Serve the project folder
-              connect.static(options.base)
-            ];
-          }
+          base: 'client'
         }
       }
     },
@@ -67,7 +68,7 @@ module.exports = function (grunt) {
       }
     },
     open: {
-      all: {
+      client: {
         // Gets the port from the connect configuration
         path: 'http://localhost:<%= connect.client.options.port%>'
       },
@@ -97,27 +98,28 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('all', [
-    'connect:client',
-    'open',
-    'watch:client'
+    'concurrent:all'
+  ]);
+  grunt.registerTask('all:debug', [
+    'concurrent:alldebug'
   ]);
   grunt.registerTask('client', [
     'connect:client',
-    'open',
+    'open:client',
     'watch:client'
   ]);
   grunt.registerTask('server', [
     'nodemon:dev'
   ]);
-  grunt.registerTask('server-debug', [
+  grunt.registerTask('server:debug', [
     'concurrent:debug'
   ]);
   //simplemocha is for serverside
-  grunt.registerTask('server-unit', [
+  grunt.registerTask('server:unit', [
     'simplemocha'
   ]);
   //karma is for client-side
-  grunt.registerTask('client-unit', [
+  grunt.registerTask('client:unit', [
     'karma:unit'
   ]);
   grunt.registerTask('e2e', [

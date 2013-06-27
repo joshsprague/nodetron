@@ -4,12 +4,15 @@ Let's see if this is possible!
 
 ###Instructions
 
-1. `grunt client` to serve client in static server
-2. `grunt server` to run server
-3. `grunt server-unit` to run server unit tests
-4. `grunt client-unit` to run client unit tests
-5. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
-6. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
+1. `grunt all` to run server and serve client with static server.
+    * Append `:debug` to run node-inspector as well.
+2. `grunt client` to serve client with static server.
+    * Append `:unit` to run unit tests.
+3. `grunt server` to run server.
+    * Append `:unit` to run unit tests.
+    * Append `:debug` to run node-inspector as well.
+4. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
+5. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
 More resources:
 
