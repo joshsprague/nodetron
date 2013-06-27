@@ -35,7 +35,6 @@ socket.on('users', function (data) {
 });
 
 
-
 //Error handling on the peer level object
 peer.on('error', function(err){
   console.log('Got an error:', err);
@@ -53,14 +52,17 @@ peer.on('open', function(id){
 peer.on('connection', handleConn);
 
 // Create a new connection (direct from the sample)
-// var conn = peer.connect(your_id_here);
-// conn.on('open', function() {
-//   conn.send('Hello world!');
-//    console.log("Connection Opened");
-// });
-// conn.on('error', function(err){
-//   console.log('Got DataChannel error:', err);
-// });
-// conn.on('close', function(data){
-//   console.log('data');
-// });
+
+var initiatePeerConnection = function(peerID){
+  var conn = peer.connect(peerID);
+  conn.on('open', function() {
+    conn.send('Hello world!');
+    console.log("Connection Opened");
+  });
+  conn.on('error', function(err){
+    console.log('Got DataChannel error:', err);
+  });
+  conn.on('close', function(data){
+    console.log('data');
+  });
+};
