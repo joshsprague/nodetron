@@ -1,7 +1,7 @@
 //Config
 var cfg = {};
-    cfg.HOST = 'bsalazar91-server.jit.su';
-    cfg.PORT = '80'; //9000 default for other services
+    cfg.HOST = '127.0.0.1'; //development: localhost, production:bsalazar91-server.jit.su
+    cfg.PORT = '5000'; //development: 5000, production:80
     cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
     cfg.DEBUG = true; //enable debugging by default
     cfg.KEY = 'peerjs' //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
@@ -28,7 +28,7 @@ var peer = new Peer( cfg.id, {host: cfg.HOST, debug:cfg.DEBUG, key: cfg.KEY, por
 
 
 // SocketIO for testing user interface data.
-var socket = io.connect("bsalazar91-server.jit.su:80");
+var socket = io.connect(cfg.HOST+':'+cfg.PORT);
 socket.on('users', function (data) {
   console.log(data);
   socket.emit('acknowledge', { received: true });

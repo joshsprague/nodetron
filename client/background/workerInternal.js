@@ -29,7 +29,7 @@ importScripts('../components/q/q.min.js');
 importScripts('../components/socket.io-client/dist/socket.io.min.js');
 importScripts('indexedDb.js');
 importScripts('workerInternalEvents.js');
-var socket = io.connect('http://localhost');
+var socket = io.connect('http://localhost:5000');
 var db;
 
 var attachSockets = function() {
