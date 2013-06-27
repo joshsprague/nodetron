@@ -4,6 +4,7 @@ var http = require('http');
 var EventEmitter = require('events').EventEmitter;
 var WebSocketServer = require('ws').Server;
 var url = require('url');
+var io = require('socket.io');
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -44,7 +45,7 @@ function PeerServer(options) {
   // Initialize HTTP routes. This is only used for the first few milliseconds
   // before a socket is opened for a Peer.
   this._initializeHTTP();
-
+  this.sio = io.listen(this._app);
   // Mark concurrent users per ip
   this._ips = {};
 
@@ -52,7 +53,6 @@ function PeerServer(options) {
 };
 
 util.inherits(PeerServer, EventEmitter);
-
 
 /** Initialize WebSocket server. */
 PeerServer.prototype._initializeWSS = function() {
@@ -73,7 +73,7 @@ PeerServer.prototype._initializeWSS = function() {
       socket.close();
       return;
     }
-    
+
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
         if (!err) {
@@ -88,6 +88,7 @@ PeerServer.prototype._initializeWSS = function() {
         }
       });
     } else {
+      this._passClients();
       self._configureWS(socket, key, id, token);
     }
   });
@@ -139,13 +140,14 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
         case 'OFFER':
         case 'ANSWER':
           // Use the ID we know to be correct to prevent spoofing.
-          util.log(self._clients);
+          // util.log(self._clients);
           self._handleTransmission(key, {
             type: message.type,
             src: id,
             dst: message.dst,
             payload: message.payload
           });
+          // util.log(self._clients);
           break;
         default:
           util.prettyError('Message unrecognized');
@@ -262,8 +264,20 @@ PeerServer.prototype._initializeHTTP = function() {
 
   this._app.post('/:key/:id/:token/leave', handle);
 
+  this._app.get('/', function(req, res, next){
+    res.send("hi");
+    return next();
+  });
+
   // Listen on user-specified port.
   this._app.listen(this._options.port);
+};
+
+PeerServer.prototype._passClients = function(){
+  var self = this;
+  this.sio.sockets.on("connection", function(socket) {
+    socket.emit("users", self._clients);
+  });
 };
 
 /** Saves a streaming response and takes care of timeouts and headers. */
@@ -369,6 +383,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
   var type = message.type;
   var src = message.src;
   var dst = message.dst;
+  // message["clients"] = this._clients;
   var data = JSON.stringify(message);
 
   var destination = this._clients[key][dst];
