@@ -3,10 +3,18 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    concurrent: {
+      debug: {
+        tasks: ['exec:server','exec:debugger'],
+        options: {
+          logConcurrentOutput: true
+        }
+      }
+    },
     connect: {
       client: {
         options: {
-          port: 8080,
+          port: 8000,
           base: 'client',
           // Livereload needs connect to insert a cJavascript snippet
           // in the pages it serves. This requires using a custom connect middleware
@@ -22,11 +30,12 @@ module.exports = function (grunt) {
         }
       }
     },
-    develop: {
+    exec: {
+      debugger: {
+        cmd: 'node-inspector'
+      },
       server: {
-        file: 'server/peer.js'
-        // nodeArgs: ['--debug'],
-        // args: ['appArg1', 'appArg2']
+        cmd: 'node --debug-brk server/peer.js'
       }
     },
     karma: {
@@ -40,6 +49,33 @@ module.exports = function (grunt) {
       cross: {
         configFile: 'karma-e2e.conf.js',
         browsers: ['Chrome', 'Firefox'] //default is just Chrome
+      }
+    },
+    nodev: {
+      debugger: {
+        options: {
+          exec: 'node-inspector'
+        }
+      },
+      dev: {
+        options: {
+          file: 'server/peer.js'
+          // args: ['production'],
+          // ignoredFiles: ['README.md', 'node_modules/**'],
+          // watchedExtensions: ['js', 'coffee'],
+          // watchedFolders: ['test', 'tasks'],
+          // debug: true
+          // delayTime: 1,
+          // cwd: __dirname
+        }
+      },
+      debug: {
+        options: {
+          file: 'server/peer.js',
+          args: ['node-inspector'],
+          // debug: false
+          debug:true
+        }
       }
     },
     open: {
@@ -69,13 +105,23 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.registerTask('all', [
+    'connect:client',
+    'open',
+    'watch:client'
+  ]);
   grunt.registerTask('client', [
     'connect:client',
     'open',
     'watch:client'
   ]);
   grunt.registerTask('server', [
-    'develop'
+    'nodemon:dev'
+  ]);
+  grunt.registerTask('server-debug', [
+    // 'exec:debugger',
+    // 'nodev:debug'
+    'concurrent:debug'
   ]);
   //simplemocha is for serverside
   grunt.registerTask('server-unit', [
