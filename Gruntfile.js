@@ -62,7 +62,7 @@ module.exports = function (grunt) {
       debug: {
         options: {
           file: 'server/peer.js',
-          debugBreak:true
+          debug:true
         }
       }
     },
