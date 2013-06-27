@@ -125,4 +125,7 @@ Also, if multiple apps are using this framework/protocol, need way of distinguis
 
 Unique ids - they will simple be randomly generated with a large enough address space as to make collisions statistically improbable (Bitoin does this, as does git).
 
+##Acknowledgments:
+
+The majority of server code is based on PeerJS Server (https://github.com/peers/peerjs-server).
 
