@@ -24,15 +24,9 @@ module.exports = function (grunt) {
     },
     develop: {
       server: {
-        file: 'server/app.js'
-      }
-    },
-    regarde: {
-      js: {
-        files: [
-          'server/{,*/}*.js'
-        ],
-        tasks: ['develop', 'delayed-livereload']
+        file: 'server/peer.js'
+        // nodeArgs: ['--debug'],
+        // args: ['appArg1', 'appArg2']
       }
     },
     karma: {
@@ -74,13 +68,6 @@ module.exports = function (grunt) {
       },
     }
   });
-  grunt.registerTask('delayed-livereload', 'delayed livereload', function () {
-    var done = this.async();
-    setTimeout(function () {
-      grunt.task.run('livereload');
-      done();
-    }, 500);
-  });
 
   grunt.registerTask('client', [
     'connect:client',
@@ -88,9 +75,7 @@ module.exports = function (grunt) {
     'watch:client'
   ]);
   grunt.registerTask('server', [
-    'livereload-start',
-    'develop',
-    'regarde'
+    'develop'
   ]);
   //simplemocha is for serverside
   grunt.registerTask('server-unit', [
