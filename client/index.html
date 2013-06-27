@@ -23,7 +23,10 @@
   <body>
     <script>
       $(function(){
-        //setup code here.
+        $('button').click(function(evt){
+          var peerID = $('input').val();
+          initiatePeerConnection(peerID);
+        });
       });
     </script>
     <input name="connect to user" value="Enter Connection ID">

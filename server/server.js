@@ -45,7 +45,6 @@ function PeerServer(options) {
   // Initialize HTTP routes. This is only used for the first few milliseconds
   // before a socket is opened for a Peer.
   this._initializeHTTP();
-  this.sio = io.listen(this._app);
   // Mark concurrent users per ip
   this._ips = {};
 
@@ -66,7 +65,8 @@ PeerServer.prototype._initializeWSS = function() {
     var id = query.id;
     var token = query.token;
     var key = query.key;
-    var ip = socket.upgradeReq.socket.remoteAddress;
+    var ip = socket.upgradeReq.socket.remoteAddress + '';
+    util.log(ip);
 
     if (!id || !token || !key) {
       socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -88,9 +88,9 @@ PeerServer.prototype._initializeWSS = function() {
         }
       });
     } else {
-      this._passClients();
       self._configureWS(socket, key, id, token);
     }
+    self._passClients();
   });
 };
 
@@ -223,7 +223,6 @@ PeerServer.prototype._initializeHTTP = function() {
     }
     return next();
   });
-
   var handle = function(req, res, next) {
     var key = req.params.key;
     var id = req.params.id;
@@ -271,12 +270,19 @@ PeerServer.prototype._initializeHTTP = function() {
 
   // Listen on user-specified port.
   this._app.listen(this._options.port);
+  this.sio = io.listen(this._app);
 };
 
 PeerServer.prototype._passClients = function(){
   var self = this;
+  // util.log(self._clients);
   this.sio.sockets.on("connection", function(socket) {
-    socket.emit("users", self._clients);
+    socket.emit("users", JSON.stringify(self._clients, function(key, value){
+      if(key === "res"){
+        return;
+      }
+      return value;
+    }));
   });
 };
 
