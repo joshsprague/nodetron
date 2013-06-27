@@ -6,7 +6,7 @@ var cfg = {};
     cfg.DEBUG = true; //enable debugging by default
     cfg.KEY = 'peerjs' //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
     cfg.meta =  {};
-    cfg.id = ''; //uuid from web worker
+    cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
 
 
 //Connection handler
