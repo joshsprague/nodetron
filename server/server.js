@@ -277,11 +277,11 @@ PeerServer.prototype._initializeHTTP = function() {
   // Listen on user-specified port.
   this._app.listen(this._options.port);
   this.sio = io.listen(this._app);
+  this.sio.set("destroy upgrade", false);
 };
 
 PeerServer.prototype._passClients = function(){
   var self = this;
-  // util.log(self._clients);
   this.sio.sockets.on("connection", function(socket) {
     socket.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res"){
@@ -289,6 +289,9 @@ PeerServer.prototype._passClients = function(){
       }
       return value;
     }));
+  });
+  this.sio.sockets.on("disconnect", function(socket) {
+    socket.close();
   });
 };
 
