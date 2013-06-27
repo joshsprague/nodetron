@@ -6,6 +6,8 @@ var WebSocketServer = require('ws').Server;
 var url = require('url');
 var io = require('socket.io');
 
+//docs here: https://github.com/einaros/ws/blob/master/doc/ws.md
+
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
   EventEmitter.call(this);
@@ -49,7 +51,7 @@ function PeerServer(options) {
   this._ips = {};
 
   this._setCleanupIntervals();
-};
+}
 
 util.inherits(PeerServer, EventEmitter);
 
@@ -62,9 +64,10 @@ PeerServer.prototype._initializeWSS = function() {
 
   this._wss.on('connection', function(socket) {
     var query = url.parse(socket.upgradeReq.url, true).query;
+    console.log(query);
     var id = query.id;
     var token = query.token;
-    var key = query.key;
+    var key = query.key; //api key
     var ip = socket.upgradeReq.socket.remoteAddress + '';
     util.log(ip);
 
@@ -157,9 +160,10 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
       util.log('Invalid message', data);
     }
   });
-}
+};
 
-
+//checks that proper api key is provided, initializes and updates the cache of client/outstanding keys
+//stores ips
 PeerServer.prototype._checkKey = function(key, ip, cb) {
   if (key == this._options.key) {
     if (!this._clients[key]) {
@@ -184,22 +188,23 @@ PeerServer.prototype._checkKey = function(key, ip, cb) {
   } else {
     cb('Invalid key provided');
   }
-}
+};
 
 /** Initialize HTTP server routes. */
 PeerServer.prototype._initializeHTTP = function() {
   var self = this;
 
+  //maps posted data to req.body instead of req.params
   this._app.use(restify.bodyParser({ mapParams: false }));
-  this._app.use(restify.queryParser())
+  this._app.use(restify.queryParser());
   this._app.use(util.allowCrossDomain);
 
   // Retrieve guaranteed random ID.
-  this._app.get('/:key/id', function(req, res, next) {
-    res.contentType = 'text/html';
-    res.send(self._generateClientId(req.params.key));
-    return next();
-  });
+  // this._app.get('/:key/id', function(req, res, next) {
+  //   res.contentType = 'text/html';
+  //   res.send(self._generateClientId(req.params.key));
+  //   return next();
+  // });
 
   // Server sets up HTTP streaming when you get post an ID.
   this._app.post('/:key/:id/:token/id', function(req, res, next) {
@@ -264,6 +269,7 @@ PeerServer.prototype._initializeHTTP = function() {
   this._app.post('/:key/:id/:token/leave', handle);
 
   this._app.get('/', function(req, res, next){
+    //TODO: serve static
     res.send("hi");
     return next();
   });
@@ -328,7 +334,7 @@ PeerServer.prototype._pruneOutstanding = function() {
   var keys = Object.keys(this._outstanding);
   for (var k = 0, kk = keys.length; k < kk; k += 1) {
     var key = keys[k];
-    var dsts = Object.keys(this._outstanding[key]);  
+    var dsts = Object.keys(this._outstanding[key]);
     for (var i = 0, ii = dsts.length; i < ii; i += 1) {
       var offers = this._outstanding[key][dsts[i]];
       var seen = {};
@@ -394,7 +400,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 
   var destination = this._clients[key][dst];
 
-  // User is connected!
+  // User is already connected!
   if (destination) {
     try {
       util.log(type, 'from', src, 'to', dst);
@@ -404,7 +410,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
         data += '\n';
         destination.res.write(data);
       } else {
-        // Neither socket no res available. Peer dead?
+        // Neither socket nor res available. Peer dead?
         throw "Peer dead"
       }
     } catch (e) {

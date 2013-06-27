@@ -19,9 +19,9 @@ var util = {
     }
     return dest;
   },
-  randomId: function () {
-    return Math.random().toString(36).substr(2);
-  },
+  // randomId: function () {
+  //   return Math.random().toString(36).substr(2);
+  // },
   prettyError: function (msg) {
     if (util.debug) {
       console.log('ERROR PeerServer: ', msg);
