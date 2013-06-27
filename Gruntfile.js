@@ -6,7 +6,7 @@ module.exports = function (grunt) {
     connect: {
       client: {
         options: {
-          port: 9000,
+          port: 8080,
           base: 'client',
           // Livereload needs connect to insert a cJavascript snippet
           // in the pages it serves. This requires using a custom connect middleware
@@ -67,7 +67,7 @@ module.exports = function (grunt) {
     },
     watch: {
       client: {
-        files: ['client/*'],
+        files: ['client/**/*'],
         options: {
           livereload:true
         }
