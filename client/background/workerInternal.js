@@ -1,29 +1,31 @@
 // ** DEBUG
-if (console) {
-  var postMessage = function(msg) {
+if (typeof console !== 'undefined') {
+  postMessage = function(msg) {
     console.log(msg);
   };
-  var importScripts = function() {
+  importScripts = function() {
     return;
   };
 }
-for (var prop in this) {
-  postMessage(JSON.stringify(prop));
-  if (!console)
-    postMessage(JSON.stringify(this[prop]));
+// for (var prop in this) {
+//   postMessage(prop);
+//   if (typeof console === 'undefined') {
+//     postMessage(JSON.stringify(this[prop]));
+//   }
+// }
+if (typeof console === 'undefined') {
+  console = {};
+  console.log = function(msg) {
+    postMessage(JSON.stringify(msg)||'');
+  };
 }
-console = console || {};
-console.log = console.log || function(msg) {
-  postMessage(JSON.stringify(msg)||'');
-};
 var debug = function(msg) {
-  postMessage(JSON.stringify({type:'debug',msg:msg}));
+  postMessage({type:'debug',msg:msg});
 };
 // ** END DEBUG
 
-
-
 //init
+importScripts('../components/q/q.min.js');
 importScripts('../components/socket.io-client/dist/socket.io.min.js');
 importScripts('indexedDb.js');
 importScripts('workerInternalEvents.js');
@@ -69,7 +71,9 @@ var initDb = function(data) {
   });
 };
 
-this.addEventListener('message', function(event) {
+addEventListener('message', function(event) {
+  var data = event.data;
+  console.log(data);
   if (data.uuid && data.registered) {
     this.uuid = data.uuid;
     this.registered = data.registered;
@@ -80,7 +84,7 @@ this.addEventListener('message', function(event) {
   }
 });
 
-this.addMessageEvent(function(msg) {
+addMessageEvent(function(msg) {
   return msg === 'getUsers';
 }, function(msg) {
   var users = [];

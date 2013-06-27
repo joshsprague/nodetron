@@ -3,6 +3,8 @@ Worker.prototype.addMessageEvent = function(_id,cb) {
     this.eventQueue = {};
     this.addEventListener('message', function(event) {
       var data = event.data;
+      console.log('Message to main!');
+      console.log(event);
       console.log(data);
       this.checkEvents(data);
     });
@@ -10,7 +12,7 @@ Worker.prototype.addMessageEvent = function(_id,cb) {
   var queue = this.eventQueue;
   if (typeof queue[_id] === 'undefined') {
     queue[_id] = [];
-    eventBuckets++;
+    // eventBuckets++;
   }
   if (typeof cb === 'function') {
     queue[_id].push(cb);
@@ -18,6 +20,9 @@ Worker.prototype.addMessageEvent = function(_id,cb) {
 };
 
 Worker.prototype.checkEvents = function(msg) {
+  if (!msg.origin) {
+    return;
+  }
   var bucket = this.eventQueue[msg.origin];
   if (bucket) {
     for (var i = 0; i < bucket.length; i++) {
