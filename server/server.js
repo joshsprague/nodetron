@@ -51,6 +51,7 @@ function PeerServer(options) {
   this._ips = {};
 
   this._setCleanupIntervals();
+  this._passClients();
 }
 
 util.inherits(PeerServer, EventEmitter);
@@ -68,8 +69,7 @@ PeerServer.prototype._initializeWSS = function() {
     var id = query.id;
     var token = query.token;
     var key = query.key; //api key
-    var ip = socket.upgradeReq.socket.remoteAddress + '';
-    util.log(ip);
+    var ip = socket.upgradeReq.socket.remoteAddress;
 
     if (!id || !token || !key) {
       socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -93,7 +93,6 @@ PeerServer.prototype._initializeWSS = function() {
     } else {
       self._configureWS(socket, key, id, token);
     }
-    self._passClients();
   });
 };
 
@@ -143,14 +142,12 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
         case 'OFFER':
         case 'ANSWER':
           // Use the ID we know to be correct to prevent spoofing.
-          // util.log(self._clients);
           self._handleTransmission(key, {
             type: message.type,
             src: id,
             dst: message.dst,
             payload: message.payload
           });
-          // util.log(self._clients);
           break;
         default:
           util.prettyError('Message unrecognized');
@@ -211,7 +208,7 @@ PeerServer.prototype._initializeHTTP = function() {
     var id = req.params.id;
     var token = req.params.token;
     var key = req.params.key;
-    var ip = req.ip;
+    var ip = req.connection.remoteAddress;
 
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
@@ -284,7 +281,7 @@ PeerServer.prototype._passClients = function(){
   var self = this;
   this.sio.sockets.on("connection", function(socket) {
     socket.emit("users", JSON.stringify(self._clients, function(key, value){
-      if(key === "res"){
+      if(key === "res" || key === "socket"){
         return;
       }
       return value;
