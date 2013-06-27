@@ -23,6 +23,7 @@ More resources:
 1. Intall jitsu using `sudo npm install -g jitsu`
 2. Login using `jitsu login`
 3. Deploy using `jitsu deploy`. On first deploy it will ask for node version and subdomain name.
+4. Current dommain: http://bsalazar91-server.jit.su/ port: 80
 
 ##Overview
 
