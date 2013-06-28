@@ -286,9 +286,14 @@ PeerServer.prototype._passClients = function(){
       }
       return value;
     }));
-  });
-  this.sio.sockets.on("disconnect", function(socket) {
-    socket.close();
+    socket.on("disconnect", function() {
+      socket.emit("users", JSON.stringify(self._clients, function(key, value){
+        if(key === "res" || key === "socket"){
+          return;
+        }
+        return value;
+      }));
+    });
   });
 };
 
@@ -443,15 +448,15 @@ PeerServer.prototype._handleTransmission = function(key, message) {
   }
 };
 
-PeerServer.prototype._generateClientId = function(key) {
-  var clientId = util.randomId();
-  if (!this._clients[key]) {
-    return clientId;
-  }
-  while (!!this._clients[key][clientId]) {
-    clientId = util.randomId();
-  }
-  return clientId;
-};
+// PeerServer.prototype._generateClientId = function(key) {
+//   var clientId = util.randomId();
+//   if (!this._clients[key]) {
+//     return clientId;
+//   }
+//   while (!!this._clients[key][clientId]) {
+//     clientId = util.randomId();
+//   }
+//   return clientId;
+// };
 
 exports.PeerServer = PeerServer;
