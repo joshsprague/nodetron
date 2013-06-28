@@ -14,3 +14,4 @@ window.getdata = function(string) {
   };
 };
 indexedDB.deleteDatabase('nodetron');
+indexedDB.open('nodetron').onsuccess = function(e) {e.target.result.deleteObjectStore('users');};
