@@ -14,7 +14,8 @@ var msg = {
   uuid:uuid,
   registered:registered,
   dbTitle:'nodetron',
-  dbVersion:1
+  dbVersion:1,
+  serverUrl:'http://localhost:5000'
 };
 worker.postMessage(msg);
 worker.addEventListener('message', function(event) {

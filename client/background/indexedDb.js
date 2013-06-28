@@ -19,7 +19,7 @@ var createDB = function(params) {
     }
     for (var i = 0; i < stores.length; i++) {
       var store = stores[i];
-      db.createObjectStore(store.name, store.keys);
+      db.createObjectStore(store.name, {keyPath: store.keyPath});
     }
   };
   dbRequest.onsuccess = function(event) {

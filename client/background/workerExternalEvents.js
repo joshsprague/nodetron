@@ -19,15 +19,15 @@ Worker.prototype.addMessageEvent = function(_id,cb) {
 };
 
 Worker.prototype.checkEvents = function(msg) {
-  if (!msg.origin) {
+  if (!msg.request) {
     return;
   }
-  var bucket = this.eventQueue[msg.origin];
+  var bucket = this.eventQueue[msg.request];
   if (bucket) {
     for (var i = 0; i < bucket.length; i++) {
       bucket[i](msg.data);
     }
-    delete this.eventQueue[msg.origin];
+    delete this.eventQueue[msg.request];
   }
 };
 
