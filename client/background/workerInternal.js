@@ -21,8 +21,8 @@ if (typeof console === 'undefined') {
       msg = func;
       func = '';
     }
-    postMessage(func);
-    postMessage(msg);
+    postMessage(typeof func === 'string' && func || JSON.stringify(func)||({}).toString.call(func));
+    postMessage(typeof msg === 'string' && func || JSON.stringify(msg)||({}).toString.call(msg));
   };
 }
 // ** END DEBUG
@@ -36,7 +36,7 @@ importScripts('../components/q/q.min.js');
 importScripts('../components/socket.io-client/dist/socket.io.min.js');
 importScripts('indexedDb.js');
 importScripts('workerInternalEvents.js');
-var socket = io.connect('http://localhost:5000');
+var socket;
 var db;
 
 var attachSockets = function() {
@@ -55,10 +55,10 @@ var attachSockets = function() {
     var users = db.transaction(["users"], IDBTransaction.READ_WRITE)
                     .objectStore("users");
     users.onerror = function(e){
-      console.log('attachSockets users.onerror','Error adding: '+e);
+      console.log('attachSockets users.onerror ',e);
     };
     users.onsuccess = function(e){
-      console.log('attachSockets users.onsuccess','Error adding: '+e);
+      console.log('attachSockets users.onsuccess ',e);
     };
     var apiKey,user,obj;
     for (var key in usersObj) {
@@ -73,7 +73,10 @@ var attachSockets = function() {
         token:user.token,
         ip:user.ip
       };
-      users.put(obj,key);
+      console.log('before user put', obj);
+      users.put(obj,'uuid').onerror = function(e) {
+        console.log('users put error',e);
+      };
     }
   });
 };
@@ -82,7 +85,7 @@ var initDb = function(data) {
   db = createDB({
     title:data.dbTitle,
     version:data.dbVersion,
-    stores:[{name:'users',keys:{keyPath: 'uuid'}}]
+    stores:[{name:'users',keysPath:'uuid'}]
   })
   .then(function(db) {
     db.onerror = function(event) {
@@ -97,9 +100,14 @@ var initDb = function(data) {
 addEventListener('message', function(event) {
   var data = event.data;
   console.log('msgEventListen',data);
-  if (data.uuid && data.registered) {
+  if (data.uuid) {
     this.uuid = data.uuid;
+  }
+  if (data.registered) {
     this.registered = data.registered;
+  }
+  if (data.serverUrl) {
+    socket = io.connect(data.serverUrl);
   }
   if (data.init) {
     //throw exception if no title or no version
@@ -115,12 +123,12 @@ addMessageEvent(function(msg) {
   .onsuccess = function(event) {
     var cursor = event.target.result;
     if (cursor) {
-      customers.push(cursor.value);
+      users.push(cursor.value);
       cursor.continue();
     }
     else {
       msg = {
-        replyTo:msg,
+        request:msg,
         data:users
       };
       postMessage(msg);
