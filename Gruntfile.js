@@ -11,13 +11,13 @@ module.exports = function (grunt) {
         }
       },
       all: {
-        tasks:['client','server'],
+        tasks:['server','delayed:client'],
         options: {
           logConcurrentOutput: true
         }
       },
       alldebug: {
-        tasks:['client','concurrent:debug'],
+        tasks:['concurrent:debug','delayed:client'],
         options: {
           logConcurrentOutput: true
         }
@@ -91,10 +91,22 @@ module.exports = function (grunt) {
       client: {
         files: ['client/**/*'],
         options: {
-          livereload:true
+          livereload:true,
+          keepalive:true
         }
       },
     }
+  });
+
+  //takes an argument: a task to run
+  grunt.registerTask('delayed', 'delayed', function (task) {
+    console.log('Delayed: ' + task);
+
+    var done = this.async();
+    setTimeout(function () {
+      grunt.task.run(task);
+      done();
+    }, 800);
   });
 
   grunt.registerTask('all', [

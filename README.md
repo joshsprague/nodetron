@@ -19,6 +19,12 @@ More resources:
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
 2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
+##Jitsu Deployment
+1. Intall jitsu using `sudo npm install -g jitsu`
+2. Login using `jitsu login`
+3. Deploy using `jitsu deploy`. On first deploy it will ask for node version and subdomain name.
+4. Current dommain: http://bsalazar91-server.jit.su/ port: 80
+
 ##Overview
 
 A peer-to-peer, nearly-server-less, client-side web app framework (library) using WebRTC. Basically a platform upon which other developers can build peer-to-peer, nearly-server-less client-side apps. Applications that are built with this framework will be rich client apps that control and store ALL user state/data locally (possibly through HTML5 IndexedDB or the filesystem sandbox). All data validation and access permissions are handled by the client.

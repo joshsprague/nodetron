@@ -23,7 +23,7 @@ self.addEventListener('message', function(event) {
   self.checkEvents(data);
 });
 self.addEventListener('error', function(event) {
-  postMessage('Error!');
+  postMessage('WorkerInternalEvents Error!');
   postMessage(JSON.stringify(event));
 });
 

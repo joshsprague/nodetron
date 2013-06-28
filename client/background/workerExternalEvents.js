@@ -5,12 +5,11 @@ Worker.prototype.addMessageEvent = function(_id,cb) {
       var data = event.data;
       console.log('Message to main!');
       console.log(event);
-      console.log(data);
       this.checkEvents(data);
     });
   }
   var queue = this.eventQueue;
-  if (typeof queue[_id] === 'undefined') {
+  if (_id && typeof queue[_id] === 'undefined') {
     queue[_id] = [];
     // eventBuckets++;
   }

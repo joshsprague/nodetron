@@ -21,7 +21,6 @@ worker.addEventListener('message', function(event) {
   var data = event.data;
   console.log('Message to main!');
   console.log(event);
-  console.log(data);
 });
 
 //to pass objects by reference, do worker.postMessage(data, <array of ArrayBuffers>);
