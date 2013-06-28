@@ -2,7 +2,9 @@
 
 Let's see if this is possible!
 
-###Instructions
+###Dev Instructions
+
+Install global dependencies: `npm -g install node-inspector`
 
 1. `grunt all` to run server and serve client with static server.
     * Append `:debug` to run node-inspector as well.
