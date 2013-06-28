@@ -36,8 +36,10 @@ importScripts('../components/q/q.min.js');
 importScripts('../components/socket.io-client/dist/socket.io.min.js');
 importScripts('indexedDb.js');
 importScripts('workerInternalEvents.js');
+importScripts('workerInternalResources.js');
 var socket;
 var db;
+var storeNames;
 
 var attachSockets = function() {
   /* JSON string looks like this:
@@ -91,6 +93,7 @@ var initDb = function(data) {
     db.onerror = function(event) {
       console.log('initDb', 'database error: ' + event.target.errorCode);
     };
+    storeNames = db.objectStoreNames;
     attachSockets();
   },function() {
     //show an alert to user!
@@ -113,25 +116,4 @@ addEventListener('message', function(event) {
     //throw exception if no title or no version
     initDb(data);
   }
-});
-
-addMessageEvent(function(msg) {
-  return msg === 'getUsers';
-}, function(msg) {
-  var users = [];
-  db.transaction("users").objectStore("users").openCursor()
-  .onsuccess = function(event) {
-    var cursor = event.target.result;
-    if (cursor) {
-      users.push(cursor.value);
-      cursor.continue();
-    }
-    else {
-      msg = {
-        request:msg,
-        data:users
-      };
-      postMessage(msg);
-    }
-  };
 });
