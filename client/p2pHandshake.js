@@ -30,7 +30,6 @@ function start() {
 }
 
 //JSS - Where all of the protocol handshaking occurs
-//JSS -
 
 function call() {
   btn2.disabled = true;
@@ -39,17 +38,32 @@ function call() {
   videoTracks = localstream.getVideoTracks();
   audioTracks = localstream.getAudioTracks();
   if (videoTracks.length > 0)
-    trace('Using Video device: ' + videoTracks[0].label);  
+    trace('Using Video device: ' + videoTracks[0].label);
   if (audioTracks.length > 0)
     trace('Using Audio device: ' + audioTracks[0].label);
 
-  //JSS - ICE configuration format as documented in http://dev.w3.org/2011/webrtc/editor/webrtc.html#event-icecandidate 
+  //JSS - ICE configuration format as documented in http://dev.w3.org/2011/webrtc/editor/webrtc.html#event-icecandidate
   var servers = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};;
   //JSS - server is set to null by default.  Should this be a reference to the stun server?
+
+  //JSS -STEPS
+  //1) GET UserMedia (Audio and Video Access) from the local computer
+  //2) Initialize a new RTCPeerConnection on both clients
+  //3) Attach onicecandidate callbacks to each webRTC stream
+  //3a) These Callbacks initiate 'addIceCandidates' calls on the OTHER pc
+  //4) setup an onaddstream callback on pc2
+  //5) attach the local stream to pc1
+  //6) generate a connection offer on pc1 with a gotDescription1 Callback
+  //7) when the gotDescriptionCallback1 fires it:
+  //7a) sets the remote description on pc2,
+  //7b) generates an answer on pc2 and fires that information back to pc1
+  //7c) Note:  this answer also passes in sdp constrains
 
   pc1 = new RTCPeerConnection(servers);
   trace("Created local peer connection object pc1");
   //JSS - onicecandidate is an event handler provided by RTCPeerConnection
+  //JSS - iceCallback1 triggers and addIceCandidate on pc2 ;
+
   pc1.onicecandidate = iceCallback1;
   pc2 = new RTCPeerConnection(servers);
   trace("Created remote peer connection object pc2");
@@ -61,6 +75,7 @@ function call() {
   trace("Adding Local Stream to peer connection");
 
   //JSS - got Description1 is provided as a callback to createOffer
+  //pc1 initiates the handshake
   pc1.createOffer(gotDescription1);
 }
 
@@ -96,13 +111,15 @@ function gotRemoteStream(e){
   trace("Received remote stream");
 }
 
+//JSS - iceCallback1 is called by PC1
+//it adds pc
 function iceCallback1(event){
   if (event.candidate) {
     pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
     trace("Local ICE candidate: \n" + event.candidate.candidate);
   }
 }
-      
+
 function iceCallback2(event){
   if (event.candidate) {
     pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
