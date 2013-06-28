@@ -1,5 +1,9 @@
-//Taken from http://webrtc.googlecode.com/svn/trunk/samples/js/demos/html/pc1.html
 
+//var vid1 = document.getElementById("vid1");
+//var vid2 = document.getElementById("vid2");
+btn1.disabled = false;
+btn2.disabled = true;
+btn3.disabled = true;
 var pc1,pc2;
 var localstream;
 var sdpConstraints = {'mandatory': {
@@ -20,21 +24,30 @@ function start() {
   // Call into getUserMedia via the polyfill (adapter.js).
   getUserMedia({audio:true, video:true},
                 gotStream, function() {});
-}
-
+}  
+  
 function call() {
+  btn2.disabled = true;
+  btn3.disabled = false;
+  trace("Starting call");
+  videoTracks = localstream.getVideoTracks();
+  audioTracks = localstream.getAudioTracks();
+  if (videoTracks.length > 0)
+    trace('Using Video device: ' + videoTracks[0].label);  
+  if (audioTracks.length > 0)
+    trace('Using Audio device: ' + audioTracks[0].label);
   var servers = null;
   pc1 = new RTCPeerConnection(servers);
   trace("Created local peer connection object pc1");
-  pc1.onicecandidate = iceCallback1;
+  pc1.onicecandidate = iceCallback1; 
   pc2 = new RTCPeerConnection(servers);
   trace("Created remote peer connection object pc2");
   pc2.onicecandidate = iceCallback2;
-  pc2.onaddstream = gotRemoteStream;
+  pc2.onaddstream = gotRemoteStream; 
 
   pc1.addStream(localstream);
   trace("Adding Local Stream to peer connection");
-
+  
   pc1.createOffer(gotDescription1);
 }
 
@@ -55,10 +68,13 @@ function gotDescription2(desc){
 }
 
 function hangup() {
+  trace("Ending call");
   pc1.close(); 
   pc2.close();
   pc1 = null;
   pc2 = null;
+  btn3.disabled = true;
+  btn2.disabled = false;
 }
 
 function gotRemoteStream(e){
@@ -73,7 +89,7 @@ function iceCallback1(event){
     trace("Local ICE candidate: \n" + event.candidate.candidate);
   }
 }
-
+      
 function iceCallback2(event){
   if (event.candidate) {
     pc1.addIceCandidate(new RTCIceCandidate(event.candidate));
