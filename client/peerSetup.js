@@ -5,7 +5,7 @@ var cfg = {};
     cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
     cfg.DEBUG = true; //enable debugging by default
     cfg.KEY = 'peerjs' //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
-    cfg.meta =  {};
+    cfg.meta =  {firstName:"Jake", lastName:"Seip", email:"jake.seip@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
     cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
 
 
