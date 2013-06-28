@@ -13,5 +13,6 @@ window.getdata = function(string) {
     };
   };
 };
-indexedDB.deleteDatabase('nodetron');
-indexedDB.open('nodetron').onsuccess = function(e) {e.target.result.deleteObjectStore('users');};
+// indexedDB.deleteDatabase('nodetron');
+// indexedDB.open('nodetron').onsuccess = function(e) {e.target.result.deleteObjectStore('users');};
+// worker.postMessageWithCallback({method:'get',resource:'users'},function(res){console.log(res)});
