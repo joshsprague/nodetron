@@ -28,6 +28,7 @@ if (typeof console === 'undefined') {
 // ** END DEBUG
 
 //init
+// importScripts('shims.js');
 window = self;
 importScripts('../components/indexedDBShim/dist/IndexedDBShim.min.js');
 window = undefined;
@@ -39,10 +40,18 @@ var socket = io.connect('http://localhost:5000');
 var db;
 
 var attachSockets = function() {
+  /* JSON string looks like this:
+  {"peerjs<apikey>":{
+    "<some unique id>":{
+      "token":"6njvsw6mgskmx6r",
+      "ip":"127.0.0.1"
+      }
+    }
+  }
+  */
   socket.on('users', function (data) {
-    var array = JSON.parse(data);
+    var usersObj = JSON.parse(data);
     console.log('socket.on users', data);
-    var i = array.length;
     var users = db.transaction(["users"], IDBTransaction.READ_WRITE)
                     .objectStore("users");
     users.onerror = function(e){
@@ -51,13 +60,20 @@ var attachSockets = function() {
     users.onsuccess = function(e){
       console.log('attachSockets users.onsuccess','Error adding: '+e);
     };
-    var obj,id;
-    while(i--) {
-      //put takes (value, key)
-      obj = array[i];
-      id = obj.uuid;
-      delete obj.uuid;
-      users.put(obj.uuid);
+    var apiKey,user,obj;
+    for (var key in usersObj) {
+      apiKey = key;
+      break;
+    }
+    usersObj = usersObj[apiKey];
+    for (key in usersObj) {
+      user = usersObj[key];
+      obj = {
+        uuid: key,
+        token:user.token,
+        ip:user.ip
+      };
+      users.put(obj,key);
     }
   });
 };
