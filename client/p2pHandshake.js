@@ -10,6 +10,7 @@ var sdpConstraints = {'mandatory': {
                         'OfferToReceiveAudio':true,
                         'OfferToReceiveVideo':true }};
 
+//JSS - attach audio and video to localstream
 function gotStream(stream){
   trace("Received local stream");
   // Call the polyfill wrapper to attach the media stream to this element.
@@ -18,14 +19,19 @@ function gotStream(stream){
   btn2.disabled = false;
 }
 
+//JSS - called in the 'start' button click handler
+//JSS - request user media and attaches it to a stream via 'gotStream'
 function start() {
   trace("Requesting local stream");
   btn1.disabled = true;
   // Call into getUserMedia via the polyfill (adapter.js).
   getUserMedia({audio:true, video:true},
                 gotStream, function() {});
-}  
-  
+}
+
+//JSS - Where all of the protocol handshaking occurs
+//JSS -
+
 function call() {
   btn2.disabled = true;
   btn3.disabled = false;
@@ -36,18 +42,25 @@ function call() {
     trace('Using Video device: ' + videoTracks[0].label);  
   if (audioTracks.length > 0)
     trace('Using Audio device: ' + audioTracks[0].label);
-  var servers = null;
+
+  //JSS - ICE configuration format as documented in http://dev.w3.org/2011/webrtc/editor/webrtc.html#event-icecandidate 
+  var servers = {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};;
+  //JSS - server is set to null by default.  Should this be a reference to the stun server?
+
   pc1 = new RTCPeerConnection(servers);
   trace("Created local peer connection object pc1");
-  pc1.onicecandidate = iceCallback1; 
+  //JSS - onicecandidate is an event handler provided by RTCPeerConnection
+  pc1.onicecandidate = iceCallback1;
   pc2 = new RTCPeerConnection(servers);
   trace("Created remote peer connection object pc2");
   pc2.onicecandidate = iceCallback2;
-  pc2.onaddstream = gotRemoteStream; 
+  //JSS - onaddstream fires anytime a media stream is accepted by a remote peer
+  pc2.onaddstream = gotRemoteStream;
 
   pc1.addStream(localstream);
   trace("Adding Local Stream to peer connection");
-  
+
+  //JSS - got Description1 is provided as a callback to createOffer
   pc1.createOffer(gotDescription1);
 }
 
