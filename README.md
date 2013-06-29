@@ -6,7 +6,9 @@ Let's see if this is possible!
 
 ###Dev Instructions
 
-Install global dependencies: `npm -g install node-inspector`
+* `npm install && bower install`
+* `git submodule init && git submodule update`
+* For debugging: install global dependencies: `npm -g install node-inspector`
 
 1. `grunt all` to run server and serve client with static server.
     * Append `:debug` to run node-inspector as well.
