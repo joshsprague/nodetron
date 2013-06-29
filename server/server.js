@@ -2,7 +2,7 @@ var util = require('./util');
 var restify = require('restify');
 var http = require('http');
 var EventEmitter = require('events').EventEmitter;
-var WebSocketServer = require('ws').Server;
+// var WebSocketServer = require('ws').Server;
 var url = require('url');
 var io = require('socket.io');
 var mongoose = require("mongoose");
@@ -56,7 +56,7 @@ function PeerServer(options) {
   this._ips = {};
 
   this._setCleanupIntervals();
-  this._passClients();
+  // this._passClients();
 }
 
 util.inherits(PeerServer, EventEmitter);
@@ -66,38 +66,41 @@ PeerServer.prototype._initializeWSS = function() {
   var self = this;
 
   // Create WebSocket server as well.
-  this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
+  // this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
 
-  this._wss.on('connection', function(socket) {
-    var query = url.parse(socket.upgradeReq.url, true).query;
-    var id = query.id;
-    var token = query.token;
-    var key = query.key; //api key
-    var ip = socket.upgradeReq.socket.remoteAddress;
-    // util.log(query);
-    // debugger
-    if (!id || !token || !key) {
-      socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
-      socket.close();
-      return;
-    }
+  this.sio = io.listen(this._app);
+  this.sio.set("destroy upgrade", false);
 
-    if (!self._clients[key] || !self._clients[key][id]) {
-      self._checkKey(key, ip, function(err) {
-        if (!err) {
-          if (!self._clients[key][id]) {
-            self._clients[key][id] = { token: token, ip: ip };
-            self._ips[ip]++;
-            socket.send(JSON.stringify({ type: 'OPEN' }));
+  this.sio.sockets.on('connection', function(socket) {
+    socket.on("login", function(data) {
+      var id = data.id;
+      var token = data.token;
+      var key = data.key; //api key
+      var ip = socket.manager.handshaken[socket.id].address.address;
+
+      if (!id || !token || !key) {
+        socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
+        socket.disconnect();
+        return;
+      }
+
+      if (!self._clients[key] || !self._clients[key][id]) {
+        self._checkKey(key, ip, function(err) {
+          if (!err) {
+            if (!self._clients[key][id]) {
+              self._clients[key][id] = { token: token, ip: ip };
+              self._ips[ip]++;
+              socket.send(JSON.stringify({ type: 'OPEN' }));
+            }
+            self._configureWS(socket, key, id, token);
+          } else {
+            socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: err } }));
           }
-          self._configureWS(socket, key, id, token);
-        } else {
-          socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: err } }));
-        }
-      });
-    } else {
-      self._configureWS(socket, key, id, token);
-    }
+        });
+      } else {
+        self._configureWS(socket, key, id, token);
+      }
+    });
   });
 };
 
@@ -115,14 +118,14 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
   } else {
     // ID-taken, invalid token
     socket.send(JSON.stringify({ type: 'ID-TAKEN', payload: { msg: 'ID is taken' } }));
-    socket.close();
+    socket.disconnect();
     return;
   }
 
   this._processOutstanding(key, id);
 
   // Cleanup after a socket closes.
-  socket.on('close', function() {
+  socket.on('disconnect', function() {
     util.log('Socket closed:', id);
     if (client.socket == socket) {
       self._removePeer(key, id);
@@ -214,7 +217,6 @@ PeerServer.prototype._initializeHTTP = function() {
     var token = req.params.token;
     var key = req.params.key;
     var ip = req.connection.remoteAddress;
-    // debugger
     // util.log(req);
 
     if (!self._clients[key] || !self._clients[key][id]) {
@@ -280,14 +282,12 @@ PeerServer.prototype._initializeHTTP = function() {
 
   // Listen on user-specified port.
   this._app.listen(this._options.port);
-  this.sio = io.listen(this._app);
-  this.sio.set("destroy upgrade", false);
 };
 
 PeerServer.prototype._passClients = function(){
   var self = this;
   this.sio.sockets.on("connection", function(socket) {
-    socket.emit("users", JSON.stringify(self._clients, function(key, value){
+    this.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
@@ -305,7 +305,7 @@ PeerServer.prototype._passClients = function(){
       connectedPeer.save();
     });
     socket.on("disconnect", function() {
-      socket.emit("users", JSON.stringify(self._clients, function(key, value){
+      this.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
         }
