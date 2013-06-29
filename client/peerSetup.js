@@ -52,8 +52,8 @@ nodetron.registerWithServer = function(options){
 };
 
 // creates a new connection and returns it
-nodetron.initiatePeerConnection = function(peer, peerID, options){
-  var conn = peer.connect(peerID,{'metadata':options});
+nodetron.initiatePeerConnection = function(peerJSCon, peerID){
+  var conn = peerJSCon.connect(peerID,{'metadata':options});
   conn.on('open', function() {
     conn.send('Hello world!');
     console.log("Connection Opened");
@@ -65,4 +65,10 @@ nodetron.initiatePeerConnection = function(peer, peerID, options){
     console.log('Connection Closed', data);
   });
   return conn;
+};
+
+nodetron.findPeer = function(socketCon, query, callback){
+  console.log(query);
+  socketCon.emit('query_for_user', query);
+  socketCon.on('query_response', callback);
 };
