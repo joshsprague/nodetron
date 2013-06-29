@@ -1,4 +1,11 @@
-//Taken from http://webrtc.googlecode.com/svn/trunk/samples/js/demos/html/pc1.html
+/* Taken from http://webrtc.googlecode.com/svn/trunk/samples/js/demos/html/pc1.html
+And peerjs: https://github.com/peers/peerjs
+*/
+
+var compat = {
+  chromeVersion: 26,
+  firefoxVersion: 22
+};
 
 var RTCPeerConnection = null;
 var getUserMedia = null;
@@ -151,4 +158,5 @@ if (navigator.mozGetUserMedia) {
   }
 } else {
   console.log("Browser does not appear to be WebRTC-capable");
+  //TODO: SHOW ALERT
 }
