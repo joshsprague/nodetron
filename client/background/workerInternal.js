@@ -49,6 +49,7 @@ var attachSockets = function() {
       "ip":"127.0.0.1"
       }
     }
+    ... another unique id and token and ipß
   }
   */
   socket.on('users', function (data) {
@@ -69,7 +70,7 @@ var attachSockets = function() {
     }
     usersObj = usersObj[apiKey];
     for (key in usersObj) {
-      console.log('enter users')
+      console.log('enter users');
       user = usersObj[key];
       obj = {
         uuid: key,

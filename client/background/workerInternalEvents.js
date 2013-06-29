@@ -35,3 +35,12 @@ self.addEventListener('error', function(event) {
   postMessage('WorkerInternalEvents Error!');
   postMessage(JSON.stringify(event));
 });
+
+self.postError = function(method,msg) {
+  postMessage({
+    error: {
+      method:method,
+      msg:msg
+    }
+  });
+};

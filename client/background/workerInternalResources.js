@@ -20,16 +20,16 @@ var deny = {
   }
 };
 
-//if resource is undefined, all resources under that method will be triggered
+//if resource is undefined, all resources under that method will be toggled
 var setAllow = function(method,resource) {
   if (!allow[method]) {
-    throw new Error('Method does not exist');
+    return postError('setAllow', 'Method does not exist!');
   }
   allow[method][resource] = true;
 };
 var setDeny = function(method,resource) {
   if (!deny[method]) {
-    throw new Error('Method does not exist');
+    return postError('setDeny', 'Method does not exist!');
   }
   deny[method][resource] = true;
 };
@@ -39,23 +39,21 @@ var router = function(msg) {
   var resource = msg.resource; //model, type, resource
   var command = msg.commmand;
   if (command === 'setDeny') {
-    setDeny(method,resource);
-    return;
+    return setDeny(method,resource);
   }
   if (command === 'setAllow') {
-    setAllow(method,resource);
-    return;
+    return setAllow(method,resource);
   }
   if (!method || !resource) {
     return false;
   }
-  if (deny[method] && deny[method][resource]) {
-    return false;
-  }
-  if (allow[method] && allow[method][resource]) {
-    return true;
-  }
-  return false;
+  // if (deny[method] && deny[method][resource]) {
+  //   return false;
+  // }
+  // if (allow[method] && allow[method][resource]) {
+  //   return true;
+  // }
+  return true;
 };
 
 addMessageEvent(function(msg) {
