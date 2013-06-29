@@ -28,13 +28,14 @@
   <body>
     <script>
       $(function(){
+        var connection = nodetron.registerWithServer();
         $('.enter-user-id').click(function(evt){
           var peerID = $('user-id').val();
-          initiatePeerConnection(peerID, null); //no options necessary when peerID present
+          nodetron.initiatePeerConnection(connection.peer, peerID, null); //no options necessary when peerID present
         });
         $('.enter-user-email').click(function(evt){
           var email = $('user-email').val();
-          initiatePeerConnection(null, {'email':email}); //pass email (or any other key) in as an option
+          nodetron.initiatePeerConnection(connection.peer, null, {'email':email}); //pass email (or any other key) in as an option
         });
       });
     </script>
