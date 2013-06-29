@@ -1,0 +1,3 @@
+[submodule "client/webrtc"]
+	path = client/webrtc
+	url = https://github.com/bchu/peerjs.git
