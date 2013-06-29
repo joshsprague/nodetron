@@ -4,7 +4,7 @@ nodetron.registerWithServer = function(options){
   options = options || {};
 
   var cfg = {};
-  cfg.host = options.host || 'localhost'; //development:'127.0.0.1', production:bsalazar91-server.jit.su
+  cfg.host = options.host || '127.0.0.1'; //development:'127.0.0.1', production:bsalazar91-server.jit.su //localhost doesn't work
   cfg.port = options.port || '5000'; //development: 5000, production:80
   cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
   cfg.debug = options.debug || true; //enable debugging by default
@@ -12,8 +12,7 @@ nodetron.registerWithServer = function(options){
   cfg.metadata = options.metadata || {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
   cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
 
-
-  var socket = io.connect(cfg.HOST+':'+cfg.PORT);
+  var socket = nodetron.socket = io.connect(cfg.host+':'+cfg.port);
   socket.on('users', function (data) {
     if(cfg.debug){console.log(data);}
     socket.emit('acknowledge', {received: true, metadata:cfg.meta});
