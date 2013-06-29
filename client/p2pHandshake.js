@@ -112,7 +112,6 @@ function gotRemoteStream(e){
 }
 
 //JSS - iceCallback1 is called by PC1
-//it adds pc
 function iceCallback1(event){
   if (event.candidate) {
     pc2.addIceCandidate(new RTCIceCandidate(event.candidate));
