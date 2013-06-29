@@ -1,12 +1,12 @@
 //Config
 var cfg = {};
-    cfg.HOST = 'production:bsalazar91-server.jit.su'; //development:'127.0.0.1', production:bsalazar91-server.jit.su
-    cfg.PORT = '80'; //development: 5000, production:80
-    cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-    cfg.DEBUG = true; //enable debugging by default
-    cfg.KEY = 'peerjs' //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
-    cfg.meta =  {firstName:"Jake", lastName:"Seip", email:"jake.seip@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
-    cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
+cfg.HOST = 'localhost'; //development:'127.0.0.1', production:bsalazar91-server.jit.su
+cfg.PORT = '5000'; //development: 5000, production:80
+cfg.ICE =  {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
+cfg.DEBUG = true; //enable debugging by default
+cfg.KEY = 'peerjs'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
+cfg.meta =  {firstName:"Jake", lastName:"Seip", email:"jake.seip@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
+cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
 
 
 //Connection handler
@@ -25,7 +25,6 @@ var peer = new Peer( cfg.id, {host: cfg.HOST, debug:cfg.DEBUG, key: cfg.KEY, por
 
 //For Testing with the peer.js server
 // var peer = new Peer(cfg.id, {key: cfg.KEY, debug:true});
-
 
 // SocketIO for testing user interface data.
 var socket = io.connect(cfg.HOST+':'+cfg.PORT);
