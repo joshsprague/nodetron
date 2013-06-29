@@ -1,5 +1,7 @@
 #Nodetron
 
+**Warning: this project is under heavy development and is still in its initial prototyping stage**
+
 Let's see if this is possible!
 
 ###Dev Instructions
