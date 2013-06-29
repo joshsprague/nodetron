@@ -1,14 +1,14 @@
 var worker = new Worker('background/workerInternal.js');
+//initialize the event queue
 worker.addMessageEvent();
 
-// call worker with string - use string for compatibility.
-// Can handle other types like File, Blob, ArrayBuffer, JSON, but compatibility is less
-// Normally workers pass objects by copy, not reference.
 var uuid = localStorage.getItem('_nodetron_uuid') || uuid.v4();
 localStorage.setItem('_nodetron_uuid', uuid);
 var registered = localStorage.getItem('_nodetron_registered') || false;
 localStorage.setItem('_nodetron_registered',registered);
 
+// Normally workers pass objects by copy, not reference.
+// worker can be passed other types like File, Blob, ArrayBuffer/
 var msg = {
   init:true,
   uuid:uuid,
@@ -19,7 +19,6 @@ var msg = {
 };
 worker.postMessage(msg);
 worker.addEventListener('message', function(event) {
-  var data = event.data;
   console.log('Message to main!');
   console.log(event);
 });

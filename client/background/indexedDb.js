@@ -2,16 +2,18 @@
 
 var createDB = function(params) {
   var deferred = Q.defer();
+  //open takes two params: title and version
   var dbRequest = indexedDB.open(params.title||'default', params.version||1);
   dbRequest.onerror = function(event) {
-    console.log('dbRequest',event); //some sort of alert informing the user that they failed to grant permissions
+    //TODO: add some sort of alert informing the user that they failed to grant permissions
+    console.log('dbRequest',event);
     console.log('dbRequest',dbRequest.errorCode);
     deferred.reject(dbRequest.errorCode);
   };
-  //upgrade is called before success
+  //onupgradeneeded is called before onsuccess
   dbRequest.onupgradeneeded = function(event) {
     var db = event.target.result;
-    // Create an objectStore for this database
+    // Create an object store (like a mongoDB collection) for this database
     console.log('dbRequest onupgradeneeded');
     var stores = params.stores;
     if (!stores) {
@@ -19,6 +21,8 @@ var createDB = function(params) {
     }
     for (var i = 0; i < stores.length; i++) {
       var store = stores[i];
+      //keyPath is analogous to an SQL primary key, must be unique and must be present in every object in the object store.
+      console.log('onupgradeneeded store ',store);
       db.createObjectStore(store.name, {keyPath: store.keyPath});
     }
   };

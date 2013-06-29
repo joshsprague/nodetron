@@ -69,6 +69,7 @@ var attachSockets = function() {
     }
     usersObj = usersObj[apiKey];
     for (key in usersObj) {
+      console.log('enter users')
       user = usersObj[key];
       obj = {
         uuid: key,
@@ -76,7 +77,7 @@ var attachSockets = function() {
         ip:user.ip
       };
       console.log('before user put', obj);
-      users.put(obj,'uuid').onerror = function(e) {
+      users.put(obj).onerror = function(e) {
         console.log('users put error',e);
       };
     }
@@ -87,7 +88,7 @@ var initDb = function(data) {
   db = createDB({
     title:data.dbTitle,
     version:data.dbVersion,
-    stores:[{name:'users',keysPath:'uuid'}]
+    stores:[{name:'users',keyPath:'uuid'}]
   })
   .then(function(db) {
     db.onerror = function(event) {

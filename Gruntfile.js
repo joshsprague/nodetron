@@ -21,6 +21,12 @@ module.exports = function (grunt) {
         options: {
           logConcurrentOutput: true
         }
+      },
+      'two-clients': {
+        tasks:['server','delayed:client', 'delayed:clientalt'],
+        options: {
+          logConcurrentOutput: true
+        }
       }
     },
     connect: {
@@ -28,6 +34,13 @@ module.exports = function (grunt) {
         options: {
           port: 8000,
           base: 'client'
+        }
+      },
+      clientalt: {
+        options: {
+          port: 9000,
+          base: 'client',
+          keepalive:true
         }
       }
     },
@@ -72,6 +85,10 @@ module.exports = function (grunt) {
         // Gets the port from the connect configuration
         path: 'http://localhost:<%= connect.client.options.port%>'
       },
+      clientalt: {
+        // Gets the port from the connect configuration
+        path: 'http://localhost:<%= connect.clientalt.options.port%>'
+      },
       debug: {
         path: 'http://0.0.0.0:8080/debug?port=5858'
       }
@@ -112,6 +129,9 @@ module.exports = function (grunt) {
   grunt.registerTask('all', [
     'concurrent:all'
   ]);
+  grunt.registerTask('two-clients', [
+    'concurrent:two-clients'
+  ]);
   grunt.registerTask('all:debug', [
     'concurrent:alldebug'
   ]);
@@ -119,6 +139,10 @@ module.exports = function (grunt) {
     'connect:client',
     'open:client',
     'watch:client'
+  ]);
+  grunt.registerTask('clientalt', [
+    'connect:clientalt',
+    'open:clientalt',
   ]);
   grunt.registerTask('server', [
     'nodemon:dev'
