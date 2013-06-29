@@ -1,9 +1,12 @@
 var mongoose = require("mongoose");
 
 var peerSchema = new mongoose.Schema({
-  name: String,
-  location: String,
-  email: String
+  firstName: String,
+  lastName: String,
+  email: String,
+  city: String,
+  state: String,
+  country: String
 });
 
 peerSchema.path("email").index({unique: true});

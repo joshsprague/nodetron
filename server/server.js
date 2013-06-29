@@ -215,7 +215,7 @@ PeerServer.prototype._initializeHTTP = function() {
     var key = req.params.key;
     var ip = req.connection.remoteAddress;
     // debugger
-    util.log(req);
+    // util.log(req);
 
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
@@ -287,8 +287,6 @@ PeerServer.prototype._initializeHTTP = function() {
 PeerServer.prototype._passClients = function(){
   var self = this;
   this.sio.sockets.on("connection", function(socket) {
-    // var connectedPeer = new Peer({name: "Brian", location:"SF", email:"bchu@gmail.com"});
-    // connectedPeer.save();
     socket.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
@@ -296,7 +294,15 @@ PeerServer.prototype._passClients = function(){
       return value;
     }));
     socket.on("acknowledge", function(data) {
-      debugger;
+      var connectedPeer = new Peer({
+        firstName: data.metadata.firstName,
+        lastName: data.metadata.lastName,
+        email: data.metadata.email,
+        city: data.metadata.city,
+        state: data.metadata.state,
+        country: data.metadata.country
+      });
+      connectedPeer.save();
     });
     socket.on("disconnect", function() {
       socket.emit("users", JSON.stringify(self._clients, function(key, value){
