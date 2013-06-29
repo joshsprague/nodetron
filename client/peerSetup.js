@@ -30,7 +30,7 @@ var peer = new Peer( cfg.id, {host: cfg.HOST, debug:cfg.DEBUG, key: cfg.KEY, por
 var socket = io.connect(cfg.HOST+':'+cfg.PORT);
 socket.on('users', function (data) {
   console.log(data);
-  socket.emit('acknowledge', { received: true });
+  socket.emit('acknowledge', {received: true, metadata:cfg.meta});
 });
 
 
