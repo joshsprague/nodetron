@@ -5,7 +5,13 @@ var EventEmitter = require('events').EventEmitter;
 var WebSocketServer = require('ws').Server;
 var url = require('url');
 var io = require('socket.io');
+var mongoose = require("mongoose");
+var Peer = require("./models/Peer.js");
 
+mongoose.connect("mongodb://localhost/test");
+var db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error:"));
 //docs here: https://github.com/einaros/ws/blob/master/doc/ws.md
 
 function PeerServer(options) {
@@ -34,7 +40,6 @@ function PeerServer(options) {
 
   this._options.ssl['name'] = 'PeerServer';
   this._app = restify.createServer(this._options.ssl);
-
   // Connected clients
   this._clients = {};
 
@@ -65,12 +70,12 @@ PeerServer.prototype._initializeWSS = function() {
 
   this._wss.on('connection', function(socket) {
     var query = url.parse(socket.upgradeReq.url, true).query;
-    console.log(query);
     var id = query.id;
     var token = query.token;
     var key = query.key; //api key
     var ip = socket.upgradeReq.socket.remoteAddress;
-
+    // util.log(query);
+    // debugger
     if (!id || !token || !key) {
       socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
       socket.close();
@@ -209,6 +214,8 @@ PeerServer.prototype._initializeHTTP = function() {
     var token = req.params.token;
     var key = req.params.key;
     var ip = req.connection.remoteAddress;
+    // debugger
+    util.log(req);
 
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
@@ -280,12 +287,17 @@ PeerServer.prototype._initializeHTTP = function() {
 PeerServer.prototype._passClients = function(){
   var self = this;
   this.sio.sockets.on("connection", function(socket) {
+    // var connectedPeer = new Peer({name: "Brian", location:"SF", email:"bchu@gmail.com"});
+    // connectedPeer.save();
     socket.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
       return value;
     }));
+    socket.on("acknowledge", function(data) {
+      debugger;
+    });
     socket.on("disconnect", function() {
       socket.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
