@@ -17,21 +17,27 @@
     <script src="background/workerExternal.js"></script>
     <!-- Peer JS -->
     <script src="peerSetup.js"></script>
-    <script src="adapter.js"></script>
-    <script src="p2pHandshake.js"></script>
+    <!--<script src="adapter.js"></script> -->
+    <!--<script src="p2pHandshake.js"></script> -->
 
   </head>
 
   <body>
     <script>
       $(function(){
-        $('button').click(function(evt){
-          var peerID = $('input').val();
-          initiatePeerConnection(peerID);
+        $('.enter-user-id').click(function(evt){
+          var peerID = $('user-id').val();
+          initiatePeerConnection(peerID, null); //no options necessary when peerID present
+        });
+        $('.enter-user-email').click(function(evt){
+          var email = $('user-email').val();
+          initiatePeerConnection(null, {'email':email}); //pass email (or any other key) in as an option
         });
       });
     </script>
-    <input name="connect to user" value="Enter Connection ID">
-    <button class="enter">Enter</button>
+    <input class="user-id" name="connect to user" value="Enter Connection ID">
+    <button class="enter-user-id">Enter</button><br>
+    <input class="user-email" name="Find by Email" value="Enter User Email">
+    <button class="enter-user-email">Enter</button><br>
   </body>
 </html>

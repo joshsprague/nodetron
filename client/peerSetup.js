@@ -54,7 +54,7 @@ peer.on('connection', handleConn);
 // Create a new connection (direct from the sample)
 
 var initiatePeerConnection = function(peerID, options){
-  var conn = peer.connect(peerID,options);
+  var conn = peer.connect(peerID,{'metadata':options});
   conn.on('open', function() {
     conn.send('Hello world!');
     console.log("Connection Opened");
