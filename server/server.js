@@ -68,12 +68,10 @@ PeerServer.prototype._initializeWSS = function() {
   // this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
 
   this.sio = io.listen(this._app);
-  this.sio.set("destroy upgrade", false);
+  // this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
-    util.log("asdlkasjd");
     socket.on("login", function(data) {
-      // debugger
       var id = data.id;
       var token = data.token;
       var key = data.key; //api key
@@ -102,8 +100,7 @@ PeerServer.prototype._initializeWSS = function() {
         self._configureWS(socket, key, id, token);
       }
 
-      debugger
-      self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+      socket.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
         }
@@ -133,31 +130,18 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
   this._processOutstanding(key, id);
 
-
-  socket.on("acknowledge", function(data) {
-    var connectedPeer = new Peer({
-      firstName: data.metadata.firstName,
-      lastName: data.metadata.lastName,
-      email: data.metadata.email,
-      city: data.metadata.city,
-      state: data.metadata.state,
-      country: data.metadata.country
-    });
-    connectedPeer.save();
-  });
-
   // Cleanup after a socket closes.
   socket.on('disconnect', function() {
     util.log('Socket closed:', id);
+    if (client.socket == socket) {
+      self._removePeer(key, id);
+    }
     self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
       return value;
     }));
-    if (client.socket == socket) {
-      self._removePeer(key, id);
-    }
   });
 
   // Handle messages from peers.
@@ -315,7 +299,7 @@ PeerServer.prototype._initializeHTTP = function() {
 PeerServer.prototype._passClients = function(){
   var self = this;
   this.sio.sockets.on("connection", function(socket) {
-    this.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+    socket.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
@@ -333,7 +317,7 @@ PeerServer.prototype._passClients = function(){
       connectedPeer.save();
     });
     socket.on("disconnect", function() {
-      this.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+      socket.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
         }

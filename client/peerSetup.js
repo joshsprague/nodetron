@@ -4,8 +4,8 @@ nodetron.registerWithServer = function(options){
   options = options || {};
 
   var cfg = {};
-  cfg.host = options.host || 'localhost'; //development:'127.0.0.1', production:bsalazar91-server.jit.su
-  cfg.port = options.port || '5000'; //development: 5000, production:80
+  cfg.HOST = options.host || '127.0.0.1'; //development:'127.0.0.1', production:bsalazar91-server.jit.su
+  cfg.PORT = options.port || '5000'; //development: 5000, production:80
   cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
   cfg.debug = options.debug || true; //enable debugging by default
   cfg.key = options.key || 'peerjs'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
@@ -31,7 +31,7 @@ nodetron.registerWithServer = function(options){
   };
 
   //Setup the new peer object
-  var peer = new Peer(localStorage.getItem('_nodetron_uuid'), cfg);
+  var peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
 
   peer.on('error', function(err){
     if(cfg.debug){console.log('Got an error:', err);}
