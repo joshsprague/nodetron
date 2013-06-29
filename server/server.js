@@ -56,7 +56,6 @@ function PeerServer(options) {
   this._ips = {};
 
   this._setCleanupIntervals();
-  // this._passClients();
 }
 
 util.inherits(PeerServer, EventEmitter);
@@ -72,7 +71,9 @@ PeerServer.prototype._initializeWSS = function() {
   this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
+    util.log("asdlkasjd");
     socket.on("login", function(data) {
+      // debugger
       var id = data.id;
       var token = data.token;
       var key = data.key; //api key
@@ -100,6 +101,14 @@ PeerServer.prototype._initializeWSS = function() {
       } else {
         self._configureWS(socket, key, id, token);
       }
+
+      debugger
+      self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+        if(key === "res" || key === "socket"){
+          return;
+        }
+        return value;
+      }));
     });
   });
 };
@@ -124,9 +133,28 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
   this._processOutstanding(key, id);
 
+
+  socket.on("acknowledge", function(data) {
+    var connectedPeer = new Peer({
+      firstName: data.metadata.firstName,
+      lastName: data.metadata.lastName,
+      email: data.metadata.email,
+      city: data.metadata.city,
+      state: data.metadata.state,
+      country: data.metadata.country
+    });
+    connectedPeer.save();
+  });
+
   // Cleanup after a socket closes.
   socket.on('disconnect', function() {
     util.log('Socket closed:', id);
+    self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+      if(key === "res" || key === "socket"){
+        return;
+      }
+      return value;
+    }));
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
