@@ -68,7 +68,7 @@ PeerServer.prototype._initializeWSS = function() {
   // this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
 
   this.sio = io.listen(this._app);
-  // this.sio.set("destroy upgrade", false);
+  this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
     socket.on("login", function(data) {
@@ -100,6 +100,12 @@ PeerServer.prototype._initializeWSS = function() {
         self._configureWS(socket, key, id, token);
       }
 
+      socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
+        if(key === "res" || key === "socket"){
+          return;
+        }
+        return value;
+      }));
       socket.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
@@ -136,7 +142,13 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
-    self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
+    socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
+      if(key === "res" || key === "socket"){
+        return;
+      }
+      return value;
+    }));
+    socket.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
