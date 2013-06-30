@@ -66,8 +66,21 @@ nodetron.initiatePeerConnection = function(peerJSCon, peerID){
   return conn;
 };
 
-nodetron.findPeer = function(socketCon, query, callback){
-  console.log(query);
-  socketCon.emit('query_for_user', query);
-  socketCon.on('query_response', callback);
+nodetron.findPeer = function(socketCon, queryParam, callback){
+  console.log(queryParam);
+  var queryID = Math.random(); //TODO - upgrade this to a proper uuid function like uuid.v4();
+  nodetron.activeQueries =  nodetron.activeQueries || {};
+  nodetron.activeQueries[queryID] = callback;
+
+  socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
+
+  var dispatchResponse = function(queryResponse){
+    if(nodetron.activeQueries[queryResponse.queryID]){
+      console.log("firing callback");
+      nodetron.activeQueries[queryResponse.queryID](queryResponse.userID); //fire the callback
+      delete nodetron.activeQueries[queryID]; //remove it from the events hash
+    }
+  };
+
+  socketCon.on('query_response', dispatchResponse);
 };
