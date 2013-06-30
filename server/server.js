@@ -156,6 +156,18 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     }));
   });
 
+  socket.on("acknowledge", function(data) {
+    var connectedPeer = new Peer({
+      firstName: data.metadata.firstName,
+      lastName: data.metadata.lastName,
+      email: data.metadata.email,
+      city: data.metadata.city,
+      state: data.metadata.state,
+      country: data.metadata.country
+    });
+    connectedPeer.save();
+  });
+
   // Handle messages from peers.
   socket.on('message', function(data) {
     try {
@@ -306,37 +318,6 @@ PeerServer.prototype._initializeHTTP = function() {
 
   // Listen on user-specified port.
   this._app.listen(this._options.port);
-};
-
-PeerServer.prototype._passClients = function(){
-  var self = this;
-  this.sio.sockets.on("connection", function(socket) {
-    socket.emit("users", JSON.stringify(self._clients, function(key, value){
-      if(key === "res" || key === "socket"){
-        return;
-      }
-      return value;
-    }));
-    socket.on("acknowledge", function(data) {
-      var connectedPeer = new Peer({
-        firstName: data.metadata.firstName,
-        lastName: data.metadata.lastName,
-        email: data.metadata.email,
-        city: data.metadata.city,
-        state: data.metadata.state,
-        country: data.metadata.country
-      });
-      connectedPeer.save();
-    });
-    socket.on("disconnect", function() {
-      socket.emit("users", JSON.stringify(self._clients, function(key, value){
-        if(key === "res" || key === "socket"){
-          return;
-        }
-        return value;
-      }));
-    });
-  });
 };
 
 /** Saves a streaming response and takes care of timeouts and headers. */

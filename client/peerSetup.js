@@ -16,7 +16,7 @@ nodetron.registerWithServer = function(options){
   var socket = io.connect(cfg.HOST+':'+cfg.PORT);
   socket.on('users', function (data) {
     if(cfg.debug){console.log(data);}
-    socket.emit('acknowledge', {received: true, metadata:cfg.meta});
+    socket.emit('acknowledge', {received: true, metadata:cfg.metadata});
   });
 
   //Connection handler
