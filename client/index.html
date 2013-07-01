@@ -9,19 +9,15 @@
     <script src="components/node-uuid/uuid.js"></script>
     <script src="components/q/q.min.js"></script>
     <script src="webrtc/dist/peer.js"></script>
-    <!--
-    <script src="http://cdn.peerjs.com/0/peer.min.js"></script>
-  -->
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 
     <script src="scripts.js"></script>
     <!-- Web Workers and IndexedDB-->
     <script src="background/workerExternalEvents.js"></script>
     <script src="background/workerExternal.js"></script>
+
     <!-- Peer JS -->
     <script src="peerSetup.js"></script>
-    <!--<script src="adapter.js"></script> -->
-    <!--<script src="p2pHandshake.js"></script> -->
 
   </head>
 
@@ -31,7 +27,7 @@
         var connection = nodetron.registerWithServer();
         $('.enter-user-id').click(function(evt){
           var peerID = $('user-id').val();
-          nodetron.initiatePeerConnection(connection.peer, peerID); //no options necessary when peerID present
+          nodetron.initiatePeerConnection(connection.peer, peerID);
         });
         $('.enter-user-email').click(function(evt){
           var email = $('.user-email').val();
