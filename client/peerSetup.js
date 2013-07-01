@@ -11,11 +11,18 @@ nodetron.registerWithServer = function(options){
   cfg.key = options.key || 'peerjs'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
   cfg.metadata = options.metadata || {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
   cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
+  cfg.token = uuid.v4(); //random token to auth this connection/session
 
   var socket = nodetron.socket = io.connect(cfg.host+':'+cfg.port);
+  socket.emit('login', {
+    key:cfg.key,
+    id:cfg.id,
+    token:cfg.token
+  });
+
   socket.on('users', function (data) {
     if(cfg.debug){console.log(data);}
-    socket.emit('acknowledge', {received: true, metadata:cfg.meta});
+    socket.emit('acknowledge', {received: true, metadata:cfg.metadata});
   });
 
   //Connection handler
@@ -31,6 +38,7 @@ nodetron.registerWithServer = function(options){
 
   //Setup the new peer object
   var peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+
 
   peer.on('error', function(err){
     if(cfg.debug){console.log('Got an error:', err);}
