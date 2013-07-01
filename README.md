@@ -22,6 +22,8 @@ Let's see if this is possible!
 4. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
 5. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
+If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` error, remove restify from your local node_modules folder and re-run npm install in the project root.
+
 More resources:
 
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>

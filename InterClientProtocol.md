@@ -32,3 +32,15 @@ Response format:
 
 * response: literal string: 'accept' or 'deny'
 * data: if accept, the data requested; if deny, an error code
+
+Register for requests:
+
+nodetron.respondToPeerRequests(function(req, res) {
+
+})
+
+`req` has same format as requestPeerResource
+
+`res` has two methods:  
+* res.accept(data)
+* res.deny(data)

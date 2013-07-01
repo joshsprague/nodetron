@@ -1,11 +1,8 @@
 //stub
 var noop = function(){};
-window.nodetron = {
-  socket:{},
-  discoverResource:noop,
-  requestPeerResource:noop,
-  sendPeerMessage:noop
-};
+nodetron.discoverResource=noop;
+nodetron.requestPeerResource=noop;
+nodetron.sendPeerMessage=noop;
 
 //initialization
 nodetron.init({
