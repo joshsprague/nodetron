@@ -1,4 +1,4 @@
-window.nodetron = {};
+window.nodetron = window.nodetron || {};
 //Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
 nodetron.registerWithServer = function(options){
   options = options || {};

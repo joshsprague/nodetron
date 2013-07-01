@@ -15,4 +15,4 @@
 
 
 
-})(this.nodetron || this.nodetron = {});
+})(this.nodetron || (this.nodetron = {}));
