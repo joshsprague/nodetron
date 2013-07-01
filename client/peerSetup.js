@@ -95,5 +95,5 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
     }
   };
 
-  socketCon.on('query_for_userresponse', dispatchResponse);
+  socketCon.on('query_response', dispatchResponse);
 };
