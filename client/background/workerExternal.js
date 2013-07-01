@@ -1,10 +1,12 @@
-(function(nodetron) {
+(function(window) {
+  var nodetron = window.nodetron || (window.nodetron = {});
   nodetron.worker = new Worker('background/workerInternal.js');
 
-  var uuid = localStorage.getItem('_nodetron_uuid') || uuid.v4();
-  localStorage.setItem('_nodetron_uuid', uuid);
-  var registered = localStorage.getItem('_nodetron_registered') || false;
-  localStorage.setItem('_nodetron_registered',registered);
+  var localStor = window.localStorage;
+  var uuid = localStor.getItem('_nodetron_uuid') || window.uuid.v4();
+  localStor.setItem('_nodetron_uuid', uuid);
+  var registered = localStor.getItem('_nodetron_registered') || false;
+  localStor.setItem('_nodetron_registered',registered);
 
   // Normally workers pass objects by copy, not reference.
   // worker can be passed other types like File, Blob, ArrayBuffer/
@@ -26,4 +28,4 @@
 
   //to pass objects by reference, do worker.postMessage(data, <array of ArrayBuffers>);
   //https://zapier.com/engineering/intro-to-web-workers/
-})(this.nodetron || (this.nodetron = {}));
+})(this);
