@@ -68,6 +68,20 @@ module.exports = function (grunt) {
         }
       }
     },
+    ngdocs: {
+      options: {
+        dest:'docs',
+        title:'Nodetron API'
+      },
+      client: {
+        title:'Client',
+        src: ['client/**/*.js', '!client/components/**','!client/webrtc/**']
+      },
+      server: {
+        title:'Server',
+        src: ['server/**/*.js']
+      }
+    },
     open: {
       client: {
         // Gets the port from the connect configuration
