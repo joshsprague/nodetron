@@ -37,7 +37,7 @@ nodetron.registerWithServer = function(options){
   };
 
   //Setup the new peer object
-  var peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+  var peer = nodetron.peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
 
 
   peer.on('error', function(err){
@@ -59,8 +59,8 @@ nodetron.registerWithServer = function(options){
 };
 
 // creates a new connection and returns it
-nodetron.initiatePeerConnection = function(peerJSCon, peerID){
-  var conn = peerJSCon.connect(peerID,{'metadata':options});
+nodetron.initPeerConnection = function(peerID){
+  var conn = nodetron.peer.connect(peerID,{'metadata':options});
   conn.on('open', function() {
     conn.send('Acknowledge');
     console.log("Connection Opened");
