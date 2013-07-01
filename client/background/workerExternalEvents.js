@@ -1,7 +1,7 @@
-Worker = (function(window) {
+(function(window) {
   var WebWorker = window.Worker;
 
-  Worker = function(script) {
+  var Worker = function(script) {
     this.eventQueue = {};
     this.eventBuckets = 0;
     this.worker = new WebWorker(script);
@@ -13,6 +13,7 @@ Worker = (function(window) {
       self.checkEvents(data);
     });
   };
+  window.Worker = Worker;
 
   Worker.prototype.addEventListener = function() {
     this.worker.addEventListener.apply(this.worker,arguments);
@@ -68,5 +69,4 @@ Worker = (function(window) {
     this.worker.postMessage(msg);
   };
 
-  return Worker;
 })(this);
