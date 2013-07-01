@@ -36,3 +36,5 @@ just pass in a peer's id and an active peer.js connection from nodetron
 Give nodetron a socket connection to the server and some query parameters and it will inject the server's response into a callback of your choosing.
 
      nodetron.findPeer(socket, query_parameters, callback);
+
+Query parameters can be anything the application developer chooses.  just specify one or more {key:value} pairs and full server response will be passed to the callback;

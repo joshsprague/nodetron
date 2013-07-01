@@ -31,7 +31,7 @@
         });
         $('.enter-user-email').click(function(evt){
           var email = $('.user-email').val();
-          nodetron.findPeer(connection.socket, email, function(peerId){
+          nodetron.findPeer(connection.socket, {email:email}, function(peerId){
             nodetron.initiatePeerConnection(connection.peer, peerID);
           });
         });
