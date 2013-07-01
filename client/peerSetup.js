@@ -80,12 +80,14 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
+  console.log("Querying server for: ", queryParam);
   socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
+    console.log("Received queryResponse from Server");
     if(nodetron.activeQueries[queryResponse.queryID]){
       console.log("firing callback");
-      nodetron.activeQueries[queryResponse.queryID](queryResponse); //fire the callback
+      nodetron.activeQueries[queryResponse.queryID](queryResponse.users); //fire the callback
       delete nodetron.activeQueries[queryID]; //remove it from the events hash
     }
     else {
@@ -93,5 +95,5 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
     }
   };
 
-  socketCon.on('query_response', dispatchResponse);
+  socketCon.on('query_for_userresponse', dispatchResponse);
 };
