@@ -2,11 +2,15 @@ var util = require('./util');
 var restify = require('restify');
 var http = require('http');
 var EventEmitter = require('events').EventEmitter;
-var WebSocketServer = require('ws').Server;
 var url = require('url');
 var io = require('socket.io');
+var mongoose = require("mongoose");
+var Peer = require("./models/Peer.js");
 
-//docs here: https://github.com/einaros/ws/blob/master/doc/ws.md
+mongoose.connect("mongodb://localhost/test");
+var db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error:"));
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -34,7 +38,6 @@ function PeerServer(options) {
 
   this._options.ssl['name'] = 'PeerServer';
   this._app = restify.createServer(this._options.ssl);
-
   // Connected clients
   this._clients = {};
 
@@ -51,7 +54,6 @@ function PeerServer(options) {
   this._ips = {};
 
   this._setCleanupIntervals();
-  this._passClients();
 }
 
 util.inherits(PeerServer, EventEmitter);
@@ -60,39 +62,52 @@ util.inherits(PeerServer, EventEmitter);
 PeerServer.prototype._initializeWSS = function() {
   var self = this;
 
-  // Create WebSocket server as well.
-  this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
+  this.sio = io.listen(this._app);
+  this.sio.set("destroy upgrade", false);
 
-  this._wss.on('connection', function(socket) {
-    var query = url.parse(socket.upgradeReq.url, true).query;
-    console.log(query);
-    var id = query.id;
-    var token = query.token;
-    var key = query.key; //api key
-    var ip = socket.upgradeReq.socket.remoteAddress;
+  this.sio.sockets.on('connection', function(socket) {
+    socket.on("login", function(data) {
+      var id = data.id;
+      var token = data.token;
+      var key = data.key;
+      var ip = socket.manager.handshaken[socket.id].address.address;
 
-    if (!id || !token || !key) {
-      socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
-      socket.close();
-      return;
-    }
+      if (!id || !token || !key) {
+        socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
+        socket.disconnect();
+        return;
+      }
 
-    if (!self._clients[key] || !self._clients[key][id]) {
-      self._checkKey(key, ip, function(err) {
-        if (!err) {
-          if (!self._clients[key][id]) {
-            self._clients[key][id] = { token: token, ip: ip };
-            self._ips[ip]++;
-            socket.send(JSON.stringify({ type: 'OPEN' }));
+      if (!self._clients[key] || !self._clients[key][id]) {
+        self._checkKey(key, ip, function(err) {
+          if (!err) {
+            if (!self._clients[key][id]) {
+              self._clients[key][id] = { token: token, ip: ip };
+              self._ips[ip]++;
+              socket.send(JSON.stringify({ type: 'OPEN' }));
+            }
+            self._configureWS(socket, key, id, token);
+          } else {
+            socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: err } }));
           }
-          self._configureWS(socket, key, id, token);
-        } else {
-          socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: err } }));
+        });
+      } else {
+        self._configureWS(socket, key, id, token);
+      }
+
+      socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
+        if(key === "res" || key === "socket"){
+          return;
         }
-      });
-    } else {
-      self._configureWS(socket, key, id, token);
-    }
+        return value;
+      }));
+      socket.emit("users", JSON.stringify(self._clients, function(key, value){
+        if(key === "res" || key === "socket"){
+          return;
+        }
+        return value;
+      }));
+    });
   });
 };
 
@@ -110,18 +125,43 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
   } else {
     // ID-taken, invalid token
     socket.send(JSON.stringify({ type: 'ID-TAKEN', payload: { msg: 'ID is taken' } }));
-    socket.close();
+    socket.disconnect();
     return;
   }
 
   this._processOutstanding(key, id);
 
   // Cleanup after a socket closes.
-  socket.on('close', function() {
+  socket.on('disconnect', function() {
     util.log('Socket closed:', id);
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
+    socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
+      if(key === "res" || key === "socket"){
+        return;
+      }
+      return value;
+    }));
+    socket.emit("users", JSON.stringify(self._clients, function(key, value){
+      if(key === "res" || key === "socket"){
+        return;
+      }
+      return value;
+    }));
+  });
+
+  //Insert metadata into mongo for user discovery
+  socket.on("acknowledge", function(data) {
+    var connectedPeer = new Peer({
+      firstName: data.metadata.firstName,
+      lastName: data.metadata.lastName,
+      email: data.metadata.email,
+      city: data.metadata.city,
+      state: data.metadata.state,
+      country: data.metadata.country
+    });
+    connectedPeer.save();
   });
 
   // Handle messages from peers.
@@ -196,13 +236,6 @@ PeerServer.prototype._initializeHTTP = function() {
   this._app.use(restify.queryParser());
   this._app.use(util.allowCrossDomain);
 
-  // Retrieve guaranteed random ID.
-  // this._app.get('/:key/id', function(req, res, next) {
-  //   res.contentType = 'text/html';
-  //   res.send(self._generateClientId(req.params.key));
-  //   return next();
-  // });
-
   // Server sets up HTTP streaming when you get post an ID.
   this._app.post('/:key/:id/:token/id', function(req, res, next) {
     var id = req.params.id;
@@ -225,6 +258,7 @@ PeerServer.prototype._initializeHTTP = function() {
     }
     return next();
   });
+
   var handle = function(req, res, next) {
     var key = req.params.key;
     var id = req.params.id;
@@ -273,23 +307,6 @@ PeerServer.prototype._initializeHTTP = function() {
 
   // Listen on user-specified port.
   this._app.listen(this._options.port);
-  this.sio = io.listen(this._app);
-  this.sio.set("destroy upgrade", false);
-};
-
-PeerServer.prototype._passClients = function(){
-  var self = this;
-  this.sio.sockets.on("connection", function(socket) {
-    socket.emit("users", JSON.stringify(self._clients, function(key, value){
-      if(key === "res" || key === "socket"){
-        return;
-      }
-      return value;
-    }));
-  });
-  this.sio.sockets.on("disconnect", function(socket) {
-    socket.close();
-  });
 };
 
 /** Saves a streaming response and takes care of timeouts and headers. */
@@ -441,17 +458,6 @@ PeerServer.prototype._handleTransmission = function(key, message) {
       // Ignore
     }
   }
-};
-
-PeerServer.prototype._generateClientId = function(key) {
-  var clientId = util.randomId();
-  if (!this._clients[key]) {
-    return clientId;
-  }
-  while (!!this._clients[key][clientId]) {
-    clientId = util.randomId();
-  }
-  return clientId;
 };
 
 exports.PeerServer = PeerServer;
