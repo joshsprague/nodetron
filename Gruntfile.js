@@ -4,42 +4,31 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     concurrent: {
+      options: {
+        logConcurrentOutput:true
+      },
       debug: {
-        tasks: ['exec:debugger','nodemon:debug','open:debug'],
-        options: {
-          logConcurrentOutput: true
-        }
+        tasks:['exec:debugger','nodemon:debug','delayed:open:debug']
       },
       all: {
-        tasks:['server','delayed:client'],
-        options: {
-          logConcurrentOutput: true
-        }
+        tasks:['server','delayed:client']
       },
       alldebug: {
-        tasks:['concurrent:debug','delayed:client'],
-        options: {
-          logConcurrentOutput: true
-        }
-      },
-      'two-clients': {
-        tasks:['server','delayed:client', 'delayed:clientalt'],
-        options: {
-          logConcurrentOutput: true
-        }
+        tasks:['concurrent:debug','delayed:client']
       }
     },
     connect: {
+      options: {
+        base:'client'
+      },
       client: {
         options: {
-          port: 8000,
-          base: 'client'
+          port: 9000,
         }
       },
-      clientalt: {
+      addclient: {
         options: {
           port: 9000,
-          base: 'client',
           keepalive:true
         }
       }
@@ -63,19 +52,18 @@ module.exports = function (grunt) {
       }
     },
     nodemon: {
+      options: {
+        file: 'server/peer.js'
+      },
       dev: {
-        options: {
-          file: 'server/peer.js',
           // ignoredFiles: ['README.md', 'node_modules/**'],
           // watchedExtensions: ['js', 'coffee'],
           // watchedFolders: ['test', 'tasks'],
           // delayTime: 1,
           // cwd: __dirname
-        }
       },
       debug: {
         options: {
-          file: 'server/peer.js',
           debug:true
         }
       }
@@ -85,12 +73,12 @@ module.exports = function (grunt) {
         // Gets the port from the connect configuration
         path: 'http://localhost:<%= connect.client.options.port%>'
       },
-      clientalt: {
+      addclient: {
         // Gets the port from the connect configuration
-        path: 'http://localhost:<%= connect.clientalt.options.port%>'
+        path: 'http://localhost:<%= connect.addclient.options.port%>'
       },
       debug: {
-        path: 'http://0.0.0.0:8080/debug?port=5858'
+        path: 'http://localhost:8080/debug?port=5858'
       }
     },
     simplemocha: {
@@ -102,47 +90,86 @@ module.exports = function (grunt) {
         ui: 'bdd',
         reporter: 'tap'
       },
-      all: { src: ['test/server/index.js','test/server/**/*.js'] }
+      src: ['server/index.js','server/**/*.js']
     },
     watch: {
       client: {
         files: ['client/**/*'],
         options: {
           livereload:true,
-          keepalive:true
+          keepalive:true,
+          nospawn:true
         }
       },
     }
   });
 
-  //takes an argument: a task to run
-  grunt.registerTask('delayed', 'delayed', function (task) {
-    console.log('Delayed: ' + task);
-
+  //takes any number of arguments: a task-argument chain to run
+  //grunt automatically splits a string on the colon character, passes those in as separate arguments.
+  grunt.registerTask('delayed', 'delayed', function () {
     var done = this.async();
+    var args = [].join.call(arguments,':');
     setTimeout(function () {
-      grunt.task.run(task);
+      grunt.task.run(args);
       done();
-    }, 800);
+    }, 400);
   });
 
-  grunt.registerTask('all', [
-    'concurrent:all'
-  ]);
-  grunt.registerTask('two-clients', [
-    'concurrent:two-clients'
-  ]);
-  grunt.registerTask('all:debug', [
-    'concurrent:alldebug'
-  ]);
+  //should accept all, all:<num>, all:debug, or all:<num>:debug
+  grunt.registerTask('all', 'Run server and one or more clients on different ports.', function(arg1,arg2) {
+    var tasks = ['concurrent','all'];
+    //all:debug
+    if (arg1 === 'debug' || arg2 === 'debug') {
+      tasks[1]+='debug';
+    }
+
+    //parse first argument (sets how many clients to run)
+    var num = parseInt(arg1,10);
+    if (grunt.util.kindOf(num)==='number' && !isNaN(num)) {
+      var arr = [];
+      //start at 1 because we already run delayed:client
+      for (var i = 1 ; i<num; i++) {
+        arr.push('delayed:addclient:'+i);
+      }
+      var prop = tasks.join('.') + '.tasks';
+      //insert arr right before the last element of the tasks list in grunt's config object
+      var list = grunt.config.get(prop);
+      list.splice.apply(list,[list.length-1,0].concat(arr));
+      grunt.config.set(prop, list);
+    }
+    var task = tasks.join(':');
+    grunt.task.run(task);
+  });
+
+  //modify grunt's config to add connect and open tasks that have port numbers that increment up by 'count'
+  var addEntryToConfig = function(baseTaskName, count) {
+    var connect = grunt.config.get('connect');
+    var open = grunt.config.get('open');
+
+    var connectsub = connect[baseTaskName+count] = grunt.util._.clone(connect[baseTaskName],true);
+    var opensub = open[baseTaskName+count] = grunt.util._.clone(open[baseTaskName],true);
+
+    var port = parseInt(connect.addclient.options.port,10)+count;
+    connectsub.options.port = port;
+    opensub.path = opensub.path.replace(/:\d{1,5}/g, ':'+port);
+    grunt.config.set('connect', connect);
+    grunt.config.set('open', open);
+  };
+
+  /*
+  Launch another client instance.
+  Takes an argument, which specifies that this is the nth client instance; this determines port #
+  */
+  grunt.registerTask('addclient', 'Launch another client.', function(n) {
+    addEntryToConfig(this.name,parseInt(n,10));
+    grunt.task.run('open:addclient'+n);
+    grunt.task.run('connect:addclient'+n);
+  });
+
   grunt.registerTask('client', [
     'connect:client',
     'open:client',
     'watch:client'
-  ]);
-  grunt.registerTask('clientalt', [
-    'connect:clientalt',
-    'open:clientalt',
   ]);
   grunt.registerTask('server', [
     'nodemon:dev'
@@ -150,11 +177,11 @@ module.exports = function (grunt) {
   grunt.registerTask('server:debug', [
     'concurrent:debug'
   ]);
-  //simplemocha is for serverside
+  //simplemocha is for server tests
   grunt.registerTask('server:unit', [
     'simplemocha'
   ]);
-  //karma is for client-side
+  //karma is for client tests
   grunt.registerTask('client:unit', [
     'karma:unit'
   ]);
