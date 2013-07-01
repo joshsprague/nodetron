@@ -1,4 +1,5 @@
 window.nodetron = window.nodetron || {};
+
 //Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
 nodetron.registerWithServer = function(options){
   options = options || {};
@@ -86,6 +87,9 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
       console.log("firing callback");
       nodetron.activeQueries[queryResponse.queryID](queryResponse); //fire the callback
       delete nodetron.activeQueries[queryID]; //remove it from the events hash
+    }
+    else {
+      throw new Error("Bad Query Response from server", queryResponse);
     }
   };
 
