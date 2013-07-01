@@ -1,6 +1,4 @@
 var worker = new Worker('background/workerInternal.js');
-//initialize the event queue
-worker.addMessageEvent();
 
 var uuid = localStorage.getItem('_nodetron_uuid') || uuid.v4();
 localStorage.setItem('_nodetron_uuid', uuid);
