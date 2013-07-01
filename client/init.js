@@ -1,3 +1,12 @@
+//stub
+var noop = function(){};
+window.nodetron = {
+  socket:{},
+  discoverResource:noop,
+  requestPeerResource:noop,
+  sendPeerMessage:noop
+};
+
 //initialization
 nodetron.init({
   dbTitle: 'nodetron',
@@ -6,19 +15,19 @@ nodetron.init({
 });
 
 
-//direct acces to worker
+//direct access to worker
 nodetron.worker;
 
 //direct access to socket
 nodetron.socket;
 
 //A query - returns an array of objects.
-nodetron.findResource({
+nodetron.discoverResource({
 
 });
 
 //Peer-to-peer communication
-nodetron.queryPeerResource({
+nodetron.requestPeerResource({
 
 });
 
