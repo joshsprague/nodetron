@@ -8,15 +8,17 @@ Let's see if this is possible!
 
 * `npm install && bower install`
 * `git submodule init && git submodule update`
-* For debugging: install global dependencies: `npm -g install node-inspector`
+* For debugging, install global dependencies: `npm -g install node-inspector`
 
 1. `grunt all` to run server and serve client with static server.
+    * Append `:<number>` to specify how many client instances you want to run.
     * Append `:debug` to run node-inspector as well.
+    * Ex: `grunt:4:debug` runs 4 client instances at ports 9000-9004 and runs node-inspector.
 2. `grunt client` to serve client with static server.
     * Append `:unit` to run unit tests.
 3. `grunt server` to run server.
     * Append `:unit` to run unit tests.
-    * Append `:debug` to run node-inspector as well.
+    * Append `:debug` to run node-inspector.
 4. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
 5. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
