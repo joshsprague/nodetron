@@ -164,6 +164,26 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     connectedPeer.save();
   });
 
+  //User query sent from client
+  socket.on("query_for_user", function(data) {
+    util.log(data);
+    var response = {};
+    response.queryID = data.queryID;
+    Peer.find({email: data.queryParam}, function(err, user) {
+      if(err){
+        util.log(err);
+        return;
+      }
+      if(user){
+        response.user = user;
+        socket.emit("query_response", response);
+      }else {
+        response.user = null;
+        socket.emit("query_response", response);
+      }
+    });
+  });
+
   // Handle messages from peers.
   socket.on('message', function(data) {
     try {
