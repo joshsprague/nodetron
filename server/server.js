@@ -2,7 +2,6 @@ var util = require('./util');
 var restify = require('restify');
 var http = require('http');
 var EventEmitter = require('events').EventEmitter;
-// var WebSocketServer = require('ws').Server;
 var url = require('url');
 var io = require('socket.io');
 var mongoose = require("mongoose");
@@ -12,7 +11,6 @@ mongoose.connect("mongodb://localhost/test");
 var db = mongoose.connection;
 
 db.on("error", console.error.bind(console, "connection error:"));
-//docs here: https://github.com/einaros/ws/blob/master/doc/ws.md
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -64,9 +62,6 @@ util.inherits(PeerServer, EventEmitter);
 PeerServer.prototype._initializeWSS = function() {
   var self = this;
 
-  // Create WebSocket server as well.
-  // this._wss = new WebSocketServer({ path: '/peerjs', server: this._app});
-
   this.sio = io.listen(this._app);
   this.sio.set("destroy upgrade", false);
 
@@ -74,7 +69,7 @@ PeerServer.prototype._initializeWSS = function() {
     socket.on("login", function(data) {
       var id = data.id;
       var token = data.token;
-      var key = data.key; //api key
+      var key = data.key;
       var ip = socket.manager.handshaken[socket.id].address.address;
 
       if (!id || !token || !key) {
@@ -156,6 +151,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     }));
   });
 
+  //Insert metadata into mongo for user discovery
   socket.on("acknowledge", function(data) {
     var connectedPeer = new Peer({
       firstName: data.metadata.firstName,
@@ -240,20 +236,12 @@ PeerServer.prototype._initializeHTTP = function() {
   this._app.use(restify.queryParser());
   this._app.use(util.allowCrossDomain);
 
-  // Retrieve guaranteed random ID.
-  // this._app.get('/:key/id', function(req, res, next) {
-  //   res.contentType = 'text/html';
-  //   res.send(self._generateClientId(req.params.key));
-  //   return next();
-  // });
-
   // Server sets up HTTP streaming when you get post an ID.
   this._app.post('/:key/:id/:token/id', function(req, res, next) {
     var id = req.params.id;
     var token = req.params.token;
     var key = req.params.key;
     var ip = req.connection.remoteAddress;
-    // util.log(req);
 
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
@@ -270,6 +258,7 @@ PeerServer.prototype._initializeHTTP = function() {
     }
     return next();
   });
+
   var handle = function(req, res, next) {
     var key = req.params.key;
     var id = req.params.id;
@@ -470,16 +459,5 @@ PeerServer.prototype._handleTransmission = function(key, message) {
     }
   }
 };
-
-// PeerServer.prototype._generateClientId = function(key) {
-//   var clientId = util.randomId();
-//   if (!this._clients[key]) {
-//     return clientId;
-//   }
-//   while (!!this._clients[key][clientId]) {
-//     clientId = util.randomId();
-//   }
-//   return clientId;
-// };
 
 exports.PeerServer = PeerServer;
