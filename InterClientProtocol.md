@@ -6,28 +6,27 @@
 ###Request-response-access protocol for communicating between clients over WebRTC
 
 Request for access to X:
-```
-    nodetron.requestPeerResource(<peerid or dataconnection>, {
+
+    nodetron.requestPeerResource(<peer_id or data_connection>, {
       method:<method>,
       resource:<resource>,
       data:<object>,
       identity:<object>
     }, <callback>);
-```  
-or  
-`<nodetron peer>.requestPeerResource({<same params object>}, <callback>)`
 
-* method: get,post,put,delete (get, add, update or add, delete)
+or:  
+`<nodetron_Peer>.requestPeerResource({<same_params_object>}, <callback>)`
+
+* method: get, post, put, delete (get, add, update or add, delete)
 * resource: name of resource (maps to db)
 * data: if get, a query; if post, an object; if put, an object; if delete, a query.
 * identify: object containing key-value pairs of data about the originator (including any auth tokens)
-* data-key query format (modeled after mongo): {<key>:<selectors>}
+* data-key query format (modeled after mongo): `{<key>:<selectors>}`
     if selector is not an object, then direct comparison
-    if selector is an object, it will be a series of key-value pairs, where key=selector (i.e. "$gt"), value=comparison value
+    if selector is an object, it will be a series of key-value pairs, where key = selector (i.e. `$gt`), value = comparison value
 * callback is passed the response:
 
 Full request object format:
-
 
     {
       _id:<internal Nodetron id>
