@@ -1,46 +1,79 @@
 ##Inter-client communication:
 
+##Access permissions:
+
+
 ###Request-response-access protocol for communicating between clients over WebRTC
 
 Request for access to X:
-```
-    nodetron.requestPeerResource(<peer or peerid>, {
+
+    nodetron.requestPeerResource(<peer_id or data_connection>, {
       method:<method>,
       resource:<resource>,
       data:<object>,
-      identify:<object>
+      identity:<object>
     }, <callback>);
-```  
-or  
-```<nodetron peer>.requestPeerResource({<same params object>}, <callback>)```
 
-* method: get,post,put,delete (get, add, update or add, delete)
+or:  
+`<nodetron_Peer>.requestPeerResource({<same_params_object>}, <callback>)`
+
+* method: get, post, put, delete (get, add, update or add, delete)
 * resource: name of resource (maps to db)
 * data: if get, a query; if post, an object; if put, an object; if delete, a query.
 * identify: object containing key-value pairs of data about the originator (including any auth tokens)
-* data-key query format (modeled after mongo): {<key>:<selectors>}
+* data-key query format (modeled after mongo): `{<key>:<selectors>}`
     if selector is not an object, then direct comparison
-    if selector is an object, it will be a series of key-value pairs, where key=selector (i.e. "$gt"), value=comparison value
+    if selector is an object, it will be a series of key-value pairs, where key = selector (i.e. `$gt`), value = comparison value
 * callback is passed the response:
 
-Response format:
+Full request object format:
 
     {
+      _id:<internal Nodetron id>
+      query:{
+        method:<method>,
+        resource:<resource>,
+        data:<object>,
+        identity:<object>
+      }
+    }
+
+
+
+
+Full response object format:
+
+    response = {
+      _id: <id for response so that requester can match up responses> (nodetron use only),
+      data: {
+        response: <'accept' or 'deny'>
+        data: <data>
+      }
+    }
+
+The response handler's data (i.e. `response.accept(data)`) will only be passed into the response.data field (the first `data` field). `_id` is for Nodetron's internal use only.
+
+Response format (as appears to the response handler):
+
+    //responseHandler is a function
+    responseHandler({
       response:<string>,
       data:<data>
-    }
+    })
 
 * response: literal string: 'accept' or 'deny'
 * data: if accept, the data requested; if deny, an error code
 
 Register for requests:
 
-nodetron.respondToPeerRequests(function(req, res) {
+`nodetron.registerForPeerRequests(method, resource, handler)`
 
-})
+method is the request method, resource is the resource the method acts upon.
 
-`req` has same format as requestPeerResource
+handler takes a req and resp argument and calls accept or deny on the resp object.
 
-`res` has two methods:  
-* res.accept(data)
-* res.deny(data)
+`req` has same format as requestPeerResource (method, resource, data, identity)
+
+`resp` has two methods:  
+* resp.accept(data)
+* resp.deny(data)

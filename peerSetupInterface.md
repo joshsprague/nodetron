@@ -33,8 +33,8 @@ just pass in a peer's id and an active peer.js connection from nodetron
      nodetron.initiatePeerConnection(peer, peerID);
 
 ####Step 3: Find and connect to more users:
-Give nodetron a socket connection to the server and some query parameters and it will inject the server's response into a callback of your choosing.
+Give nodetron a socket connection to the server and some query parameters and the results into a callback of your choosing.
 
      nodetron.findPeer(socket, query_parameters, callback);
 
-Query parameters can be anything the application developer chooses.  just specify one or more {key:value} pairs and full server response will be passed to the callback;
+Query parameters can be anything the application developer chooses.  just specify one or more {key:value} pairs and an array of matching users (if any) will be passed to the callback;

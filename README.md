@@ -37,17 +37,23 @@ More resources:
 
 ##Overview
 
-A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, IndexedDB, and AppCache. Now developers can easily create peer-to-peer applications that do more than just transfer files. Applications that are built with this framework will be rich client apps that control and store ALL user state/data locally (possibly through HTML5 IndexedDB or the filesystem sandbox). All data validation and access permissions are handled by the client.
+A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, IndexedDB, and AppCache. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.
 
-There are several challenges. The first problem is discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One problem is we need to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.
+**Challenges:**
 
-Technologies: WebRTC, MongoDB, Express.js. Possibly Socket.io, HTML5 IndexedDB, AppCache and/or some implementation of a DHT (Kademlia).
+1. Discovery and querying - discovering who else is in the network and how to contact them. For WebRTC, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One problem is we need to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.
+
+Technologies: WebRTC, HTML5 IndexedDB, AppCache, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).
 
 Time permitting, a demo/showcase app in AngularJS.
 
+##Current Architecture
+
+Clients send 'discovery queries' to a central server/database. The server responds with potential matches. Clients then contact the matches directly over WebRTC and exchange information. Clients specify what information they make publicly available for discovery on the central server. Clients are also responsible for granting, denying, or upgrading access over WebRTC.
+
 ##Deliverables
 
-1. Web Worker abstraction that exposes a mongo, REST-ful, or other-style async API.
+1. Web Worker abstraction that exposes an async API.
     * have dev access html5 IndexedDB directly; OR through wrapper.
 2. Web Worker abstraction itself communicates with a server/p2p interface/protocol with which it can
     * register itself as a new client
@@ -58,9 +64,9 @@ Time permitting, a demo/showcase app in AngularJS.
 3. Server and/or p2p network that:
     * implements NAT traversal (use a library)
     * if decentralized, bootstraps nodes
-    * depending on protocol, redirects requests; OR directly transmits connections; OR neither.
+    * depending on protocol, redirects requests; AND/OR directly transmits connections; AND/OR neither.
 
-##Approach
+##Broader Approach
 
 "Node" is interchangeable with "client".
 

@@ -1,4 +1,5 @@
 window.nodetron = window.nodetron || {};
+
 //Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
 nodetron.registerWithServer = function(options){
   options = options || {};
@@ -38,7 +39,7 @@ nodetron.registerWithServer = function(options){
   };
 
   //Setup the new peer object
-  var peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+  var peer = nodetron.peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
 
   peer.on('error', function(err){
     if(cfg.debug){console.log('Got an error:', err);}
@@ -58,34 +59,23 @@ nodetron.registerWithServer = function(options){
   return {peer: peer, socket: socket};
 };
 
-// creates a new connection and returns it
-nodetron.initiatePeerConnection = function(peerJSCon, peerID){
-  var conn = peerJSCon.connect(peerID,{'metadata':options});
-  conn.on('open', function() {
-    conn.send('Acknowledge');
-    console.log("Connection Opened");
-  });
-  conn.on('error', function(err){
-    console.log('Got DataChannel error:', err);
-  });
-  conn.on('close', function(data){
-    console.log('Connection Closed', data);
-  });
-  return conn;
-};
-
 nodetron.findPeer = function(socketCon, queryParam, callback){
   var queryID = Math.random(); //TODO - upgrade this to a proper uuid function like uuid.v4();
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
+  console.log("Querying server for: ", queryParam);
   socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
+    console.log("Received queryResponse from Server");
     if(nodetron.activeQueries[queryResponse.queryID]){
       console.log("firing callback");
-      nodetron.activeQueries[queryResponse.queryID](queryResponse); //fire the callback
+      nodetron.activeQueries[queryResponse.queryID](queryResponse.users); //fire the callback
       delete nodetron.activeQueries[queryID]; //remove it from the events hash
+    }
+    else {
+      throw new Error("Bad Query Response from server", queryResponse);
     }
   };
 
