@@ -58,22 +58,6 @@ nodetron.registerWithServer = function(options){
   return {peer: peer, socket: socket};
 };
 
-// creates a new connection and returns it
-nodetron.initPeerConnection = function(peerID){
-  var conn = nodetron.peer.connect(peerID,{'metadata':options});
-  conn.on('open', function() {
-    conn.send('Acknowledge');
-    console.log("Connection Opened");
-  });
-  conn.on('error', function(err){
-    console.log('Got DataChannel error:', err);
-  });
-  conn.on('close', function(data){
-    console.log('Connection Closed', data);
-  });
-  return conn;
-};
-
 nodetron.findPeer = function(socketCon, queryParam, callback){
   var queryID = Math.random(); //TODO - upgrade this to a proper uuid function like uuid.v4();
   nodetron.activeQueries =  nodetron.activeQueries || {};
