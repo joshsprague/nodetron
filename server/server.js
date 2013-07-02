@@ -1,32 +1,35 @@
-var util = require('./util');
-var restify = require('restify');
-var http = require('http');
-var EventEmitter = require('events').EventEmitter;
-var url = require('url');
-var io = require('socket.io');
-var mongoose = require("mongoose");
-var Peer = require("./models/Peer.js");
-
-mongoose.connect("mongodb://localhost/test");
-var db = mongoose.connection;
-
-db.on("error", console.error.bind(console, "connection error:"));
+var util = require('./util'),
+restify = require('restify'),
+http = require('http'),
+EventEmitter = require('events').EventEmitter,
+url = require('url'),
+io = require('socket.io'),
+mongoose = require("mongoose"),
+Peer = require("./models/Peer.js");
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
   EventEmitter.call(this);
 
+  //Server Options defaults; overwritten by passed in options if available
   this._options = util.extend({
     port: 80,
     debug: false,
     timeout: 5000,
     key: 'peerjs',
-    ip_limit: 5000,
-    concurrent_limit: 5000,
-    ssl: {}
+    ipLimit: 5000,
+    concurrentLimit: 5000,
+    ssl: {},
+    mongo: "mongodb://localhost/test",
+    transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"]
   }, options);
 
   util.debug = this._options.debug;
+
+  //Connect to user specified mongo db
+  mongoose.connect(this._options.mongo);
+  var db = mongoose.connection;
+  db.on("error", console.error.bind(console, "connection error:"));
 
   // Set up HTTPS server if key and certificate are provided.
   var secure = this._options.ssl.key && this._options.ssl.certificate;
@@ -62,16 +65,18 @@ util.inherits(PeerServer, EventEmitter);
 PeerServer.prototype._initializeWSS = function() {
   var self = this;
 
+  //Socket IO setup
   this.sio = io.listen(this._app);
+  this.sio.set("transports", this._options.transports);
   this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
     socket.on("login", function(data) {
-      var id = data.id;
-      var token = data.token;
-      var key = data.key;
-      var ip = socket.manager.handshaken[socket.id].address.address;
-      var meta = data.metadata;
+      var id = data.id,
+      token = data.token,
+      key = data.key,
+      ip = socket.manager.handshaken[socket.id].address.address,
+      meta = data.metadata;
 
       if (!id || !token || !key) {
         socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -110,14 +115,8 @@ PeerServer.prototype._initializeWSS = function() {
         util.log(err);
       });
 
-      //Send clientlist to all clients
-      socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
-        if(key === "res" || key === "socket"){
-          return;
-        }
-        return value;
-      }));
-      socket.emit("users", JSON.stringify(self._clients, function(key, value){
+      //Send current client list to all peers
+      self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
         }
@@ -128,8 +127,8 @@ PeerServer.prototype._initializeWSS = function() {
 };
 
 PeerServer.prototype._configureWS = function(socket, key, id, token) {
-  var self = this;
-  var client = this._clients[key][id];
+  var self = this,
+  client = this._clients[key][id];
 
   if (token === client.token) {
     // res 'close' event will delete client.res for us
@@ -153,13 +152,8 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
-    socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
-      if(key === "res" || key === "socket"){
-        return;
-      }
-      return value;
-    }));
-    socket.emit("users", JSON.stringify(self._clients, function(key, value){
+    //Resend current client list to all peers
+    self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
       }
@@ -176,13 +170,8 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
         util.log(err);
         return;
       }
-      if(users){
-        response.users = users;
-        socket.emit("query_response", response);
-      }else {
-        response.users = null;
-        socket.emit("query_response", response);
-      }
+      response.users = users;
+      socket.emit("query_response", response);
     });
   });
 
@@ -215,8 +204,8 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
           util.prettyError('Message unrecognized');
       }
     } catch(e) {
-      throw e;
       util.log('Invalid message', data);
+      throw e;
     }
   });
 };
@@ -235,11 +224,11 @@ PeerServer.prototype._checkKey = function(key, ip, cb) {
       this._ips[ip] = 0;
     }
     // Check concurrent limit
-    if (Object.keys(this._clients[key]).length >= this._options.concurrent_limit) {
+    if (Object.keys(this._clients[key]).length >= this._options.concurrentLimit) {
       cb('Server has reached its concurrent user limit');
       return;
     }
-    if (this._ips[ip] >= this._options.ip_limit) {
+    if (this._ips[ip] >= this._options.ipLimit) {
       cb(ip + ' has reached its concurrent user limit');
       return;
     }
@@ -260,10 +249,10 @@ PeerServer.prototype._initializeHTTP = function() {
 
   // Server sets up HTTP streaming when you get post an ID.
   this._app.post('/:key/:id/:token/id', function(req, res, next) {
-    var id = req.params.id;
-    var token = req.params.token;
-    var key = req.params.key;
-    var ip = req.connection.remoteAddress;
+    var id = req.params.id,
+    token = req.params.token,
+    key = req.params.key,
+    ip = req.connection.remoteAddress;
 
     if (!self._clients[key] || !self._clients[key][id]) {
       self._checkKey(key, ip, function(err) {
@@ -282,10 +271,10 @@ PeerServer.prototype._initializeHTTP = function() {
   });
 
   var handle = function(req, res, next) {
-    var key = req.params.key;
-    var id = req.params.id;
+    var key = req.params.key,
+    id = req.params.id,
+    client;
 
-    var client;
     if (!self._clients[key] || !(client = self._clients[key][id])) {
       if (req.params.retry) {
         res.send(401);
@@ -431,13 +420,11 @@ PeerServer.prototype._removePeer = function(key, id) {
 
 /** Handles passing on a message. */
 PeerServer.prototype._handleTransmission = function(key, message) {
-  var type = message.type;
-  var src = message.src;
-  var dst = message.dst;
-  // message["clients"] = this._clients;
-  var data = JSON.stringify(message);
-
-  var destination = this._clients[key][dst];
+  var type = message.type,
+  src = message.src,
+  dst = message.dst,
+  data = JSON.stringify(message),
+  destination = this._clients[key][dst];
 
   // User is already connected!
   if (destination) {
