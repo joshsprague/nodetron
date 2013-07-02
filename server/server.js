@@ -71,6 +71,7 @@ PeerServer.prototype._initializeWSS = function() {
       var token = data.token;
       var key = data.key;
       var ip = socket.manager.handshaken[socket.id].address.address;
+      var meta = data.metadata;
 
       if (!id || !token || !key) {
         socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -78,6 +79,7 @@ PeerServer.prototype._initializeWSS = function() {
         return;
       }
 
+      //Insert client into client list
       if (!self._clients[key] || !self._clients[key][id]) {
         self._checkKey(key, ip, function(err) {
           if (!err) {
@@ -95,6 +97,20 @@ PeerServer.prototype._initializeWSS = function() {
         self._configureWS(socket, key, id, token);
       }
 
+      // Insert metadata into mongo for user discovery
+      Peer.findOneAndUpdate({email: meta.email},{
+        clientID: data.id,
+        firstName: meta.firstName,
+        lastName: meta.lastName,
+        email: meta.email,
+        city: meta.city,
+        state: meta.state,
+        country: meta.country
+      }, {upsert: true}, function(err){
+        util.log(err);
+      });
+
+      //Send clientlist to all clients
       socket.broadcast.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
@@ -151,17 +167,23 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     }));
   });
 
-  //Insert metadata into mongo for user discovery
-  socket.on("acknowledge", function(data) {
-    var connectedPeer = new Peer({
-      firstName: data.metadata.firstName,
-      lastName: data.metadata.lastName,
-      email: data.metadata.email,
-      city: data.metadata.city,
-      state: data.metadata.state,
-      country: data.metadata.country
+  //User query sent from client
+  socket.on("query_for_user", function(data) {
+    var response = {};
+    response.queryID = data.queryID;
+    Peer.find(data.queryParam, function(err, users) {
+      if(err){
+        util.log(err);
+        return;
+      }
+      if(users){
+        response.users = users;
+        socket.emit("query_response", response);
+      }else {
+        response.users = null;
+        socket.emit("query_response", response);
+      }
     });
-    connectedPeer.save();
   });
 
   // Handle messages from peers.

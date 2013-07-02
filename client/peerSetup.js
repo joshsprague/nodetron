@@ -1,4 +1,5 @@
 window.nodetron = window.nodetron || {};
+
 //Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
 nodetron.registerWithServer = function(options){
   options = options || {};
@@ -17,12 +18,13 @@ nodetron.registerWithServer = function(options){
   socket.emit('login', {
     key:cfg.key,
     id:cfg.id,
-    token:cfg.token
+    token:cfg.token,
+    metadata:cfg.metadata
   });
 
   socket.on('users', function (data) {
     if(cfg.debug){console.log(data);}
-    socket.emit('acknowledge', {received: true, metadata:cfg.metadata});
+    socket.emit('acknowledge', {received: true});
   });
 
   //Connection handler
@@ -38,7 +40,6 @@ nodetron.registerWithServer = function(options){
 
   //Setup the new peer object
   var peer = nodetron.peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
-
 
   peer.on('error', function(err){
     if(cfg.debug){console.log('Got an error:', err);}
@@ -63,13 +64,18 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
+  console.log("Querying server for: ", queryParam);
   socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
+    console.log("Received queryResponse from Server");
     if(nodetron.activeQueries[queryResponse.queryID]){
       console.log("firing callback");
-      nodetron.activeQueries[queryResponse.queryID](queryResponse); //fire the callback
+      nodetron.activeQueries[queryResponse.queryID](queryResponse.users); //fire the callback
       delete nodetron.activeQueries[queryID]; //remove it from the events hash
+    }
+    else {
+      throw new Error("Bad Query Response from server", queryResponse);
     }
   };
 
