@@ -5,4 +5,4 @@ var options = {
   mongo: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/test"
 };
 var server = new PeerServer(options);
-console.log('Running on port: ',options.port);
+console.log('Running on port: ', options.port);
