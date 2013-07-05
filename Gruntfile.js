@@ -100,6 +100,13 @@ module.exports = function (grunt) {
           nospawn:true
         }
       },
+    },
+    uglify: {
+      build: {
+        files: {
+          'nodetron.min.js': ['client/**/*.js']
+        }
+      }
     }
   });
 
@@ -189,5 +196,8 @@ module.exports = function (grunt) {
   ]);
   grunt.registerTask('cross', [
     'karma:cross'
+  ]);
+  grunt.registerTask('build', [
+
   ]);
 };
