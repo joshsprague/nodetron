@@ -4,8 +4,8 @@
 
 A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, IndexedDB, and AppCache
 
-####[Full API Documentation](/docs/API_Documentation.md/)
-####[A Discussion of Our Approach](/docs/Our_Approach.md/)
+####[Full API Documentation](/docs/API Documentation.md/)
+####[A Discussion of Our Approach](/docs/Our Approach.md/)
 
 ###Build and Run Instructions
 
