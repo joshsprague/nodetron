@@ -21,6 +21,7 @@
   "smarttabs": true,
   "validthis":true,
   "globals": {
+    "nodetron":true,
     "console":true,
     "define": true,
     "require": true,

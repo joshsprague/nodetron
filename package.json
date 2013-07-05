@@ -4,7 +4,8 @@
   "description": "A peer-to-peer, nearly-server-less, client-side web app framework using WebRTC.",
   "main": "server/peer.js",
   "scripts": {
-    "test": "grunt client-unit"
+    "test": "grunt client-unit",
+    "start": "node server/peer.js"
   },
   "repository": {
     "type": "git",
@@ -41,5 +42,9 @@
     "grunt-nodemon": "~0.0.7",
     "grunt-concurrent": "~0.3.0",
     "grunt-exec": "~0.4.2"
+  },
+  "subdomain": "nodetron",
+  "engines": {
+    "node": "0.8.x"
   }
 }
