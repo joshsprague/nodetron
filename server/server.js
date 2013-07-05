@@ -5,7 +5,7 @@ EventEmitter = require('events').EventEmitter,
 url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
-Peer = require("./models/Peer.js");
+peerSchema = require("./models/Peer.js");
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -21,7 +21,7 @@ function PeerServer(options) {
     concurrentLimit: 5000,
     ssl: {},
     mongo: "mongodb://localhost/test",
-    transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"]
+    transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
 
   util.debug = this._options.debug;
@@ -103,15 +103,15 @@ PeerServer.prototype._initializeWSS = function() {
       }
 
       // Insert metadata into mongo for user discovery
-      Peer.findOneAndUpdate({email: meta.email},{
-        clientID: data.id,
-        firstName: meta.firstName,
-        lastName: meta.lastName,
-        email: meta.email,
-        city: meta.city,
-        state: meta.state,
-        country: meta.country
-      }, {upsert: true}, function(err){
+      meta.clientID = id;
+      var schemaObj = {};
+      for(var objKey in meta) {
+        schemaObj[objKey] = typeof(meta[objKey]);
+      }
+
+      peerSchema.add(schemaObj);
+      Peer = mongoose.model("Peer", peerSchema);
+      Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err){
         util.log(err);
       });
 

@@ -1,16 +1,9 @@
 var mongoose = require("mongoose");
 
 var peerSchema = new mongoose.Schema({
-  clientID: String,
-  firstName: String,
-  lastName: String,
-  email: String,
-  city: String,
-  state: String,
-  country: String
+  email: String
 });
 
 peerSchema.path("email").index({unique: true});
 
-Peer = mongoose.model("Peer", peerSchema);
-module.exports = Peer;
+module.exports = peerSchema;
