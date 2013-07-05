@@ -32,13 +32,13 @@ More resources:
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
 2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
-##Deployment Instructions (Jitsu)
-1. Intall jitsu using `sudo npm install -g jitsu`
+###Deployment Instructions (Jitsu)
+1. Install jitsu using `sudo npm install -g jitsu`
 2. Login using `jitsu login`
 3. Deploy using `jitsu deploy`. On first deploy it will ask for node version and subdomain name.
 4. Current domain: http://bsalazar91-server.jit.su/ port: 80
 
-##Overview
+###Overview
 
 A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, IndexedDB, and AppCache. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.
 
@@ -49,11 +49,11 @@ A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, Web
 Technologies: WebRTC, HTML5 IndexedDB, AppCache, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).
 
 
-##Current Architecture
+###Current Architecture
 
 Clients send 'discovery queries' to a central server/database. The server responds with potential matches. Clients then contact the matches directly over WebRTC and exchange information. Clients specify what information they make publicly available for discovery on the central server. Clients are also responsible for granting, denying, or upgrading access over WebRTC.
 
-##Value proposition:
+###Value proposition:
 
 * privacy - outside parties cannot inspect private info
 * (server) access redundancy - if central server goes down you can still exchange data with others.
@@ -64,14 +64,14 @@ Clients send 'discovery queries' to a central server/database. The server respon
 
 * Client must be active (browser window open) to send/receive requests.
 
-**Browser CompatabilityL**
+**Browser Compatibility**
 
 * Web Workers: IE10+
 * IndexedDB: IE10+, should use moz/webkit prefixes, FF10+, CH23+, no Safari
     * WebSQL shim for Safari and mobile
 * WebRTC: no IE, FF20+, CH26+, no Safari.
 
-#Acknowledgments:
+##Acknowledgments:
 
 90% of server code is forked from PeerJS Server (https://github.com/peers/peerjs-server). Thanks to their great work!
 
