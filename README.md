@@ -4,6 +4,9 @@
 
 A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, IndexedDB, and AppCache
 
+####[Full API Documentation](/API Documentation.md/)
+####[A Discussion of Our Approach](/Our Approach.md/)
+
 ###Build and Run Instructions
 
 * `npm install && bower install`
