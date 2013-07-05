@@ -31,6 +31,12 @@ module.exports = function (grunt) {
           port: 9000,
           keepalive:true
         }
+      },
+      demo: {
+        options: {
+          base:'demo/app',
+          port:'<%= connect.client.options.port %>'
+        }
       }
     },
     exec: {
@@ -53,7 +59,8 @@ module.exports = function (grunt) {
     },
     nodemon: {
       options: {
-        file: 'server/peer.js'
+        file: 'server/peer.js',
+        watchedFolders: ['server']
       },
       dev: {
           // ignoredFiles: ['README.md', 'node_modules/**'],
@@ -100,6 +107,14 @@ module.exports = function (grunt) {
           nospawn:true
         }
       },
+      demo: {
+        files: ['demo/**/*'],
+        options: {
+          livereload:true,
+          keepalive:true,
+          // nospawn:true
+        }
+      }
     },
     uglify: {
       build: {
@@ -199,5 +214,11 @@ module.exports = function (grunt) {
   ]);
   grunt.registerTask('build', [
 
+  ]);
+  grunt.registerTask('demo', [
+    'server',
+    'connect:demo',
+    'open:client',
+    'watch:demo'
   ]);
 };
