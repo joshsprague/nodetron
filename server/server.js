@@ -6,6 +6,7 @@ url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
 peerSchema = require("./models/Peer.js");
+Peer = mongoose.model("Peer", peerSchema);
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -21,6 +22,7 @@ function PeerServer(options) {
     concurrentLimit: 5000,
     ssl: {},
     mongo: "mongodb://localhost/test",
+    userSchema: false,
     transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
 
@@ -103,17 +105,7 @@ PeerServer.prototype._initializeWSS = function() {
       }
 
       // Insert metadata into mongo for user discovery
-      meta.clientID = id;
-      var schemaObj = {};
-      for(var objKey in meta) {
-        schemaObj[objKey] = typeof(meta[objKey]);
-      }
-
-      peerSchema.add(schemaObj);
-      Peer = mongoose.model("Peer", peerSchema);
-      Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err){
-        util.log(err);
-      });
+      self.dbInsert(meta, data.id);
 
       //Send current client list to all peers
       self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
@@ -168,10 +160,10 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     Peer.find(data.queryParam, function(err, users) {
       if(err){
         util.log(err);
-        return;
+      }else {
+        response.users = users;
+        socket.emit("query_response", response);
       }
-      response.users = users;
-      socket.emit("query_response", response);
     });
   });
 
@@ -466,6 +458,24 @@ PeerServer.prototype._handleTransmission = function(key, message) {
       // Unavailable destination specified with message LEAVE or EXPIRE
       // Ignore
     }
+  }
+};
+
+PeerServer.prototype.dbInsert = function(meta, id) {
+  if(!this._options.userSchema){
+    meta.clientID = id;
+    var schemaObject = {};
+
+    for(var key in meta) {
+      schemaObject[key] = typeof(meta[key]);
+    }
+
+    peerSchema.add(schemaObject);
+    Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err){
+      util.log(err);
+    });
+  }else {
+    //TODO: Insert into db with user defined schema
   }
 };
 
