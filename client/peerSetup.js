@@ -56,17 +56,15 @@ nodetron.registerWithServer = function(options){
   //Listen for incoming connections (direct from the sample)
   peer.on('connection', handleConn);
 
-  return {peer: peer, socket: socket};
 };
 
-nodetron.findPeer = function(socketCon, queryParam, callback){
+nodetron.findPeer = function(queryParam, callback){
   var queryID = uuid.v4();
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
-  socketCon = socketCon || nodetron.socket; //default socket
   console.log("Querying server for: ", queryParam);
-  socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
+  nodetron.socket.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
     console.log("Received queryResponse from Server");
@@ -80,5 +78,5 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
     }
   };
 
-  socketCon.on('query_response', dispatchResponse);
+  nodetron.socket.on('query_response', dispatchResponse);
 };
