@@ -58,6 +58,12 @@ nodetron.registerWithServer = function(options){
 
 };
 
+
+nodetron.updateMetadata = function(data){
+  nodetron.socket.emit("update_metadata", {metadata:data});
+};
+
+
 nodetron.findPeer = function(queryParam, callback){
   var queryID = uuid.v4();
   nodetron.activeQueries =  nodetron.activeQueries || {};
