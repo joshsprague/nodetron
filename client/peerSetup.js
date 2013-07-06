@@ -1,18 +1,42 @@
 window.nodetron = window.nodetron || {};
 
-//Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
-nodetron.registerWithServer = function(options){
-  options = options || {};
+nodetron.setup = function(options, success) {
+  //can be undefined or truthy
+  if (options.autologin !== false) {
+    var id = localStorage.getItem('_nodetron_uuid');
+    var metadata = localStorage.getItem('_nodetron_user_metadata');
+    metadata = metadata && JSON.parse(metadata);
+    if (id && metadata) {
+      nodetron.registerWithServer(_.extend({
+        id:id,
+        metadata:metadata,
+      }, options));
+      success(metadata);
+    }
+  }
+};
 
-  var cfg = {};
-  cfg.host = options.host || '127.0.0.1'; //development:'127.0.0.1', production:bsalazar91-server.jit.su //localhost doesn't work
-  cfg.port = options.port || '5000'; //development: 5000, production:80
+var registered = false;
+//Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection'
+nodetron.registerWithServer = function(options){
+  if (typeof options === 'undefined' || typeof options.host === 'undefined') {
+    throw new Error('Host not specified!');
+  }
+  if (registered) {
+    return;
+  }
+
+  var cfg = options;
+  cfg.host = options.host; //development:'127.0.0.1', production:bsalazar91-server.jit.su //localhost doesn't work
+  cfg.port = options.port || 80; //development: 5000, production:80
   cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
   cfg.debug = options.debug || true; //enable debugging by default
-  cfg.key = options.key || 'peerjs'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
-  cfg.metadata = options.metadata || {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
-  cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
+  cfg.key = options.key || 'default'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
+  cfg.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
+  cfg.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
   cfg.token = uuid.v4(); //random token to auth this connection/session
+
+  localStorage.setItem('_nodetron_user_metadata',JSON.stringify(options.metadata));
 
   var socket = nodetron.socket = io.connect(cfg.host+':'+cfg.port);
   socket.emit('login', {
@@ -56,6 +80,7 @@ nodetron.registerWithServer = function(options){
   //Listen for incoming connections (direct from the sample)
   peer.on('connection', handleConn);
 
+  registered = true;
   return {peer: peer, socket: socket};
 };
 
