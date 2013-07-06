@@ -64,6 +64,7 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
+  socketCon = socketCon || nodetron.socket; //default socket
   console.log("Querying server for: ", queryParam);
   socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
