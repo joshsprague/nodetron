@@ -6,7 +6,7 @@ url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
 peerSchema = require("./models/Peer.js");
-Peer = mongoose.model("Peer", peerSchema);
+// Peer = mongoose.model("Peer", peerSchema);
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -105,7 +105,7 @@ PeerServer.prototype._initializeWSS = function() {
       }
 
       // Insert metadata into mongo for user discovery
-      self.dbInsert(meta, data.id);
+      self.dbHandler.insert(meta, data.id, self);
 
       //Send current client list to all peers
       self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
@@ -155,16 +155,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
   //User query sent from client
   socket.on("query_for_user", function(data) {
-    var response = {};
-    response.queryID = data.queryID;
-    Peer.find(data.queryParam, function(err, users) {
-      if(err){
-        util.log(err);
-      }else {
-        response.users = users;
-        socket.emit("query_response", response);
-      }
-    });
+    self.dbHandler.query(data.queryParam, data.queryID, socket);
   });
 
   // Handle messages from peers.
@@ -461,21 +452,37 @@ PeerServer.prototype._handleTransmission = function(key, message) {
   }
 };
 
-PeerServer.prototype.dbInsert = function(meta, id) {
-  if(!this._options.userSchema){
-    meta.clientID = id;
-    var schemaObject = {};
+PeerServer.prototype.dbHandler = {
+  insert: function(meta, id, self){
+    if(!self._options.userSchema){
+      meta.clientID = id;
+      var schemaObject = {};
 
-    for(var key in meta) {
-      schemaObject[key] = typeof(meta[key]);
+      for(var key in meta) {
+        schemaObject[key] = typeof(meta[key]);
+      }
+
+      peerSchema.add(schemaObject);
+      Peer = mongoose.model("Peer", peerSchema);
+      Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err, data){
+        if(err) util.log(err);
+      });
+    }else {
+      //TODO: Insert into db with user defined schema
     }
+  },
 
-    peerSchema.add(schemaObject);
-    Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err){
-      util.log(err);
+  query: function(param, id, socket) {
+    var response = {};
+    response.queryID = id;
+    Peer.find(param, function(err, users) {
+      if(err){
+        if(err) util.log(err);
+      }else {
+        response.users = users;
+        socket.emit("query_response", response);
+      }
     });
-  }else {
-    //TODO: Insert into db with user defined schema
   }
 };
 
