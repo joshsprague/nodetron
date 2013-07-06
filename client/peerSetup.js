@@ -60,7 +60,7 @@ nodetron.registerWithServer = function(options){
 };
 
 nodetron.findPeer = function(socketCon, queryParam, callback){
-  var queryID = Math.random(); //TODO - upgrade this to a proper uuid function like uuid.v4();
+  var queryID = uuid.v4();
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 

@@ -17,10 +17,13 @@ files = [
   'client/components/node-uuid/uuid.js',
   'client/components/q/q.min.js',
   'http://axemclion.github.com/IndexedDBShim/dist/IndexedDBShim.min.js',
-  'http://cdn.peerjs.com/0/peer.min.js',
+  'client/webrtc/dist/peer.js',
   'http://code.jquery.com/jquery-1.10.1.min.js',
 
   {pattern: 'client/index.html', included:false},
+  {pattern: 'client/init.js', included:false},
+  {pattern: 'client/peerComm.js', included:false},
+
   {pattern: 'client/background/workerInternal.js', included:false},
   {pattern: 'client/*.js'},
   {pattern: 'client/background/*.js'},
@@ -33,7 +36,6 @@ files = [
 exclude = [
   // 'components'
 ];
-
 
 // test results reporter to use
 // possible values: 'dots', 'progress', 'junit'
