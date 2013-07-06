@@ -17,7 +17,7 @@ function PeerServer(options) {
     port: 80,
     debug: false,
     timeout: 5000,
-    key: 'peerjs',
+    key: 'default',
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
@@ -295,7 +295,6 @@ PeerServer.prototype._initializeHTTP = function() {
 
   this._app.get('/', function(req, res, next){
     //TODO: serve static
-    res.send("hi");
     return next();
   });
 
@@ -476,9 +475,9 @@ PeerServer.prototype.dbHandler = {
     var response = {};
     response.queryID = id;
     Peer.find(param, function(err, users) {
-      if(err){
-        if(err) util.log(err);
-      }else {
+      if(err) {
+        util.log(err);
+      } else {
         response.users = users;
         socket.emit("query_response", response);
       }
