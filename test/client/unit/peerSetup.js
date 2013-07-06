@@ -1,8 +1,8 @@
 describe('registerWithServer', function(){
-  it('should return a socket and peer', function(){
+  it('should attached a socket and peer to the nodetron object', function(){
     var connection = nodetron.registerWithServer();
-    expect(connection.socket).to.exist;
-    expect(connection.peer).to.exist;
+    expect(nodetron.socket).to.exist;
+    expect(nodetron.peer).to.exist;
   });
 
 });
