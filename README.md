@@ -10,8 +10,9 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
 ###Build and Run Instructions
 
 * `npm install && bower install`
-* `git submodule init && git submodule update`
+* `git submodule init && git submodule update --remote`
 * For debugging, install global dependencies: `npm -g install node-inspector`
+* Always use `git submodule update --remote` to update the demo submodule.
 
 1. `grunt all` to run server and serve client with static server.
     * Append `:<number>` to specify how many client instances you want to run.
@@ -25,7 +26,7 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
 4. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
 5. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
-If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` error, remove restify from your local node_modules folder and re-run npm install in the project root.
+If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` error, remove `restify` from your local `node_modules` folder and re-run `npm install` in the project root.
 
 More resources:
 
@@ -33,10 +34,11 @@ More resources:
 2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
 ###Deployment Instructions (Jitsu)
-1. Install jitsu using `sudo npm install -g jitsu`
+1. Install the jitsu package using `npm install -g jitsu`
+    * supply any necessary credentials.
 2. Login using `jitsu login`
-3. Deploy using `jitsu deploy`. On first deploy it will ask for node version and subdomain name.
-4. Current domain: http://bsalazar91-server.jit.su/ port: 80
+3. Deploy using `jitsu deploy`.
+4. Current domain: http://bsalazar91-server.jit.su at port:80 and http://nodetron.jit.su at port:80.
 
 ###Overview
 
