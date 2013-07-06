@@ -1,4 +1,8 @@
 var PeerServer = require("./server.js").PeerServer;
-var port = process.env.PORT || 5000;
-var server = new PeerServer({port: port, debug: true});
-console.log('Running on port: ',port);
+var options = {
+  port: process.env.PORT || 5000,
+  debug: true, //Enable server logs
+  mongo: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/test"
+};
+var server = new PeerServer(options);
+console.log('Running on port: ', options.port);
