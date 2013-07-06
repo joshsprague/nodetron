@@ -2,6 +2,7 @@ module.exports = function (grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   grunt.initConfig({
+    clientFolder: 'demo/app', //default is usually client
     pkg: grunt.file.readJSON('package.json'),
     concurrent: {
       options: {
@@ -19,7 +20,7 @@ module.exports = function (grunt) {
     },
     connect: {
       options: {
-        base:'client'
+        base:'<%= clientFolder %>'
       },
       client: {
         options: {
@@ -30,12 +31,6 @@ module.exports = function (grunt) {
         options: {
           port: 9000,
           keepalive:true
-        }
-      },
-      demo: {
-        options: {
-          base:'demo/app',
-          port:'<%= connect.client.options.port %>'
         }
       }
     },
@@ -100,21 +95,21 @@ module.exports = function (grunt) {
     },
     watch: {
       client: {
-        files: ['client/**/*'],
+        files: ['<%= clientFolder %>/**/*'],
         options: {
           livereload:true,
           keepalive:true,
           nospawn:true
         }
       },
-      demo: {
-        files: ['demo/**/*'],
-        options: {
-          livereload:true,
-          keepalive:true,
-          // nospawn:true
-        }
-      }
+      // demo: {
+      //   files: ['demo/**/*'],
+      //   options: {
+      //     livereload:true,
+      //     keepalive:true,
+      //     // nospawn:true
+      //   }
+      // }
     },
     uglify: {
       build: {
@@ -124,6 +119,14 @@ module.exports = function (grunt) {
       }
     }
   });
+
+  grunt.registerTask('demo', 'Set the base client folder to "demo" and run subsequent task arguments', function() {
+    grunt.config.set('clientFolder','demo/app');
+    var args = [].join.call(arguments,':');
+    grunt.task.run(args);
+  });
+
+
 
   //takes any number of arguments: a task-argument chain to run
   //grunt automatically splits a string on the colon character, passes those in as separate arguments.
@@ -214,11 +217,5 @@ module.exports = function (grunt) {
   ]);
   grunt.registerTask('build', [
 
-  ]);
-  grunt.registerTask('demo', [
-    'server',
-    'connect:demo',
-    'open:client',
-    'watch:demo'
   ]);
 };
