@@ -5,8 +5,6 @@
   var localStor = window.localStorage;
   var uuid = nodetron.id = localStor.getItem('_nodetron_uuid') || window.uuid.v4();
   localStor.setItem('_nodetron_uuid', uuid);
-  var registered = localStor.getItem('_nodetron_registered') || false;
-  localStor.setItem('_nodetron_registered',registered);
 
   // Normally workers pass objects by copy, not reference.
   // worker can be passed other types like File, Blob, ArrayBuffer/
