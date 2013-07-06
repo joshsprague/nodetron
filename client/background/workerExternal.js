@@ -1,9 +1,9 @@
 (function(window) {
   var nodetron = window.nodetron || (window.nodetron = {});
-  nodetron.worker = new Worker('background/workerInternal.js');
+  nodetron.worker = new Worker('scripts/nodetron/background/workerInternal.js');
 
   var localStor = window.localStorage;
-  var uuid = localStor.getItem('_nodetron_uuid') || window.uuid.v4();
+  var uuid = nodetron.id = localStor.getItem('_nodetron_uuid') || window.uuid.v4();
   localStor.setItem('_nodetron_uuid', uuid);
   var registered = localStor.getItem('_nodetron_registered') || false;
   localStor.setItem('_nodetron_registered',registered);

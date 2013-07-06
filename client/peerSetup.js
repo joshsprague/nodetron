@@ -39,7 +39,7 @@ nodetron.registerWithServer = function(options){
   };
 
   //Setup the new peer object
-  var peer = nodetron.peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+  var peer = nodetron.self = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
 
   peer.on('error', function(err){
     if(cfg.debug){console.log('Got an error:', err);}

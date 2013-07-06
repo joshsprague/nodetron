@@ -27,7 +27,8 @@
     conn.on('data', function(data) {
 
       //handle responses to requests.
-      if (data._id && (var callback = conn.idQueue[data._id])) {
+      var callback = data._id && conn.idQueue[data._id];
+      if (callback) {
         callback(data.data);
         conn.idQueue[data._id] = null;
       }
