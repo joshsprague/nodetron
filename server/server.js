@@ -6,7 +6,6 @@ url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
 peerSchema = require("./models/Peer.js");
-// Peer = mongoose.model("Peer", peerSchema);
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -454,6 +453,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 
 PeerServer.prototype.dbHandler = {
   insert: function(meta, id, self){
+    //Automated Schema
     if(!self._options.userSchema){
       meta.clientID = id;
       var schemaObject = {};
@@ -462,13 +462,20 @@ PeerServer.prototype.dbHandler = {
         schemaObject[key] = typeof(meta[key]);
       }
 
+      //Add to schema based on metadata passed up
       peerSchema.add(schemaObject);
+      Peer = mongoose.model("Peer", peerSchema);
+
+      Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err, data){
+        if(err) util.log(err);
+      });
+    //Pre defined Schema
+    }else {
+      //TODO: Insert into db with pre defined schema
       Peer = mongoose.model("Peer", peerSchema);
       Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
       });
-    }else {
-      //TODO: Insert into db with user defined schema
     }
   },
 
