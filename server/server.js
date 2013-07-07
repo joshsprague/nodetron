@@ -73,7 +73,7 @@ PeerServer.prototype._initializeWSS = function() {
   this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
-    socket.on("login", function(data) {
+    socket.on('login', function(data) {
       var id = data.id,
       token = data.token,
       key = data.key,
