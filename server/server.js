@@ -159,10 +159,8 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
   });
 
   // Handle messages from peers.
-  socket.on('message', function(data) {
+  socket.on('nodetron', function(message) {
     try {
-      var message = JSON.parse(data);
-
       switch (message.type) {
         case 'LEAVE':
           // Clean up if a Peer sends a LEAVE.
