@@ -27,7 +27,7 @@ after establishing the session, registerWithServer will attach peer and socket c
 
 just pass in a peer's id and nodetron will establish a connection
 
-     nodetron.initiatePeerConnection(peerID);
+     nodetron.initiatePeerConnection(peerId);
 
 ####Finally, find and connect to more users!
 Give nodetron some query parameters (based on the arbitrary metadata each client publishes)

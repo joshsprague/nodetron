@@ -1,7 +1,7 @@
 var mongoose = require("mongoose");
 
 var peerSchema = new mongoose.Schema({
-  clientID: String,
+  clientId: String,
   email: String
 });
 

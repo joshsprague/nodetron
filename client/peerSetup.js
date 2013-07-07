@@ -76,20 +76,20 @@ nodetron.registerWithServer = function(options){
 };
 
 nodetron.findPeer = function(socketCon, queryParam, callback){
-  var queryID = window.uuid.v4();
+  var queryId = window.uuid.v4();
 
   nodetron.activeQueries =  nodetron.activeQueries || {};
-  nodetron.activeQueries[queryID] = callback;
+  nodetron.activeQueries[queryId] = callback;
 
   console.log("Querying server for: ", queryParam);
-  nodetron.socket.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
+  nodetron.socket.emit('query_for_user', {queryId:queryId,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
     console.log("Received queryResponse from Server");
-    if(nodetron.activeQueries[queryResponse.queryID]){
+    if(nodetron.activeQueries[queryResponse.queryId]){
       console.log("firing callback");
-      nodetron.activeQueries[queryResponse.queryID](queryResponse.users); //fire the callback
-      delete nodetron.activeQueries[queryID]; //remove it from the events hash
+      nodetron.activeQueries[queryResponse.queryId](queryResponse.users);
+      delete nodetron.activeQueries[queryId];
     }
     else {
       throw new Error("Bad Query Response from server", queryResponse);

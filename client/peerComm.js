@@ -75,7 +75,7 @@
     var metadata = {_id:eventId, query:query};
 
     if (typeof target === 'object') {
-      target = nodetron.startPeerConnection(target.clientID, metadata);
+      target = nodetron.startPeerConnection(target.clientId, metadata);
     }
     else if (typeof target === 'string') {
       target = nodetron.startPeerConnection(target, metadata);

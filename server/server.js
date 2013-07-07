@@ -155,7 +155,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
   //User query sent from client
   socket.on("query_for_user", function(data) {
-    self.dbHandler.query(data.queryParam, data.queryID, socket);
+    self.dbHandler.query(data.queryParam, data.queryId, socket);
   });
 
   // Handle messages from peers.
@@ -453,7 +453,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 PeerServer.prototype.dbHandler = {
   insert: function(meta, id, self){
     if(!self._options.userSchema){
-      meta.clientID = id;
+      meta.clientId = id;
       var schemaObject = {};
 
       for(var key in meta) {
@@ -472,7 +472,7 @@ PeerServer.prototype.dbHandler = {
 
   query: function(param, id, socket) {
     var response = {};
-    response.queryID = id;
+    response.queryId = id;
     Peer.find(param, function(err, users) {
       if(err) {
         util.log(err);
