@@ -31,6 +31,7 @@ nodetron.registerWithServer = function(options){
   cfg.port = options.port || 80; //development: 5000, production:80
   cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
   cfg.debug = options.debug || true; //enable debugging by default
+  nodetron.debug = options.debug;
   cfg.key = options.key || 'default'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
   cfg.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
   cfg.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
@@ -48,19 +49,14 @@ nodetron.registerWithServer = function(options){
 
   socket.on('users', function (data) {
     if(cfg.debug){console.log(data);}
+    console.log('acknowledge');
     socket.emit('acknowledge', {received: true});
   });
-
-  //Connection handler
-  var handleConn = function(conn){
-    conn.on('data', function(data){
-      if(cfg.debug){console.log('Got DataChannel data:', data);}
+  if (cfg.debug) {
+    socket.on('message', function(data){
+      console.log('Nodetron: ',data);
     });
-
-    conn.on('error', function(err){
-      if(cfg.debug){console.log('Got DataChannel data:', err);}
-    });
-  };
+  }
 
   //Setup the new peer object
   var peer = nodetron.self = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
@@ -76,9 +72,6 @@ nodetron.registerWithServer = function(options){
   peer.on('open', function(id){
     if(cfg.debug){console.log('Connection Opened, User ID is', id);}
   });
-
-  //Listen for incoming connections (direct from the sample)
-  peer.on('connection', handleConn);
 
   registered = true;
   return {peer: peer, socket: socket};
