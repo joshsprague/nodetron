@@ -1,8 +1,5 @@
 (function(nodetron) {
 
-  // creates a new connection and returns it
-  //query:optional
-
   var requestQueue = {
       get:[],
       post:[],
@@ -10,6 +7,7 @@
       delete:[]
     };
   //peerjs doesn't conform to its api: metadata isn't actually passed in to the callback
+  //metadata is actually on the connection object
   //https://github.com/peers/peerjs/blob/master/docs/api.md#event-connection
   var eventifyConnection = function(conn, ignoreMetadata) {
     conn.eventBucket = 0;
@@ -23,7 +21,6 @@
   };
   var connectionHandler = function(conn){
     conn.on('open', function() {
-      conn.send('Acknowledge');
       console.log("Connection Opened");
     });
 
@@ -40,7 +37,6 @@
         requestHandler(data,conn);
       }
     });
-
     conn.on('error', function(err){
       if(nodetron.debug){console.log('Got DataChannel data:', err);}
     });
@@ -94,7 +90,6 @@
   nodetron.registerForPeerRequests = function(method,func) {
 
     if (!listening) {
-      //Listen for incoming connections
       console.log('now listening');
       nodetron.self.on('connection', eventifyConnection);
       listening = true;
@@ -102,7 +97,7 @@
 
     var bucket = requestQueue[method];
     if (!bucket) {
-      throw new Error('No such resource method.');
+      throw new Error('No such request method.');
     }
     requestQueue[method].push(func);
   };

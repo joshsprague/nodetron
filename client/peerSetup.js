@@ -22,6 +22,9 @@ nodetron.registerWithServer = function(options){
   if (typeof options === 'undefined' || typeof options.host === 'undefined') {
     throw new Error('Host not specified!');
   }
+  if (options.host === 'localhost') {
+    throw new Error('Localhost is not a valid option; use 127.0.0.11');
+  }
   if (registered) {
     return;
   }
@@ -87,7 +90,7 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
       delete nodetron.activeQueries[queryId];
     }
     else {
-      throw new Error("Bad Query Response from server", queryResponse);
+      throw new Error("Bad query response from server", queryResponse);
     }
   };
 
