@@ -188,7 +188,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
       }
     } catch(e) {
       util.log('Invalid message', data);
-      throw e;
+      util.prettyError(e); //previously was a throw
     }
   });
 };
@@ -413,13 +413,14 @@ PeerServer.prototype._handleTransmission = function(key, message) {
     try {
       util.log(type, 'from', src, 'to', dst);
       if (destination.socket) {
+        //WARNING: data must be a string
         destination.socket.send(data);
       } else if (destination.res) {
         data += '\n';
         destination.res.write(data);
       } else {
         // Neither socket nor res available. Peer dead?
-        throw "Peer dead"
+        util.prettyError("Peer dead!"); //previously was a throw
       }
     } catch (e) {
       // This happens when a peer disconnects without closing connections and
