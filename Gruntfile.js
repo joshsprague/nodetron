@@ -21,7 +21,7 @@ module.exports = function (grunt) {
         logConcurrentOutput:true
       },
       debug: {
-        tasks:['exec:debugger','nodemon:debug','delayed:open:debug']
+        tasks:['exec:mongod','exec:debugger','nodemon:debug','delayed:open:debug']
       },
       all: {
         tasks:['server','delayed:client']
@@ -51,6 +51,9 @@ module.exports = function (grunt) {
     exec: {
       debugger: {
         cmd: 'node-inspector'
+      },
+      mongod: {
+        cmd:'mongod'
       }
     },
     karma: {
@@ -202,6 +205,7 @@ module.exports = function (grunt) {
     'watch:client'
   ]);
   grunt.registerTask('server', [
+    'exec:mongod',
     'nodemon:dev'
   ]);
   grunt.registerTask('server:debug', [
