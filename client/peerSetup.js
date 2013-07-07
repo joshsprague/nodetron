@@ -26,51 +26,46 @@ nodetron.registerWithServer = function(options){
     return;
   }
 
-  var cfg = options;
-  cfg.host = options.host; //development:'127.0.0.1', production:bsalazar91-server.jit.su //localhost doesn't work
-  cfg.port = options.port || 80; //development: 5000, production:80
-  cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-  cfg.debug = options.debug || true; //enable debugging by default
-  nodetron.debug = options.debug;
-  cfg.key = options.key || 'default'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
-  cfg.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
-  cfg.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
-  cfg.token = uuid.v4(); //random token to auth this connection/session
-
+  options.port = options.port || 80; //development: 5000, production:80
+  options.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
+  options.debug = nodetron.debug = options.debug || false;
+  options.key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
+  options.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
   localStorage.setItem('_nodetron_user_metadata',JSON.stringify(options.metadata));
+  options.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
+  options.token = uuid.v4(); //random token to auth this connection/session
 
-  var socket = nodetron.socket = io.connect(cfg.host+':'+cfg.port);
+  var socket = nodetron.socket = io.connect(options.host+':'+options.port);
   socket.emit('login', {
-    key:cfg.key,
-    id:cfg.id,
-    token:cfg.token,
-    metadata:cfg.metadata
+    key:options.key,
+    id:options.id,
+    token:options.token,
+    metadata:options.metadata
   });
 
   socket.on('users', function (data) {
-    if(cfg.debug){console.log(data);}
-    console.log('acknowledge');
+    if(options.debug){console.log(data);}
     socket.emit('acknowledge', {received: true});
   });
-  if (cfg.debug) {
+  if (options.debug) {
     socket.on('message', function(data){
       console.log('Nodetron: ',data);
     });
   }
 
   //Setup the new peer object
-  var peer = nodetron.self = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+  var peer = nodetron.self = new Peer(options.id, {host: options.host, port: options.port}, socket);
 
   peer.on('error', function(err){
-    if(cfg.debug){console.log('Got an error:', err);}
+    if(options.debug){console.log('Got an error:', err);}
   });
 
   peer.on('close', function(err){
-    if(cfg.debug){console.log('Connection closed', err);}
+    if(options.debug){console.log('Connection closed', err);}
   });
 
   peer.on('open', function(id){
-    if(cfg.debug){console.log('Connection Opened, User ID is', id);}
+    if(options.debug){console.log('Connection Opened, User ID is', id);}
   });
   registered = true;
 };
