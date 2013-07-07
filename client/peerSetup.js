@@ -72,18 +72,17 @@ nodetron.registerWithServer = function(options){
   peer.on('open', function(id){
     if(cfg.debug){console.log('Connection Opened, User ID is', id);}
   });
-
   registered = true;
-  return {peer: peer, socket: socket};
 };
 
 nodetron.findPeer = function(socketCon, queryParam, callback){
   var queryID = window.uuid.v4();
+
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryID] = callback;
 
   console.log("Querying server for: ", queryParam);
-  socketCon.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
+  nodetron.socket.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
     console.log("Received queryResponse from Server");
@@ -97,5 +96,5 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
     }
   };
 
-  socketCon.on('query_response', dispatchResponse);
+  nodetron.socket.on('query_response', dispatchResponse);
 };

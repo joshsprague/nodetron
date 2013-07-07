@@ -24,17 +24,17 @@
   <body>
     <script>
       $(function(){
-        var connection = nodetron.registerWithServer();
+        nodetron.registerWithServer();
         $('.enter-user-id').click(function(evt){
           var peerID = $('user-id').val();
-          nodetron.initiatePeerConnection(connection.peer, peerID);
+          nodetron.initiatePeerConnection(peerID);
         });
         $('.enter-user-email').click(function(evt){
           var email = $('.user-email').val();
-          nodetron.findPeer(connection.socket, {email:email}, function(matches){
+          nodetron.findPeer({email:email}, function(matches){
             if(matches.length > 0){
               debugger;
-              nodetron.initiatePeerConnection(connection.peer, matches[0]._id);
+              nodetron.initiatePeerConnection(matches[0]._id);
             } else {
               console.log("Query Failed, no matches found");
             }

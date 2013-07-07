@@ -2,7 +2,7 @@
 
 **Warning: this project is under heavy development and is still in its initial prototyping stage**
 
-A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, IndexedDB, and AppCache
+A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.
 
 ####[Full API Documentation](/docs/API Documentation.md/)
 ####[A Discussion of Our Approach](/docs/Our Approach.md/)
@@ -42,13 +42,13 @@ More resources:
 
 ###Overview
 
-A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, IndexedDB, and AppCache. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.
+A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, and IndexedDB. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.
 
 **Challenges:**
 
 1. In most WebRTC implementations, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One challenge is to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.
 
-Technologies: WebRTC, HTML5 IndexedDB, AppCache, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).
+Technologies: WebRTC, HTML5 IndexedDB, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).
 
 
 ###Current Architecture
