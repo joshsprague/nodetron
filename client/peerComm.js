@@ -9,46 +9,53 @@
       put:[],
       delete:[]
     };
-    initConnEvents(conn);
-    return conn;
+  //peerjs doesn't conform to its api: metadata isn't actually passed in to the callback
+  //https://github.com/peers/peerjs/blob/master/docs/api.md#event-connection
+  var eventifyConnection = function(conn, ignoreMetadata) {
+    conn.eventBucket = 0;
+    conn.idQueue = {};
+    connectionHandler(conn);
+    if (!ignoreMetadata) {
+      var query = conn.metadata;
+      query = query && query.query;
+      query && requestHandler(query,conn);
+    }
   };
-
-  var initConnEvents = function(conn) {
+  var connectionHandler = function(conn){
     conn.on('open', function() {
       conn.send('Acknowledge');
       console.log("Connection Opened");
     });
 
-    //handles eventing
-    conn.on('data', function(data) {
-
+    conn.on('data', function(data){
+      if(nodetron.debug){console.log('Got DataChannel data:', data);}
       //handle responses to requests.
       var callback = data._id && conn.idQueue[data._id];
       if (callback) {
         callback(data.data);
         conn.idQueue[data._id] = null;
       }
-
-      //handle requests
+      //handle other requests
       else {
-        var events = conn.requestQueue[data.method]
-        if (events) {
-          var req = data;
-          var resp = new Response(req,conn);
-          for (var i = 0; i < events.length; i++) {
-            if (events[i](req,resp)) {
-              break;
-            }
-          }
-        }
+        requestHandler(data,conn);
       }
     });
+
     conn.on('error', function(err){
-      console.log('Got DataChannel error:', err);
+      if(nodetron.debug){console.log('Got DataChannel data:', err);}
     });
-    conn.on('close', function(data){
-      console.log('Connection Closed', data);
-    });
+  };
+  var requestHandler = function(data,conn) {
+    var events = requestQueue[data.method];
+    if (events) {
+      var req = data;
+      var resp = new Response(req,conn);
+      for (var i = 0; i < events.length; i++) {
+        if (events[i](req,resp)) {
+          break;
+        }
+      }
+    }
   };
 
   nodetron.startPeerConnection = function(peerId, metadata){
@@ -58,26 +65,41 @@
   };
 
   //default method is get
-  //conn accepts a peerid or dataconnection.
-  nodetron.requestPeerResource = function(conn,query,callback) {
+  //conn accepts a peerid, dataconnection, or peer object.
+  nodetron.requestPeerResource = function(target,query,callback) {
     if (typeof query.resource === 'undefined') {
       throw new Error('No resource requested');
     }
     query.method = query.method || 'get';
-    var data = {_id:conn.eventBucket, query:query};
-    if (!(conn instanceof DataConnection)) {
-      conn = nodetron.initPeerConnection(conn, {metadata:data});
+    var eventId = target.eventBucket;
+    var metadata = {_id:eventId, query:query};
+
+    if (typeof target === 'object') {
+      target = nodetron.startPeerConnection(target.clientID, metadata);
+    }
+    else if (typeof target === 'string') {
+      target = nodetron.startPeerConnection(target, metadata);
     }
     else {
-      conn.send(data);
+      target.send(data);
     }
-    conn.idQueue[_id] = callback;
-    conn.eventBucket++;
+    //target is now a DataConnection instance
+    target.idQueue[eventId] = callback;
+    target.eventBucket++;
   };
 
   //func will be passed two args, req, and resp.
   //resp.accept() and resp.deny() are two functions that can be called
+  var listening = false;
   nodetron.registerForPeerRequests = function(method,func) {
+
+    if (!listening) {
+      //Listen for incoming connections
+      console.log('now listening');
+      nodetron.self.on('connection', eventifyConnection);
+      listening = true;
+    }
+
     var bucket = requestQueue[method];
     if (!bucket) {
       throw new Error('No such resource method.');
