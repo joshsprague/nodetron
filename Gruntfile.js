@@ -1,8 +1,20 @@
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({ port: LIVERELOAD_PORT });
+var livereloadMiddleware = function (connect, options) {
+  return [
+    lrSnippet,
+    // Serve static files.
+    connect.static(options.base),
+    // Make empty directories browsable.
+    connect.directory(options.base)
+  ];
+};
+
 module.exports = function (grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   grunt.initConfig({
-    clientFolder: 'demo/app', //default is usually client
+    clientFolder: 'demo/app',
     pkg: grunt.file.readJSON('package.json'),
     concurrent: {
       options: {
@@ -25,11 +37,13 @@ module.exports = function (grunt) {
       client: {
         options: {
           port: 9000,
+          middleware: livereloadMiddleware
         }
       },
       addclient: {
         options: {
           port: 9000,
+          middleware: livereloadMiddleware,
           keepalive:true
         }
       }
@@ -95,21 +109,13 @@ module.exports = function (grunt) {
     },
     watch: {
       client: {
-        files: ['<%= clientFolder %>/**/*'],
+        files: ['<%= clientFolder %>/**/**/*'],
         options: {
-          livereload:true,
+          livereload:LIVERELOAD_PORT,
           keepalive:true,
           nospawn:true
         }
-      },
-      // demo: {
-      //   files: ['demo/**/*'],
-      //   options: {
-      //     livereload:true,
-      //     keepalive:true,
-      //     // nospawn:true
-      //   }
-      // }
+      }
     },
     uglify: {
       build: {
