@@ -2,12 +2,8 @@
 
   // creates a new connection and returns it
   //query:optional
-  nodetron.initPeerConnection = function(peerID, query){
-    console.log('initPeerConnection: ',options);
-    var conn = nodetron.peer.connect(peerID,{'metadata':query});
-    conn.eventBucket = 0;
-    conn.idQueue = {};
-    conn.requestQueue = {
+
+  var requestQueue = {
       get:[],
       post:[],
       put:[],
@@ -55,6 +51,11 @@
     });
   };
 
+  nodetron.startPeerConnection = function(peerId, metadata){
+    var conn = nodetron.self.connect(peerId,{'metadata':metadata});
+    eventifyConnection(conn, true);
+    return conn;
+  };
 
   //default method is get
   //conn accepts a peerid or dataconnection.
