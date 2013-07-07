@@ -1,6 +1,6 @@
 #Nodetron
 
-**Warning: this project is under heavy development and is still in its initial prototyping stage**
+**This project is under heavy development. Its API is subject to major, breaking changes.**
 
 A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.
 
