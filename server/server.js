@@ -6,7 +6,6 @@ url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
 peerSchema = require("./models/Peer.js");
-// Peer = mongoose.model("Peer", peerSchema);
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -156,6 +155,10 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
   //User query sent from client
   socket.on("query_for_user", function(data) {
     self.dbHandler.query(data.queryParam, data.queryId, socket);
+  });
+
+  socket.on("update_metadata", function(data) {
+    self.dbHandler.update(data.id, data.metadata);
   });
 
   // Handle messages from peers.
@@ -452,6 +455,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 
 PeerServer.prototype.dbHandler = {
   insert: function(meta, id, self){
+    //Automated Schema
     if(!self._options.userSchema){
       meta.clientId = id;
       var schemaObject = {};
@@ -460,13 +464,20 @@ PeerServer.prototype.dbHandler = {
         schemaObject[key] = typeof(meta[key]);
       }
 
+      //Add to schema based on metadata passed up
       peerSchema.add(schemaObject);
       Peer = mongoose.model("Peer", peerSchema);
-      Peer.findOneAndUpdate({email: meta.email}, meta, {upsert: true}, function(err, data){
+
+      Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
       });
+    //Pre defined Schema
     }else {
-      //TODO: Insert into db with user defined schema
+      //TODO: Insert into db with pre defined schema
+      Peer = mongoose.model("Peer", peerSchema);
+      Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
+        if(err) util.log(err);
+      });
     }
   },
 
@@ -480,6 +491,13 @@ PeerServer.prototype.dbHandler = {
         response.users = users;
         socket.emit("query_response", response);
       }
+    });
+  },
+
+  update: function(id, meta) {
+    //Update metadata for specified client
+    Peer.findOneAndUpdate({"clientId": id}, meta, function(err, data) {
+      if(err) util.log(err);
     });
   }
 };

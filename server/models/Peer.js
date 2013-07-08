@@ -5,6 +5,6 @@ var peerSchema = new mongoose.Schema({
   email: String
 });
 
-peerSchema.path("email").index({unique: true});
+peerSchema.path("clientId").index({unique: true});
 
 module.exports = peerSchema;
