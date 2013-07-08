@@ -54,6 +54,9 @@ module.exports = function (grunt) {
       },
       mongod: {
         cmd:'mongod &'
+      },
+      subclient: {
+        cmd:'cd demo && grunt server &'
       }
     },
     karma: {
