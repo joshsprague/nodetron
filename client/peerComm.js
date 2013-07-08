@@ -6,8 +6,9 @@
       put:[],
       delete:[]
     };
-  var responseQueue = {
-  };
+
+  var responseQueue = {};
+
   //peerjs doesn't conform to its api: metadata isn't actually passed in to the callback
   //metadata is actually on the connection object
   //https://github.com/peers/peerjs/blob/master/docs/api.md#event-connection
@@ -51,6 +52,7 @@
       if(nodetron.debug){console.log('Got DataChannel data:', err);}
     });
   };
+
   var requestHandler = function(data,conn) {
     console.log(data);
     var query = data.query;
