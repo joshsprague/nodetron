@@ -53,7 +53,7 @@ module.exports = function (grunt) {
         cmd: 'node-inspector'
       },
       mongod: {
-        cmd:'mongod'
+        cmd:'mongod &'
       }
     },
     karma: {
