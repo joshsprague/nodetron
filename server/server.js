@@ -85,9 +85,6 @@ PeerServer.prototype._initializeWSS = function() {
         return;
       }
 
-      //Run db checker around hereish
-      // self.dbHandler.checker();
-
       //Insert client into client list
       if (!self._clients[key] || !self._clients[key][id]) {
         self._checkKey(key, ip, function(err) {
@@ -471,14 +468,14 @@ PeerServer.prototype.dbHandler = {
       peerSchema.add(schemaObject);
       Peer = mongoose.model("Peer", peerSchema);
 
-      Peer.findOneAndUpdate({clientID: meta.clientID}, meta, {upsert: true}, function(err, data){
+      Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
       });
     //Pre defined Schema
     }else {
       //TODO: Insert into db with pre defined schema
       Peer = mongoose.model("Peer", peerSchema);
-      Peer.findOneAndUpdate({clientID: meta.clientID}, meta, {upsert: true}, function(err, data){
+      Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
       });
     }
@@ -497,18 +494,9 @@ PeerServer.prototype.dbHandler = {
     });
   },
 
-  checker: function(id, key, email, self, callback) {
-    //TODO:
-    //situation:
-      //one person logs in and sends metadata up
-      //another person from a different location tries to login with same data but has diff ID
-      //duplicate people, could be same person, could be another person posing
-
-  },
-
   update: function(id, meta) {
     //Update metadata for specified client
-    Peer.findOneAndUpdate({"clientID": id}, meta, function(err, data) {
+    Peer.findOneAndUpdate({"clientId": id}, meta, function(err, data) {
       if(err) util.log(err);
     });
   }
