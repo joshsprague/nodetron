@@ -55,4 +55,21 @@ describe("Mongo", function() {
       });
     });
   });
+
+  it("should update client metadata", function(done) {
+    socket.once("connect", function() {
+      socket.once("", function(data) {
+
+      });
+
+      socket.emit("login", {
+        key: "peerjs",
+        id: 1,
+        token: 2,
+        metadata: {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"}
+      });
+
+      socket.emit("update_metadata",{id: 1, metadata: {city: "Monrovia"}});
+    });
+  });
 });
