@@ -27,14 +27,14 @@
         nodetron.registerWithServer();
         $('.enter-user-id').click(function(evt){
           var peerID = $('user-id').val();
-          nodetron.initiatePeerConnection(peerID);
+          nodetron.startPeerConnection(peerID);
         });
         $('.enter-user-email').click(function(evt){
           var email = $('.user-email').val();
           nodetron.findPeer({email:email}, function(matches){
             if(matches.length > 0){
               debugger;
-              nodetron.initiatePeerConnection(matches[0]._id);
+              nodetron.startPeerConnection(matches[0]._id);
             } else {
               console.log("Query Failed, no matches found");
             }
