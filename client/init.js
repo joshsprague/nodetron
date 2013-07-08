@@ -31,3 +31,6 @@ nodetron.requestPeerResource({
 nodetron.sendPeerMessage({
 
 });
+
+// nodetron.self is the Peer
+// nodetron.self.id = uuid

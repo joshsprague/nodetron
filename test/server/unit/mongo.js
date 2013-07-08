@@ -13,14 +13,14 @@ describe("Mongo", function() {
     done();
   });
 
-  it("should insert metadata and clientID into database", function(done){
+  it("should insert metadata and clientId into database", function(done){
     socket.once("connect", function() {
       socket.once("users", function(data){
         Peer = mongoose.model("Peer");
         Peer.find(function(err, data) {
           if(err) console.log(err);
           expect(data.length).to.equal(1);
-          expect(data[0].clientID).to.equal(1);
+          expect(data[0].clientId).to.equal(1);
           expect(data[0].firstName).to.equal("Foo");
         });
         done();

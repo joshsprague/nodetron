@@ -1,14 +1,27 @@
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({ port: LIVERELOAD_PORT });
+var livereloadMiddleware = function (connect, options) {
+  return [
+    lrSnippet,
+    // Serve static files.
+    connect.static(options.base),
+    // Make empty directories browsable.
+    connect.directory(options.base)
+  ];
+};
+
 module.exports = function (grunt) {
   require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
   grunt.initConfig({
+    clientFolder: 'demo/app',
     pkg: grunt.file.readJSON('package.json'),
     concurrent: {
       options: {
         logConcurrentOutput:true
       },
       debug: {
-        tasks:['exec:debugger','nodemon:debug','delayed:open:debug']
+        tasks:['exec:mongod','exec:debugger','nodemon:debug','delayed:open:debug']
       },
       all: {
         tasks:['server','delayed:client']
@@ -19,16 +32,18 @@ module.exports = function (grunt) {
     },
     connect: {
       options: {
-        base:'client'
+        base:'<%= clientFolder %>'
       },
       client: {
         options: {
           port: 9000,
+          middleware: livereloadMiddleware
         }
       },
       addclient: {
         options: {
           port: 9000,
+          middleware: livereloadMiddleware,
           keepalive:true
         }
       }
@@ -36,6 +51,9 @@ module.exports = function (grunt) {
     exec: {
       debugger: {
         cmd: 'node-inspector'
+      },
+      mongod: {
+        cmd:'mongod &'
       }
     },
     karma: {
@@ -53,7 +71,8 @@ module.exports = function (grunt) {
     },
     nodemon: {
       options: {
-        file: 'server/peer.js'
+        file: 'server/peer.js',
+        watchedFolders: ['server']
       },
       dev: {
           // ignoredFiles: ['README.md', 'node_modules/**'],
@@ -93,15 +112,30 @@ module.exports = function (grunt) {
     },
     watch: {
       client: {
-        files: ['client/**/*'],
+        files: ['<%= clientFolder %>/**/**/*'],
         options: {
-          livereload:true,
+          livereload:LIVERELOAD_PORT,
           keepalive:true,
           nospawn:true
         }
-      },
+      }
+    },
+    uglify: {
+      build: {
+        files: {
+          'nodetron.min.js': ['client/**/*.js']
+        }
+      }
     }
   });
+
+  grunt.registerTask('demo', 'Set the base client folder to "demo" and run subsequent task arguments', function() {
+    grunt.config.set('clientFolder','demo/app');
+    var args = [].join.call(arguments,':');
+    grunt.task.run(args);
+  });
+
+
 
   //takes any number of arguments: a task-argument chain to run
   //grunt automatically splits a string on the colon character, passes those in as separate arguments.
@@ -171,6 +205,7 @@ module.exports = function (grunt) {
     'watch:client'
   ]);
   grunt.registerTask('server', [
+    'exec:mongod',
     'nodemon:dev'
   ]);
   grunt.registerTask('server:debug', [
@@ -189,5 +224,8 @@ module.exports = function (grunt) {
   ]);
   grunt.registerTask('cross', [
     'karma:cross'
+  ]);
+  grunt.registerTask('build', [
+
   ]);
 };

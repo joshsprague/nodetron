@@ -1,6 +1,6 @@
 #Nodetron
 
-**Warning: this project is under heavy development and is still in its initial prototyping stage**
+**This project is under heavy development. Its API is subject to major, breaking changes.**
 
 A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.
 
@@ -10,33 +10,39 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
 ###Build and Run Instructions
 
 * `npm install && bower install`
-* `git submodule init && git submodule update`
+* `git submodule init && git submodule update --remote`
+    * Since this project is under continuous development, you may need to re-run the above the commands after pulling the lastest upstream changes.
+* To run the server, [install MongoDB](http://docs.mongodb.org/manual/installation/). If you're on a Mac, use homebrew!
 * For debugging, install global dependencies: `npm -g install node-inspector`
+* When working inside of the submodules of this project, make sure to checkout the correct branch.
+    * For `demo`, checkout `internal`.
+    * For `client/webrtc`, checkout `master`.
+* If you intend to run the `demo` app, be sure to follow [the submodule README instructions](https://github.com/bchu/nodetron-standhub).
 
-1. `grunt all` to run server and serve client with static server.
-    * Append `:<number>` to specify how many client instances you want to run.
+1. `grunt all` to run the server and the `demo` client-side app.
+    * Append `:<number>` to specify how many demo client-side instances you want to run.
     * Append `:debug` to run node-inspector as well.
-    * Ex: `grunt:4:debug` runs 4 client instances at ports 9000-9004 and runs node-inspector.
-2. `grunt client` to serve client with static server.
+    * Ex: `grunt:4:debug` runs 4 demo client instances at ports 9000-9004 and runs node-inspector.
+2. `grunt client` to serve the demo client-sde app.
     * Append `:unit` to run unit tests.
-3. `grunt server` to run server.
+3. `grunt server` to run the server.
     * Append `:unit` to run unit tests.
     * Append `:debug` to run node-inspector.
 4. `grunt e2e` to run client e2e tests on Chrome (not implemented yet).
 5. `grunt cross` to run client e2e tests on Firefox as well as Chrome (not implemented yet).
 
-If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` error, remove restify from your local node_modules folder and re-run npm install in the project root.
+If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` error, remove `restify` from your local `node_modules` folder and re-run `npm install` in the project root.
 
 More resources:
 
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
-2. Server-client interface at <https://github.com/bchu/nodetron/wiki/Interface>
 
 ###Deployment Instructions (Jitsu)
-1. Install jitsu using `sudo npm install -g jitsu`
+1. Install the jitsu package using `npm install -g jitsu`
+    * supply any necessary credentials.
 2. Login using `jitsu login`
-3. Deploy using `jitsu deploy`. On first deploy it will ask for node version and subdomain name.
-4. Current domain: http://bsalazar91-server.jit.su/ port: 80
+3. Deploy using `jitsu deploy`.
+4. Current domain: http://bsalazar91-server.jit.su at port:80 and http://nodetron.jit.su at port:80.
 
 ###Overview
 
