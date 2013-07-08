@@ -6,17 +6,22 @@
       put:[],
       delete:[]
     };
+  var responseQueue = {
+  };
   //peerjs doesn't conform to its api: metadata isn't actually passed in to the callback
   //metadata is actually on the connection object
   //https://github.com/peers/peerjs/blob/master/docs/api.md#event-connection
   var eventifyConnection = function(conn, ignoreMetadata) {
-    conn.eventBucket = 0;
-    conn.idQueue = {};
+    // conn.eventBucket = 0;
+    // conn.idQueue = {};
+    //handle already-established connections (e.g. responses)
     connectionHandler(conn);
+
+    // handle requests (new connections):
+    //ignore metadata is used such that you don't process your own metadata
     if (!ignoreMetadata) {
-      var query = conn.metadata;
-      query = query && query.query;
-      query && requestHandler(query,conn);
+      var data = conn.metadata;
+      data && requestHandler(data,conn);
     }
   };
   var connectionHandler = function(conn){
@@ -27,11 +32,16 @@
     conn.on('data', function(data){
       if(nodetron.debug){console.log('Got DataChannel data:', data);}
       //handle responses to requests.
-      var callback = data._id && conn.idQueue[data._id];
-      if (callback) {
-        callback(data.data);
-        conn.idQueue[data._id] = null;
+      var id = data._id;
+      if (responseQueue[id]) {
+        responseQueue[id](data.body);
+        responseQueue[id] = null;
       }
+      // var callback = data._id && conn.idQueue[data._id];
+      // if (callback) {
+      //   callback(data.data);
+      //   conn.idQueue[data._id] = null;
+      // }
       //handle other requests
       else {
         requestHandler(data,conn);
@@ -42,12 +52,15 @@
     });
   };
   var requestHandler = function(data,conn) {
-    var events = requestQueue[data.method];
+    console.log(data);
+    var query = data.query;
+    var events = requestQueue[query.method];
     if (events) {
-      var req = data;
-      var resp = new Response(req,conn);
+      //resp will store data._id
+      var resp = new Response(data,conn);
       for (var i = 0; i < events.length; i++) {
-        if (events[i](req,resp)) {
+        //hide data._id from the user
+        if (events[i](query,resp)) {
           break;
         }
       }
@@ -67,7 +80,8 @@
       throw new Error('No resource requested');
     }
     query.method = query.method || 'get';
-    var eventId = target.eventBucket;
+    // var eventId = target.eventBucket;
+    var eventId = window.uuid.v4();
     var metadata = {_id:eventId, query:query};
 
     if (typeof target === 'object') {
@@ -77,11 +91,12 @@
       target = nodetron.startPeerConnection(target, metadata);
     }
     else {
-      target.send(data);
+      target.send(metadata);
     }
     //target is now a DataConnection instance
-    target.idQueue[eventId] = callback;
-    target.eventBucket++;
+    responseQueue[eventId] = callback;
+    // target.idQueue[eventId] = callback;
+    // target.eventBucket++;
   };
 
   //func will be passed two args, req, and resp.
@@ -90,7 +105,6 @@
   nodetron.registerForPeerRequests = function(method,func) {
 
     if (!listening) {
-      console.log('now listening');
       nodetron.self.on('connection', eventifyConnection);
       listening = true;
     }
@@ -106,11 +120,11 @@
     this.connection = conn; //DataConnection
     this._id = req._id;
   };
-  Response.prototype.send = function(response,data) {
+  Response.prototype.send = function(msg,data) {
     var obj = {
       _id:this._id,
-      data:{
-        response:response,
+      body:{
+        msg:msg,
         data:data
       }
     };
