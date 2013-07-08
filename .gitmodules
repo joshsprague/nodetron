@@ -1,3 +1,7 @@
 [submodule "client/webrtc"]
 	path = client/webrtc
 	url = https://github.com/bchu/peerjs.git
+[submodule "demo"]
+	path = demo
+	url = https://github.com/bchu/nodetron-standhub.git
+	branch = internal

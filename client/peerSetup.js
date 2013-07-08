@@ -1,61 +1,76 @@
 window.nodetron = window.nodetron || {};
 
-//Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection
+nodetron.setup = function(options, success) {
+  //can be undefined or truthy
+  if (options.autologin !== false) {
+    var id = localStorage.getItem('_nodetron_uuid');
+    var metadata = localStorage.getItem('_nodetron_user_metadata');
+    metadata = metadata && JSON.parse(metadata);
+    if (id && metadata) {
+      nodetron.registerWithServer(_.extend({
+        id:id,
+        metadata:metadata,
+      }, options));
+      success(metadata);
+    }
+  }
+};
+
+var registered = false;
+//Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection'
 nodetron.registerWithServer = function(options){
-  options = options || {};
+  if (typeof options === 'undefined' || typeof options.host === 'undefined') {
+    throw new Error('Host not specified!');
+  }
+  if (options.host === 'localhost') {
+    throw new Error('Localhost is not a valid option; use 127.0.0.11');
+  }
+  if (registered) {
+    return;
+  }
 
-  var cfg = {};
-  cfg.host = options.host || '127.0.0.1'; //development:'127.0.0.1', production:bsalazar91-server.jit.su //localhost doesn't work
-  cfg.port = options.port || '5000'; //development: 5000, production:80
-  cfg.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-  cfg.debug = options.debug || true; //enable debugging by default
-  cfg.key = options.key || 'peerjs'; //lwjd5qra8257b9'; // their default key.   'wb0m4xiao2sm7vi' is Jake's Key
-  cfg.metadata = options.metadata || {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"};
-  cfg.id = localStorage.getItem('_nodetron_uuid'); //uuid from web worker
-  cfg.token = uuid.v4(); //random token to auth this connection/session
+  options.port = options.port || 80; //development: 5000, production:80
+  options.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
+  options.debug = nodetron.debug = options.debug || false;
+  options.key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
+  options.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
+  localStorage.setItem('_nodetron_user_metadata',JSON.stringify(options.metadata));
+  options.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
+  options.token = uuid.v4(); //random token to auth this connection/session
 
-  var socket = nodetron.socket = io.connect(cfg.host+':'+cfg.port);
+  var socket = nodetron.socket = io.connect(options.host+':'+options.port);
   socket.emit('login', {
-    key:cfg.key,
-    id:cfg.id,
-    token:cfg.token,
-    metadata:cfg.metadata
+    key:options.key,
+    id:options.id,
+    token:options.token,
+    metadata:options.metadata
   });
 
   socket.on('users', function (data) {
-    if(cfg.debug){console.log(data);}
+    if(options.debug){console.log(data);}
     socket.emit('acknowledge', {received: true});
   });
-
-  //Connection handler
-  var handleConn = function(conn){
-    conn.on('data', function(data){
-      if(cfg.debug){console.log('Got DataChannel data:', data);}
+  if (options.debug) {
+    socket.on('message', function(data){
+      console.log('Nodetron: ',data);
     });
-
-    conn.on('error', function(err){
-      if(cfg.debug){console.log('Got DataChannel data:', err);}
-    });
-  };
+  }
 
   //Setup the new peer object
-  var peer = nodetron.peer = new Peer(cfg.id, {host: cfg.HOST, port: cfg.PORT}, socket);
+  var peer = nodetron.self = new Peer(options.id, {host: options.host, port: options.port}, socket);
 
   peer.on('error', function(err){
-    if(cfg.debug){console.log('Got an error:', err);}
+    if(options.debug){console.log('Got an error:', err);}
   });
 
   peer.on('close', function(err){
-    if(cfg.debug){console.log('Connection closed', err);}
+    if(options.debug){console.log('Connection closed', err);}
   });
 
   peer.on('open', function(id){
-    if(cfg.debug){console.log('Connection Opened, User ID is', id);}
+    if(options.debug){console.log('Connection Opened, User ID is', id);}
   });
-
-  //Listen for incoming connections (direct from the sample)
-  peer.on('connection', handleConn);
-
+  registered = true;
 };
 
 
@@ -64,23 +79,25 @@ nodetron.updateMetadata = function(data){
 };
 
 
-nodetron.findPeer = function(queryParam, callback){
-  var queryID = uuid.v4();
+
+nodetron.findPeer = function(socketCon, queryParam, callback){
+  var queryId = window.uuid.v4();
+
   nodetron.activeQueries =  nodetron.activeQueries || {};
-  nodetron.activeQueries[queryID] = callback;
+  nodetron.activeQueries[queryId] = callback;
 
   console.log("Querying server for: ", queryParam);
-  nodetron.socket.emit('query_for_user', {queryID:queryID,queryParam:queryParam});
+  nodetron.socket.emit('query_for_user', {queryId:queryId,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
     console.log("Received queryResponse from Server");
-    if(nodetron.activeQueries[queryResponse.queryID]){
+    if(nodetron.activeQueries[queryResponse.queryId]){
       console.log("firing callback");
-      nodetron.activeQueries[queryResponse.queryID](queryResponse.users); //fire the callback
-      delete nodetron.activeQueries[queryID]; //remove it from the events hash
+      nodetron.activeQueries[queryResponse.queryId](queryResponse.users);
+      delete nodetron.activeQueries[queryId];
     }
     else {
-      throw new Error("Bad Query Response from server", queryResponse);
+      throw new Error("Bad query response from server", queryResponse);
     }
   };
 

@@ -17,7 +17,7 @@ function PeerServer(options) {
     port: 80,
     debug: false,
     timeout: 5000,
-    key: 'peerjs',
+    key: 'default',
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
@@ -73,7 +73,7 @@ PeerServer.prototype._initializeWSS = function() {
   this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
-    socket.on("login", function(data) {
+    socket.on('login', function(data) {
       var id = data.id,
       token = data.token,
       key = data.key,
@@ -155,14 +155,12 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
   //User query sent from client
   socket.on("query_for_user", function(data) {
-    self.dbHandler.query(data.queryParam, data.queryID, socket);
+    self.dbHandler.query(data.queryParam, data.queryId, socket);
   });
 
   // Handle messages from peers.
-  socket.on('message', function(data) {
+  socket.on('nodetron', function(message) {
     try {
-      var message = JSON.parse(data);
-
       switch (message.type) {
         case 'LEAVE':
           // Clean up if a Peer sends a LEAVE.
@@ -188,7 +186,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
       }
     } catch(e) {
       util.log('Invalid message', data);
-      throw e;
+      util.prettyError(e); //previously was a throw
     }
   });
 };
@@ -295,7 +293,6 @@ PeerServer.prototype._initializeHTTP = function() {
 
   this._app.get('/', function(req, res, next){
     //TODO: serve static
-    res.send("hi");
     return next();
   });
 
@@ -414,13 +411,14 @@ PeerServer.prototype._handleTransmission = function(key, message) {
     try {
       util.log(type, 'from', src, 'to', dst);
       if (destination.socket) {
+        //WARNING: data must be a string
         destination.socket.send(data);
       } else if (destination.res) {
         data += '\n';
         destination.res.write(data);
       } else {
         // Neither socket nor res available. Peer dead?
-        throw "Peer dead"
+        util.prettyError("Peer dead!"); //previously was a throw
       }
     } catch (e) {
       // This happens when a peer disconnects without closing connections and
@@ -455,7 +453,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 PeerServer.prototype.dbHandler = {
   insert: function(meta, id, self){
     if(!self._options.userSchema){
-      meta.clientID = id;
+      meta.clientId = id;
       var schemaObject = {};
 
       for(var key in meta) {
@@ -474,11 +472,11 @@ PeerServer.prototype.dbHandler = {
 
   query: function(param, id, socket) {
     var response = {};
-    response.queryID = id;
+    response.queryId = id;
     Peer.find(param, function(err, users) {
-      if(err){
-        if(err) util.log(err);
-      }else {
+      if(err) {
+        util.log(err);
+      } else {
         response.users = users;
         socket.emit("query_response", response);
       }
