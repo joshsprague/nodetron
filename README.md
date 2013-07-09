@@ -8,6 +8,8 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
 ####[A Discussion of Our Approach](https://github.com/bchu/nodetron/blob/master/docs/Approach.md/)
 
 <br>
+####[Play with a demo app](http://demo.nodetron.com)
+<br>
 
 ###Build and Run Instructions
 
