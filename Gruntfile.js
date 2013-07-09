@@ -124,9 +124,28 @@ module.exports = function (grunt) {
       }
     },
     uglify: {
-      build: {
+      dev: {
+        options: {
+          wrap:true,
+          // exportAll:true
+          preserveComments: true,
+          compress:true,
+          mangle:false
+        },
         files: {
-          'nodetron.min.js': ['client/**/*.js']
+          cwd: 'client',
+          src: ['init.js', '*.js','!end.js', 'end.js', 'background/workerExternalEvents.js', 'background/workerExternal.js'],
+          dest: 'nodetron.min.js'
+        }
+      },
+      min: {
+        options: {
+          preserveComments: false
+        },
+        files: {
+          cwd: 'client',
+          src: ['init.js', '*.js','!end.js', 'end.js', 'background/workerExternalEvents.js', 'background/workerExternal.js'],
+          dest: 'nodetron.min.js'
         }
       }
     }
