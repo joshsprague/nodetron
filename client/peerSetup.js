@@ -1,5 +1,3 @@
-window.nodetron = window.nodetron || {};
-
 var registered = false;
 /**
  * Establish a connection with the server. Only can be run once.
