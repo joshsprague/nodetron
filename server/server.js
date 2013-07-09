@@ -2,8 +2,8 @@ var util = require('./util'),
 restify = require('restify'),
 EventEmitter = require('events').EventEmitter,
 io = require('socket.io'),
-mongoose = require("mongoose"),
-peerSchema = require("./models/Peer.js");
+mongoose = require("mongoose");
+// peerSchema = require("./models/Peer.js");
 
 function PeerServer(options) {
   if (!(this instanceof PeerServer)) return new PeerServer(options);
@@ -13,17 +13,23 @@ function PeerServer(options) {
   this._options = util.extend({
     port: 80,
     debug: false,
-    timeout: 5000,
     key: 'default',
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
     mongo: "mongodb://localhost/nodetron",
-    userSchema: false,
+    userSchema: {use: false, path: null},
     transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
 
   util.debug = this._options.debug;
+
+  //Determine to user auto schema or user defined schema
+  if(!this._options.userSchema.use){
+    this.peerSchema = require("./models/Peer.js");
+  }else {
+    this.peerSchema = require(userSchema.path);
+  }
 
   //Connect to user specified mongo db
   mongoose.connect(this._options.mongo);
@@ -76,6 +82,7 @@ PeerServer.prototype._initializeWSS = function() {
       key = data.key,
       ip = socket.manager.handshaken[socket.id].address.address,
       meta = data.metadata;
+      util.log("Socket Open: ", id);
 
       if (!id || !token || !key) {
         socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -450,7 +457,7 @@ PeerServer.prototype.dbHandler = {
   //Insert metadata into db
   insert: function(meta, id, self){
     //Automated Schema
-    if(!self._options.userSchema){
+    if(!self._options.userSchema.use){
       meta.clientId = id;
       var schemaObject = {};
 
@@ -459,19 +466,19 @@ PeerServer.prototype.dbHandler = {
       }
 
       //Add to schema based on metadata passed up
-      peerSchema.add(schemaObject);
-      Peer = mongoose.model("Peer", peerSchema);
+      self.peerSchema.add(schemaObject);
+      Peer = mongoose.model("Peer", self.peerSchema);
 
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
-        if(err) util.log(err);
+        if(err) console.log(err);
       });
     //Pre defined Schema
     }else {
       //Insert into db with pre defined schema
       //TODO: compatibility with npm module
-      Peer = mongoose.model("Peer", peerSchema);
+      Peer = mongoose.model("Peer", self.peerSchema);
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
-        if(err) util.log(err);
+        if(err) console.log(err);
       });
     }
   },
@@ -482,7 +489,7 @@ PeerServer.prototype.dbHandler = {
     response.queryId = id;
     Peer.find(param, function(err, users) {
       if(err) {
-        util.log(err);
+        console.log(err);
       } else {
         response.users = users;
         socket.emit("query_response", response);
@@ -493,7 +500,7 @@ PeerServer.prototype.dbHandler = {
   //Update metadata for specified client
   update: function(id, meta) {
     Peer.findOneAndUpdate({"clientId": id}, meta, function(err, data) {
-      if(err) util.log(err);
+      if(err) console.log(err);
     });
   }
 };
