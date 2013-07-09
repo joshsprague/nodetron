@@ -1,6 +1,8 @@
-window.nodetron = window.nodetron || {};
-
 var registered = false;
+/**
+ * Establish a connection with the server. Only can be run once.
+ * @param  {Object} options Parameters. Possible keys: host, port, config, debug.
+ */
 nodetron.registerWithServer = function(options){
   if (typeof options === 'undefined' || typeof options.host === 'undefined') {
     throw new Error('Host not specified!');
@@ -45,19 +47,24 @@ nodetron.registerWithServer = function(options){
 };
 
 var token = null;
+/**
+ * Log user in with server. Creates peer object on nodetron.self.
+ * @param  {Object} options Parameters. Possible keys: key, metadata, id.
+ */
 nodetron.login = function(options) {
   var id = options.id || nodetron.id;
   if (options.newId || typeof id === 'undefined') {
-    id = uuid.v4();
-    token = uuid.v4();
+    id = nodetron.uuid.v4();
+    token = nodetron.uuid.v4();
   }
   nodetron.id = id;
+  localStorage.setItem('_nodetron_uuid', id);
   var key = options.key || 'default';
   var metadata = options.userData;
 
   //token must be unique per id AND per connection
   //on a new connection, you can generate a new token even if using the same id
-  token = token || uuid.v4(); //random token to auth this connection/session
+  token = token || nodetron.uuid.v4(); //random token to auth this connection/session
 
   nodetron.socket.emit('login', {
     key:key,
@@ -82,12 +89,14 @@ nodetron.login = function(options) {
   });
 };
 
-nodetron.updateMetadata = function(data){
-  nodetron.socket.emit("update_metadata", {metadata:data});
-};
-
+/**
+ * Send a discovery query to the server to find peers to connect to.
+ * @param  {Object}   queryParam Query object.
+ * @param  {Function} callback   Callback that responds to the server's reply.
+ *                               Passed an array of matching peers.
+ */
 nodetron.findPeer = function(queryParam, callback){
-  var queryId = window.uuid.v4();
+  var queryId = nodetron.uuid.v4();
 
   nodetron.activeQueries = nodetron.activeQueries || {};
   nodetron.activeQueries[queryId] = callback;

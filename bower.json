@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "main": "client/scripts.js",
   "ignore": [
-    "**/.*",
     "node_modules",
     "components",
     "server",
