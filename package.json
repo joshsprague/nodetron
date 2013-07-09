@@ -1,20 +1,35 @@
 {
   "name": "nodetron",
   "version": "0.0.1",
-  "description": "A peer-to-peer, nearly-server-less, client-side web app framework using WebRTC.",
-  "main": "server/peer.js",
-  "scripts": {
-    "test": "grunt client-unit",
-    "start": "node server/peer.js"
-  },
+  "description": "A peer-to-peer, nearly-server-less, rich-client web app library using WebRTC.",
+  "keywords": [
+    "webrtc",
+    "framework",
+    "library",
+    "p2p",
+    "peer",
+    "dht",
+    "worker",
+    "indexeddb"
+  ],
+  "homepage":"http://www.nodetron.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/bchu/nodetron.git"
   },
-  "author": "Brian Chu",
-  "readmeFilename": "README.md",
+  "contributors": [
+      "Brian Chu <bc@brianchu.com> (http://www.brianchu.com)",
+      "Jake Seip <jake.seip@gmail.com>",
+      "Brandon Salazar <bsalazar91@gmail.com>"
+  ],
   "bugs": {
     "url": "https://github.com/bchu/nodetron/issues"
+  },
+  "readmeFilename": "README.md",
+  "main": "server/peer.js",
+  "scripts": {
+    "test": "grunt server:unit",
+    "start": "node server/peer.js"
   },
   "dependencies": {
     "mongoose": "~3.6.13",
@@ -24,8 +39,7 @@
   },
   "optionalDependencies": {
     "generator-karma": "*",
-    "generator-mocha": "*",
-    "grunt-devtools": "*"
+    "generator-mocha": "*"
   },
   "devDependencies": {
     "bower": "*",

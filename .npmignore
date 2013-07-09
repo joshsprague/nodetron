@@ -1,5 +1,5 @@
 .git*
 client/
 demo/
-docs/
-.DS_Store
+test/
+karma*
