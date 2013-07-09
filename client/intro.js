@@ -6,7 +6,7 @@ window.nodetron = (function(window) {
   };
   window.uuid = null;
   return obj;
-})(this)
+})(this);
 
 
 /*
