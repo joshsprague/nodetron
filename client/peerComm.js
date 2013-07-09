@@ -105,7 +105,9 @@
   //resp.accept() and resp.deny() are two functions that can be called
   var listening = false;
   nodetron.registerForPeerRequests = function(method,func) {
-
+    if (typeof nodetron.self === 'undefined') {
+      throw new Error('Cannot listen for requests. Peer has not been initialized.');
+    }
     if (!listening) {
       nodetron.self.on('connection', eventifyConnection);
       listening = true;

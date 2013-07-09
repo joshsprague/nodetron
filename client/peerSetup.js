@@ -1,50 +1,35 @@
 window.nodetron = window.nodetron || {};
 
-nodetron.setup = function(options, success) {
-  //can be undefined or truthy
-  if (options.autologin !== false) {
-    var id = localStorage.getItem('_nodetron_uuid');
-    var metadata = localStorage.getItem('_nodetron_user_metadata');
-    metadata = metadata && JSON.parse(metadata);
-    if (id && metadata) {
-      nodetron.registerWithServer(_.extend({
-        id:id,
-        metadata:metadata,
-      }, options));
-      success(metadata);
-    }
-  }
-};
-
 var registered = false;
-//Accepts a peer.js options, user metadata.  Returns a socket and peerjs connection'
 nodetron.registerWithServer = function(options){
   if (typeof options === 'undefined' || typeof options.host === 'undefined') {
     throw new Error('Host not specified!');
   }
   if (options.host === 'localhost') {
-    throw new Error('Localhost is not a valid option; use 127.0.0.11');
+    throw new Error('Localhost is not a valid option; use 127.0.0.1');
   }
   if (registered) {
+    console.error('Already registered with server!');
     return;
   }
 
-  options.port = options.port || 80; //development: 5000, production:80
-  options.config =  options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-  options.debug = nodetron.debug = options.debug || false;
-  options.key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
-  options.metadata = options.metadata || JSON.parse(localStorage.getItem('_nodetron_user_metadata'));
-  localStorage.setItem('_nodetron_user_metadata',JSON.stringify(options.metadata));
-  options.id = options.id || localStorage.getItem('_nodetron_uuid'); //uuid from web worker
-  options.token = uuid.v4(); //random token to auth this connection/session
+  nodetron.id = localStorage.getItem('_nodetron_uuid');
 
-  var socket = nodetron.socket = io.connect(options.host+':'+options.port);
-  socket.emit('login', {
-    key:options.key,
-    id:options.id,
-    token:options.token,
-    metadata:options.metadata
-  });
+  var host = options.host;
+  var port = options.port || 80; //development: 5000, production:80
+  var config = options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
+  var debug = options.debug || false;
+  nodetron.debug = debug;
+  var socket = io.connect(host+':'+port);
+  nodetron.socket = socket;
+
+  //data stored for the login function, should not be modified
+  nodetron._options = {
+    port:port,
+    config:config,
+    host:host,
+    debug:debug
+  };
 
   socket.on('users', function (data) {
     if(options.debug){console.log(data);}
@@ -56,8 +41,36 @@ nodetron.registerWithServer = function(options){
     });
   }
 
+  registered = true;
+};
+
+var token = null;
+nodetron.login = function(options) {
+  var id = options.id || nodetron.id;
+  if (options.newId || typeof id === 'undefined') {
+    id = uuid.v4();
+    token = uuid.v4();
+  }
+  nodetron.id = id;
+  var key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
+  // var metadata = options.userData || JSON.parse(localStorage.getItem('_nodetron_user_data'));
+  var metadata = options.userData;
+  // localStorage.setItem('_nodetron_user_data',JSON.stringify(metadata));
+
+  //token must be unique per id AND per connection
+  //on a new connection, you can generate a new token even if using the same id
+  token = token || uuid.v4(); //random token to auth this connection/session
+
+  nodetron.socket.emit('login', {
+    key:key,
+    id:id,
+    token:token,
+    metadata:metadata
+  });
+
   //Setup the new peer object
-  var peer = nodetron.self = new Peer(options.id, {host: options.host, port: options.port}, socket);
+  nodetron._options.key = options.key;
+  var peer = nodetron.self = new Peer(id, nodetron._options, nodetron.socket);
 
   peer.on('error', function(err){
     if(options.debug){console.log('Got an error:', err);}
@@ -70,7 +83,6 @@ nodetron.registerWithServer = function(options){
   peer.on('open', function(id){
     if(options.debug){console.log('Connection Opened, User ID is', id);}
   });
-  registered = true;
 };
 
 
