@@ -1,4 +1,3 @@
-
 //naive implementation of socket stub method.
 var socketStub =  {};
 socketStub.triggers = {};
@@ -11,8 +10,6 @@ socketStub.emit = function(trigger,data){
   socketStub.triggers[trigger](data);
 };
 
-
-
 describe('registerWithServer', function(){
   it('should attached a socket and peer to the nodetron object', function(){
     nodetron.registerWithServer({host:'127.0.0.1'});
@@ -21,7 +18,6 @@ describe('registerWithServer', function(){
   });
 
 });
-
 
 describe('findPeer', function(){
   it('should emit a valid query to the server', function(done){
