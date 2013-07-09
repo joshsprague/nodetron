@@ -1,8 +1,7 @@
-var PeerServer = require("./server").PeerServer;
+var Nodetron = require("nodetron").NodetronServer;
 var options = {
   port: 5000,
-  debug: true, //Enable server logs
-  mongo: "mongodb://localhost/nodetron" //mongo db to connect to
+  debug: true //Enable server logs
 };
-var server = new PeerServer(options);
+var server = new Nodetron(options);
 console.log('Running on port: ', options.port);

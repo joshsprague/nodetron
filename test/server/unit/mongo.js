@@ -8,7 +8,7 @@ describe("Mongo", function() {
     socket = io.connect("127.0.0.1:5000", options);
     socket.emit("login", {
       key: "default",
-      id: 1,
+      id: "1",
       token: 2,
       metadata: {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"}
     });

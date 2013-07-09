@@ -12,6 +12,9 @@
     "p2p",
     "nodetron"
   ],
+  "bugs": {
+    "url": "https://github.com/bchu/nodetron/issues"
+  },
   "author": "Brian Chu, Jake Seip, Brandon Salazar",
   "license": "MIT",
   "engines": {
@@ -22,5 +25,5 @@
     "socket.io": "~0.9.16",
     "mongoose": "~3.6.14"
   },
-  "readmeFilename": "README.md",
+  "readmeFilename": "README.md"
 }
