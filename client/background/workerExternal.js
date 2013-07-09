@@ -2,10 +2,6 @@
   var nodetron = window.nodetron || (window.nodetron = {});
   nodetron.worker = new Worker('scripts/nodetron/background/workerInternal.js');
 
-  var localStor = window.localStorage;
-  var uuid = nodetron.id = localStor.getItem('_nodetron_uuid') || window.uuid.v4();
-  localStor.setItem('_nodetron_uuid', uuid);
-
   // Normally workers pass objects by copy, not reference.
   // worker can be passed other types like File, Blob, ArrayBuffer/
   nodetron.init = function(params) {

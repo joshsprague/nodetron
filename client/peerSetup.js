@@ -48,10 +48,11 @@ var token = null;
 nodetron.login = function(options) {
   var id = options.id || nodetron.id;
   if (options.newId || typeof id === 'undefined') {
-    id = uuid.v4();
-    token = uuid.v4();
+    id = nodetron.uuid.v4();
+    token = nodetron.uuid.v4();
   }
   nodetron.id = id;
+  localStorage.setItem('_nodetron_uuid', id);
   var key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
   // var metadata = options.userData || JSON.parse(localStorage.getItem('_nodetron_user_data'));
   var metadata = options.userData;
@@ -59,7 +60,7 @@ nodetron.login = function(options) {
 
   //token must be unique per id AND per connection
   //on a new connection, you can generate a new token even if using the same id
-  token = token || uuid.v4(); //random token to auth this connection/session
+  token = token || nodetron.uuid.v4(); //random token to auth this connection/session
 
   nodetron.socket.emit('login', {
     key:key,

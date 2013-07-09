@@ -83,7 +83,7 @@
     }
     query.method = query.method || 'get';
     // var eventId = target.eventBucket;
-    var eventId = window.uuid.v4();
+    var eventId = nodetron.uuid.v4();
     var metadata = {_id:eventId, query:query};
 
     if (typeof target === 'object') {
