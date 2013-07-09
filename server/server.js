@@ -20,7 +20,7 @@ function PeerServer(options) {
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
-    mongo: "mongodb://localhost/test",
+    mongo: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/nodetron",
     userSchema: false,
     transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
@@ -69,7 +69,6 @@ PeerServer.prototype._initializeWSS = function() {
   //Socket IO setup
   this.sio = io.listen(this._app);
   this.sio.set("transports", this._options.transports);
-  this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
     socket.on('login', function(data) {
@@ -104,7 +103,7 @@ PeerServer.prototype._initializeWSS = function() {
       }
 
       // Insert metadata into mongo for user discovery
-      self.dbHandler.insert(meta, data.id, self);
+      self.dbHandler.insert(meta, id, self);
 
       //Send current client list to all peers
       self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
@@ -467,6 +466,9 @@ PeerServer.prototype.dbHandler = {
       //Add to schema based on metadata passed up
       peerSchema.add(schemaObject);
       Peer = mongoose.model("Peer", peerSchema);
+      // peerSchema.eachPath(function(name, type) {
+      //   util.log(name);
+      // });
 
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
@@ -482,8 +484,12 @@ PeerServer.prototype.dbHandler = {
   },
 
   query: function(param, id, socket) {
+    // debugger
     var response = {};
     response.queryId = id;
+    // peerSchema.eachPath(function(name, type) {
+    //   util.log(name);
+    // });
     Peer.find(param, function(err, users) {
       if(err) {
         util.log(err);
