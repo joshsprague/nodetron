@@ -25,6 +25,5 @@ Other options can be passed into the nodetron server:
   Sets which mongo db to connect to. Default is "mongodb://localhost/nodetron".
   
 **userSchema:**  
-  The database schema is created based on the metadata the app maker decides to use. Default is set to false.
-  WIP: Able to make your own schema to use.
+  The database schema is created based on the metadata the app maker decides to use. Default is {use: false, path: null}. Change use to true and path to path of schema to use.
   
