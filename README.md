@@ -15,6 +15,7 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
 
 * `npm install && bower install`
 * `git submodule init && git submodule update --remote`
+    * `--remote` requires git version >=1.8
     * Since this project is under continuous development, you may need to re-run the above the commands after pulling the lastest upstream changes.
 * To run the server, [install MongoDB](http://docs.mongodb.org/manual/installation/). If you're on a Mac, use homebrew!
 * For debugging, install global dependencies: `npm -g install node-inspector`
