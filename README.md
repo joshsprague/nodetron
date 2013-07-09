@@ -4,10 +4,12 @@
 
 A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.
 
-####[Full API Documentation](https://github.com/bchu/nodetron/blob/master/docs/API%20Documentation.md/)
-####[A Discussion of Our Approach](https://github.com/bchu/nodetron/blob/master/docs/Our%20Approach.md/)
+####[Full API Documentation](https://github.com/bchu/nodetron/blob/master/docs/API.md/)
+####[A Discussion of Our Approach](https://github.com/bchu/nodetron/blob/master/docs/Approach.md/)
 
-#### 
+<br>
+####[Play with a demo app](http://demo.nodetron.com)
+<br>
 
 ###Build and Run Instructions
 
