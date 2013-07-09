@@ -1,6 +1,10 @@
 window.nodetron = window.nodetron || {};
 
 var registered = false;
+/**
+ * Establish a connection with the server. Only can be run once.
+ * @param  {Object} options Parameters. Possible keys: host, port, config, debug.
+ */
 nodetron.registerWithServer = function(options){
   if (typeof options === 'undefined' || typeof options.host === 'undefined') {
     throw new Error('Host not specified!');
@@ -45,6 +49,10 @@ nodetron.registerWithServer = function(options){
 };
 
 var token = null;
+/**
+ * Log user in with server. Creates peer object on nodetron.self.
+ * @param  {Object} options Parameters. Possible keys: key, metadata, id.
+ */
 nodetron.login = function(options) {
   var id = options.id || nodetron.id;
   if (options.newId || typeof id === 'undefined') {
@@ -86,9 +94,14 @@ nodetron.login = function(options) {
   });
 };
 
-
-nodetron.findPeer = function(socketCon, queryParam, callback){
-  var queryId = window.uuid.v4();
+/**
+ * Send a discovery query to the server to find peers to connect to.
+ * @param  {Object}   queryParam Query object.
+ * @param  {Function} callback   Callback that responds to the server's reply.
+ *                               Passed an array of matching peers.
+ */
+nodetron.findPeer = function(queryParam, callback){
+  var queryId = nodetron.uuid.v4();
 
   nodetron.activeQueries =  nodetron.activeQueries || {};
   nodetron.activeQueries[queryId] = callback;
