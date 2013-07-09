@@ -1,13 +1,17 @@
 {
   "name": "nodetron",
   "version": "0.0.1",
-  "main": "client/scripts.js",
+  "main": "nodetron.js",
   "ignore": [
+    "client",
+    "demo",
     "node_modules",
-    "components",
     "server",
-    "lib",
-    "demo"
+    "test",
+    ".*",
+    "Gruntfile.js",
+    "karma*",
+    "package.json"
   ],
   "dependencies": {
     "socket.io-client": "~0.9.16",
