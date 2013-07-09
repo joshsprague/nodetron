@@ -80,10 +80,10 @@ nodetron.updateMetadata = function(data){
 
 
 
-nodetron.findPeer = function(socketCon, queryParam, callback){
+nodetron.findPeer = function(queryParam, callback){
   var queryId = window.uuid.v4();
 
-  nodetron.activeQueries =  nodetron.activeQueries || {};
+  nodetron.activeQueries = nodetron.activeQueries || {};
   nodetron.activeQueries[queryId] = callback;
 
   console.log("Querying server for: ", queryParam);
