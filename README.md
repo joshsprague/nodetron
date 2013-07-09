@@ -27,7 +27,7 @@ A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebR
     * Append `:<number>` to specify how many demo client-side instances you want to run.
     * Append `:debug` to run node-inspector as well.
     * Ex: `grunt:4:debug` runs 4 demo client instances at ports 9000-9004 and runs node-inspector.
-2. `grunt client` to serve the demo client-sde app.
+2. `grunt client` to serve the demo client-side app.
     * Append `:unit` to run unit tests.
 3. `grunt server` to run the server.
     * Append `:unit` to run unit tests.
