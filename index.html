@@ -10,7 +10,7 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <title>Nodetron</title>
+    <title>Nodetron by bchu</title>
   </head>
 
   <body>
@@ -34,45 +34,68 @@
           <h1>
 <a name="nodetron" class="anchor" href="#nodetron"><span class="octicon octicon-link"></span></a>Nodetron</h1>
 
-<p><strong>Warning: this project is under heavy development and is still in its initial prototyping stage</strong></p>
+<p><strong>This project is under heavy development. Its API is subject to major, breaking changes.</strong></p>
 
-<p>A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, IndexedDB, and AppCache</p>
+<p>A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.</p>
 
 <h4>
-<a name="full-api-documentation" class="anchor" href="#full-api-documentation"><span class="octicon octicon-link"></span></a><a href="/docs/API%20Documentation.md/">Full API Documentation</a>
+<a name="full-api-documentation" class="anchor" href="#full-api-documentation"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/API.md/">Full API Documentation</a>
 </h4>
 
 <h4>
-<a name="a-discussion-of-our-approach" class="anchor" href="#a-discussion-of-our-approach"><span class="octicon octicon-link"></span></a><a href="/docs/Our%20Approach.md/">A Discussion of Our Approach</a>
+<a name="a-discussion-of-our-approach" class="anchor" href="#a-discussion-of-our-approach"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/Approach.md/">A Discussion of Our Approach</a>
 </h4>
+
+<p><br></p>
+
+<h4>
+<a name="play-with-a-demo-app" class="anchor" href="#play-with-a-demo-app"><span class="octicon octicon-link"></span></a><a href="http://demo.nodetron.com">Play with a demo app</a>
+</h4>
+
+<p><br></p>
 
 <h3>
 <a name="build-and-run-instructions" class="anchor" href="#build-and-run-instructions"><span class="octicon octicon-link"></span></a>Build and Run Instructions</h3>
 
 <ul>
 <li><code>npm install &amp;&amp; bower install</code></li>
-<li><code>git submodule init &amp;&amp; git submodule update</code></li>
-<li>For debugging, install global dependencies: <code>npm -g install node-inspector</code>
-</li>
-</ul><ol>
 <li>
-<code>grunt all</code> to run server and serve client with static server.
+<code>git submodule init &amp;&amp; git submodule update --remote</code>
 
 <ul>
-<li>Append <code>:&lt;number&gt;</code> to specify how many client instances you want to run.</li>
+<li>Since this project is under continuous development, you may need to re-run the above the commands after pulling the lastest upstream changes.</li>
+</ul>
+</li>
+<li>To run the server, <a href="http://docs.mongodb.org/manual/installation/">install MongoDB</a>. If you're on a Mac, use homebrew!</li>
+<li>For debugging, install global dependencies: <code>npm -g install node-inspector</code>
+</li>
+<li>When working inside of the submodules of this project, make sure to checkout the correct branch.
+
+<ul>
+<li>For <code>demo</code>, checkout <code>internal</code>.</li>
+<li>For <code>client/webrtc</code>, checkout <code>master</code>.</li>
+</ul>
+</li>
+<li>If you intend to run the <code>demo</code> app, be sure to follow <a href="https://github.com/bchu/nodetron-standhub">the submodule README instructions</a>.</li>
+</ul><ol>
+<li>
+<code>grunt all</code> to run the server and the <code>demo</code> client-side app.
+
+<ul>
+<li>Append <code>:&lt;number&gt;</code> to specify how many demo client-side instances you want to run.</li>
 <li>Append <code>:debug</code> to run node-inspector as well.</li>
-<li>Ex: <code>grunt:4:debug</code> runs 4 client instances at ports 9000-9004 and runs node-inspector.</li>
+<li>Ex: <code>grunt:4:debug</code> runs 4 demo client instances at ports 9000-9004 and runs node-inspector.</li>
 </ul>
 </li>
 <li>
-<code>grunt client</code> to serve client with static server.
+<code>grunt client</code> to serve the demo client-sde app.
 
 <ul>
 <li>Append <code>:unit</code> to run unit tests.</li>
 </ul>
 </li>
 <li>
-<code>grunt server</code> to run server.
+<code>grunt server</code> to run the server.
 
 <ul>
 <li>Append <code>:unit</code> to run unit tests.</li>
@@ -83,35 +106,37 @@
 <code>grunt e2e</code> to run client e2e tests on Chrome (not implemented yet).</li>
 <li>
 <code>grunt cross</code> to run client e2e tests on Firefox as well as Chrome (not implemented yet).</li>
-</ol><p>If you get a <code>Error: Cannot find module './build/Debug/DTraceProviderBindings'</code> error, remove restify from your local node_modules folder and re-run npm install in the project root.</p>
+</ol><p>If you get a <code>Error: Cannot find module './build/Debug/DTraceProviderBindings'</code> error, remove <code>restify</code> from your local <code>node_modules</code> folder and re-run <code>npm install</code> in the project root.</p>
 
 <p>More resources:</p>
 
 <ol>
 <li>Workflow instructions at <a href="https://github.com/bchu/nodetron/wiki/Workflow">https://github.com/bchu/nodetron/wiki/Workflow</a>
 </li>
-<li>Server-client interface at <a href="https://github.com/bchu/nodetron/wiki/Interface">https://github.com/bchu/nodetron/wiki/Interface</a>
-</li>
 </ol><h3>
 <a name="deployment-instructions-jitsu" class="anchor" href="#deployment-instructions-jitsu"><span class="octicon octicon-link"></span></a>Deployment Instructions (Jitsu)</h3>
 
 <ol>
-<li>Install jitsu using <code>sudo npm install -g jitsu</code>
+<li>Install the jitsu package using <code>npm install -g jitsu</code>
+
+<ul>
+<li>supply any necessary credentials.</li>
+</ul>
 </li>
 <li>Login using <code>jitsu login</code>
 </li>
-<li>Deploy using <code>jitsu deploy</code>. On first deploy it will ask for node version and subdomain name.</li>
-<li>Current domain: <a href="http://bsalazar91-server.jit.su/">http://bsalazar91-server.jit.su/</a> port: 80</li>
+<li>Deploy using <code>jitsu deploy</code>.</li>
+<li>Current domain: <a href="http://bsalazar91-server.jit.su">http://bsalazar91-server.jit.su</a> at port:80 and <a href="http://nodetron.jit.su">http://nodetron.jit.su</a> at port:80.</li>
 </ol><h3>
 <a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h3>
 
-<p>A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, IndexedDB, and AppCache. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.</p>
+<p>A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, and IndexedDB. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.</p>
 
 <p><strong>Challenges:</strong></p>
 
 <ol>
 <li>In most WebRTC implementations, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One challenge is to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.</li>
-</ol><p>Technologies: WebRTC, HTML5 IndexedDB, AppCache, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).</p>
+</ol><p>Technologies: WebRTC, HTML5 IndexedDB, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).</p>
 
 <h3>
 <a name="current-architecture" class="anchor" href="#current-architecture"><span class="octicon octicon-link"></span></a>Current Architecture</h3>
@@ -148,7 +173,7 @@
         </section>
 
         <footer>
-          Nodetron is maintained by <a href="https://github.com/bchu">bchu</a>, <a href="https://github.com/jseip1679">jseip1679</a>, and <a href="https://github.com/bsalazar91">bsalazar91</a><br>
+          Nodetron is maintained by <a href="https://github.com/bchu">bchu</a><br>
           This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
         </footer>
 
