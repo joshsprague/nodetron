@@ -52,10 +52,8 @@ nodetron.login = function(options) {
     token = uuid.v4();
   }
   nodetron.id = id;
-  var key = options.key || 'default'; //lwjd5qra8257b9';  'wb0m4xiao2sm7vi' is Jake's Key
-  // var metadata = options.userData || JSON.parse(localStorage.getItem('_nodetron_user_data'));
+  var key = options.key || 'default';
   var metadata = options.userData;
-  // localStorage.setItem('_nodetron_user_data',JSON.stringify(metadata));
 
   //token must be unique per id AND per connection
   //on a new connection, you can generate a new token even if using the same id
@@ -68,7 +66,6 @@ nodetron.login = function(options) {
     metadata:metadata
   });
 
-  //Setup the new peer object
   nodetron._options.key = options.key;
   var peer = nodetron.self = new Peer(id, nodetron._options, nodetron.socket);
 
@@ -85,20 +82,22 @@ nodetron.login = function(options) {
   });
 };
 
+nodetron.updateMetadata = function(data){
+  nodetron.socket.emit("update_metadata", {metadata:data});
+};
 
-nodetron.findPeer = function(socketCon, queryParam, callback){
+nodetron.findPeer = function(queryParam, callback){
   var queryId = window.uuid.v4();
 
-  nodetron.activeQueries =  nodetron.activeQueries || {};
+  nodetron.activeQueries = nodetron.activeQueries || {};
   nodetron.activeQueries[queryId] = callback;
 
-  console.log("Querying server for: ", queryParam);
   nodetron.socket.emit('query_for_user', {queryId:queryId,queryParam:queryParam});
 
   var dispatchResponse = function(queryResponse){
     console.log("Received queryResponse from Server");
     if(nodetron.activeQueries[queryResponse.queryId]){
-      console.log("firing callback");
+      //fire the callback
       nodetron.activeQueries[queryResponse.queryId](queryResponse.users);
       delete nodetron.activeQueries[queryId];
     }
@@ -106,6 +105,5 @@ nodetron.findPeer = function(socketCon, queryParam, callback){
       throw new Error("Bad query response from server", queryResponse);
     }
   };
-
   nodetron.socket.on('query_response', dispatchResponse);
 };
