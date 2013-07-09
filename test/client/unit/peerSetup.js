@@ -33,6 +33,7 @@ describe('findPeer', function(){
       called = true;
     };
     nodetron.findPeer({email:'foo'}, cb);
+    nodetron.socket.emit('query_response', {queryId:queryId,users:[]});
     expect(called).to.be.true;
     done();
   });
