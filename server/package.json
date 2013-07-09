@@ -1,0 +1,25 @@
+{
+  "name": "nodetron",
+  "version": "0.0.1",
+  "description": "Nodetron server",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bchu/nodetron"
+  },
+  "keywords": [
+    "webrtc",
+    "p2p",
+    "nodetron"
+  ],
+  "author": "Brian Chu, Jake Seip, Brandon Salazar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "dependencies": {
+    "restify": "~2.6.0",
+    "socket.io": "~0.9.16",
+    "mongoose": "~3.6.14"
+  }
+}

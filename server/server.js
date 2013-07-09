@@ -1,8 +1,6 @@
 var util = require('./util'),
 restify = require('restify'),
-http = require('http'),
 EventEmitter = require('events').EventEmitter,
-url = require('url'),
 io = require('socket.io'),
 mongoose = require("mongoose"),
 peerSchema = require("./models/Peer.js");
@@ -20,7 +18,7 @@ function PeerServer(options) {
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
-    mongo: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL || "mongodb://localhost/nodetron",
+    mongo: "mongodb://localhost/nodetron",
     userSchema: false,
     transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
@@ -71,6 +69,7 @@ PeerServer.prototype._initializeWSS = function() {
   this.sio.set("transports", this._options.transports);
 
   this.sio.sockets.on('connection', function(socket) {
+    //Login socket event
     socket.on('login', function(data) {
       var id = data.id,
       token = data.token,
@@ -102,10 +101,10 @@ PeerServer.prototype._initializeWSS = function() {
         self._configureWS(socket, key, id, token);
       }
 
-      // Insert metadata into mongo for user discovery
+      // Insert metadata into db for user discovery
       self.dbHandler.insert(meta, id, self);
 
-      //Send current client list to all peers
+      //Send current client list to all peers on peer login
       self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
@@ -142,7 +141,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
-    //Resend current client list to all peers
+    //Resend current client list to all peers on peer disconnect
     self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
@@ -292,11 +291,6 @@ PeerServer.prototype._initializeHTTP = function() {
   this._app.post('/:key/:id/:token/answer', handle);
 
   this._app.post('/:key/:id/:token/leave', handle);
-
-  this._app.get('/', function(req, res, next){
-    //TODO: serve static
-    return next();
-  });
 
   // Listen on user-specified port.
   this._app.listen(this._options.port);
@@ -453,6 +447,7 @@ PeerServer.prototype._handleTransmission = function(key, message) {
 };
 
 PeerServer.prototype.dbHandler = {
+  //Insert metadata into db
   insert: function(meta, id, self){
     //Automated Schema
     if(!self._options.userSchema){
@@ -466,16 +461,14 @@ PeerServer.prototype.dbHandler = {
       //Add to schema based on metadata passed up
       peerSchema.add(schemaObject);
       Peer = mongoose.model("Peer", peerSchema);
-      // peerSchema.eachPath(function(name, type) {
-      //   util.log(name);
-      // });
 
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
       });
     //Pre defined Schema
     }else {
-      //TODO: Insert into db with pre defined schema
+      //Insert into db with pre defined schema
+      //TODO: compatibility with npm module
       Peer = mongoose.model("Peer", peerSchema);
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
         if(err) util.log(err);
@@ -483,13 +476,10 @@ PeerServer.prototype.dbHandler = {
     }
   },
 
+  //Query for other connected peers
   query: function(param, id, socket) {
-    // debugger
     var response = {};
     response.queryId = id;
-    // peerSchema.eachPath(function(name, type) {
-    //   util.log(name);
-    // });
     Peer.find(param, function(err, users) {
       if(err) {
         util.log(err);
@@ -500,8 +490,8 @@ PeerServer.prototype.dbHandler = {
     });
   },
 
+  //Update metadata for specified client
   update: function(id, meta) {
-    //Update metadata for specified client
     Peer.findOneAndUpdate({"clientId": id}, meta, function(err, data) {
       if(err) util.log(err);
     });
