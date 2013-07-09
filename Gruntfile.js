@@ -24,10 +24,10 @@ module.exports = function (grunt) {
         tasks:['exec:mongod','exec:debugger','nodemon:debug','delayed:open:debug']
       },
       all: {
-        tasks:['server','delayed:client']
+        tasks:['server', 'watch:nodetron', 'delayed:client']
       },
       alldebug: {
-        tasks:['concurrent:debug','delayed:client']
+        tasks:['concurrent:debug','watch:nodetron','delayed:client']
       }
     },
     connect: {
@@ -55,6 +55,7 @@ module.exports = function (grunt) {
       mongod: {
         cmd:'mongod &'
       },
+      //TODO
       subclient: {
         cmd:'cd demo && grunt server &'
       }
@@ -114,6 +115,10 @@ module.exports = function (grunt) {
       src: ['server/**/*.js','test/server/index.js','test/server/**/*.js',]
     },
     watch: {
+      nodetron: {
+        files:['client/*.js', 'background/*.js', 'webrtc/dist/*.js'],
+        tasks:['build']
+      },
       client: {
         files: ['<%= clientFolder %>/**/**/*'],
         options: {
@@ -123,8 +128,6 @@ module.exports = function (grunt) {
         }
       }
     },
-
-
 
     //build process:
     //Note: concat also has a footer and banner property.
@@ -243,6 +246,12 @@ module.exports = function (grunt) {
     'karma:cross'
   ]);
   grunt.registerTask('build', [
-
+    'concat',
+    'uglify'
+  ]);
+  grunt.registerTask('build-demo', [
+    'concat',
+    'uglify',
+    // 'copy'
   ]);
 };
