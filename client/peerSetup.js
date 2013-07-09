@@ -86,10 +86,18 @@ nodetron.login = function(options) {
 };
 
 
-nodetron.findPeer = function(socketCon, queryParam, callback){
+
+nodetron.updateMetadata = function(data){
+  nodetron.socket.emit("update_metadata", {metadata:data});
+};
+
+
+
+nodetron.findPeer = function(queryParam, callback){
+
   var queryId = window.uuid.v4();
 
-  nodetron.activeQueries =  nodetron.activeQueries || {};
+  nodetron.activeQueries = nodetron.activeQueries || {};
   nodetron.activeQueries[queryId] = callback;
 
   console.log("Querying server for: ", queryParam);
