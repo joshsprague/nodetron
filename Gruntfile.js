@@ -123,29 +123,24 @@ module.exports = function (grunt) {
         }
       }
     },
+
+
+
+    //build process:
+    //Note: concat also has a footer and banner property.
+    concat: {
+      basic: {
+        dest:'nodetron.js',
+        src: ['client/webrtc/dist/peer.js','client/background/workerExternalEvents.js','client/intro.js','client/*.js','!client/debug.js','!client/outro.js','client/background/workerExternal.js','client/outro.js']
+      }
+    },
     uglify: {
-      dev: {
-        options: {
-          wrap:true,
-          // exportAll:true
-          preserveComments: true,
-          compress:true,
-          mangle:false
-        },
-        files: {
-          cwd: 'client',
-          src: ['init.js', '*.js','!end.js', 'end.js', 'background/workerExternalEvents.js', 'background/workerExternal.js'],
-          dest: 'nodetron.min.js'
-        }
-      },
       min: {
         options: {
           preserveComments: false
         },
         files: {
-          cwd: 'client',
-          src: ['init.js', '*.js','!end.js', 'end.js', 'background/workerExternalEvents.js', 'background/workerExternal.js'],
-          dest: 'nodetron.min.js'
+          'nodetron.min.js': '<%= concat.basic.dest %>'
         }
       }
     }
