@@ -1,17 +1,17 @@
 ##Nodetron API Reference
 
-A comprehensive reference to Nodetron APIs.  This document is divided into three sections: __Section 1__ is an overview of this library. __Section 2__ covers interactions between the client and the server.  __Section 3__ covers clients communicating directly with each other over WebRTC.
+A comprehensive reference to Nodetron APIs.  This document is divided into three sections: __Section 1__ is an overview of this library. __Section 2__ covers interactions between the client and the server.  __Section 3__ covers clients communicating directly with eachother over WebRTC.
 
 ###SECTION 1: Overview
 
-The philosophy behind Nodetron can be summed as:
+The philosophy behind Nodetron can be summarized as:
 
 1. Clients store all of their own data.
-2. Clients publish make certain pieces of data public available so that other clients can discover them. This data can be stored by other clients and central servers.
+2. Clients make certain pieces of data public available so that other clients can discover them. This data can be stored by other clients and central servers.
 3. Clients discover other clients by querying a local cache, other clients, or a central server.
     * the current implementation only allows for querying a central server.
 4. Clients access another client's non-public data by directly sending requests to that other client, with associated metadata.
-5. Clients handle those requests and determine their response.Clients are responsible for authentication of requests.
+5. Clients handle those requests and determine their response. Clients are responsible for authentication of requests.
 
 ###SECTION 2: Server-client communication:
 
@@ -60,7 +60,7 @@ Give Nodetron some query parameters (based on the arbitrary userData each client
 
      nodetron.findPeer(query, callback);
 
-Query parameters can be anything the application developer chooses.  just specify one or more {key:value} pairs and an array of matching `Peer` objects (if any) will be passed to the callback;
+Query parameters can be anything the application developer chooses.  Just specify one or more {key:value} pairs and an array of matching `Peer` objects (if any) will be passed to the callback;
 
 ###SECTION 3: Inter-client communication:
 
