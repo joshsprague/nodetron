@@ -1,6 +1,6 @@
 ##Nodetron API Reference
 
-A comprehensive reference to Nodetron APIs.  This document is divided into two sections: __Section 1__ covers interactions between the client and the server.  __Section 2__ covers clients communicating directly with eachother over WebRTC.
+A comprehensive reference to Nodetron APIs.  This document is divided into two sections: __Section 1__ covers interactions between the client and the server.  __Section 2__ covers clients communicating directly with eachother over WebRTC.  __Section 3__ covers setting up the server.
 
 ###SECTION 1: Server-client communication:
 
@@ -126,3 +126,36 @@ Since multiple request handlers can be registered on a method, the requestHandle
 * __nodetron.id__: retrieve the current user id.
 * __nodetron.socket__: retrieve the current socket.io object.
 * __nodetron.debug__: flag that indicates whether Nodetron is in debug mode. Toggle this to enable/disable verbose logging.
+
+###Section 3: Setting up the server:
+#####Installation
+[Install Mongodb](http://docs.mongodb.org/manual/installation/). If you're on Mac, use homebrew.  
+Run `npm install nodetron`
+
+#####Creating the server
+
+    var Nodetron = require('nodetron').NodetronServer;
+    var options = {port: 5000, debug: true};
+    var server = new Nodetron(options);
+Other options can be passed into the nodetron server:
+
+**port:**
+  Set port for your server. Default is `process.env.PORT || 80`.
+
+**key:**
+  A string that can be used to segment users. Only users with the same key can contact each other. Should match client side key. Default is `default`.
+
+**debug:**
+  Enables verbose server logging. Default is `false`.
+
+**concurrentLimit:**
+  Sets limit of how many users can be connect at a time. Default is `5000`.
+
+**ipLimit:**
+  Sets limit of how many users per ip address can connect at a time. Default is `5000`.
+
+**mongo:**
+  Sets which mongo db to connect to. Default is `"mongodb://localhost/nodetron"`.
+
+**userSchema:**
+  The database schema is created based on the metadata the app maker decides to use. Default is `{use: false, path: null}`. Change to `{user: true, path: "mongodb://path of your schema here"}`
