@@ -40,7 +40,7 @@ Technologies used: WebRTC, socket.io, MongoDB, node-restify.
 * `git submodule init && git submodule update --remote`
   * `--remote` requires git version >=1.8
   * Since this project is under continuous development, you may need to re-run the above the commands after pulling the lastest upstream changes.
-* `grunt concat && grunt uglify`
+* To build the project (the client-side portion), run `grunt build`.
 * To run the server, [install MongoDB](http://docs.mongodb.org/manual/installation/). If you're on a Mac, use homebrew!
 * For debugging, install global dependencies: `npm -g install node-inspector`
 * When working inside of the submodules of this project, make sure to checkout the correct branch.
@@ -48,13 +48,13 @@ Technologies used: WebRTC, socket.io, MongoDB, node-restify.
   * For `client/webrtc`, checkout `master`.
 * If you intend to run the `demo` app, be sure to follow [the submodule README instructions](https://github.com/bchu/nodetron-standhub).
 
-* `grunt all` to run the server and the `demo` client-side app.
+* `grunt all` to run the server and the `demo` client-side app, with livereload.
   * Append `:<number>` to specify how many demo client-side instances you want to run.
   * Append `:debug` to run node-inspector as well.
   * Ex: `grunt:4:debug` runs 4 demo client instances at ports 9000-9004 and runs node-inspector.
-* `grunt client` to serve the demo client-side app.
+* `grunt client` to serve the demo client-side app, with livereload.
   * Append `:unit` to run unit tests.
-* `grunt server` to run the server.
+* `grunt server` to run the server, with reloading.
   * Append `:unit` to run unit tests.
   * Append `:debug` to run node-inspector.
 * `grunt e2e` to run client e2e tests on Chrome (not implemented yet).

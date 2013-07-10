@@ -249,6 +249,8 @@ module.exports = function (grunt) {
     'concat',
     'uglify'
   ]);
+
+  //TODO - push files down to demo
   grunt.registerTask('build-demo', [
     'concat',
     'uglify',
