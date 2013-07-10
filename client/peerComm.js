@@ -38,9 +38,9 @@ var connectionHandler = function(conn){
   conn.on('data', function(data){
     if(nodetron.debug){console.log('Got DataChannel data:', data);}
     //handle responses to requests.
-    var id = data._id;
+    var id = data.id;
     if (responseQueue[id]) {
-      responseQueue[id](data.body);
+      responseQueue[id](data);
       responseQueue[id] = null;
     }
     //handle other requests
@@ -54,19 +54,16 @@ var connectionHandler = function(conn){
 };
 
 // Handler for incoming requests. Requests checked against requestQueue.
-// data: request object of format: {_id:<uuid>, query:
-//                        {method, resource, data, identity}}
+// data: request object with keys: {method, resource, data, identity, id}
 // conn: DataConnectioon
 var requestHandler = function(data,conn) {
   console.log(data);
-  var query = data.query;
-  var events = requestQueue[query.method];
+  var events = requestQueue[data.method];
   if (events) {
-    //resp will store data._id
+    //resp will store data.id
     var resp = new Response(data,conn);
     for (var i = 0; i < events.length; i++) {
-      //hide data._id from the user
-      if (events[i](query,resp)) {
+      if (events[i](data,resp)) {
         break;
       }
     }
@@ -93,17 +90,26 @@ nodetron.startPeerConnection = function(peerId, metadata){
  * @param  {Object}   query Request query object.
  * @param  {Function} callback Callback on response that received the response
  *                             object
- * @return {DataConnection} Connection to target.
+ * @return {Object} Two return values: connection, the underlying DataConnection, and
+ *                  requestId, the id unique to this request and the subsequent response
  */
 nodetron.requestPeerResource = function(target,query,callback) {
-  if (typeof query.resource === 'undefined') {
+  if (typeof query.resource === 'undefined' && typeof query.id === 'undefined') {
     throw new Error('No resource requested');
   }
   //default method is 'get'
   query.method = query.method || 'get';
-  var eventId = nodetron.uuid.v4();
-  var metadata = {_id:eventId, query:query};
+  //unique id for the request
+  var requestId = query.id || nodetron.uuid.v4();
+  var metadata = {
+    method:query.method,
+    resource:query.resource,
+    data:query.data,
+    identity:query.identity,
+    id:requestId
+  };
 
+  //target is now a DataConnection instance
   if (typeof target === 'object') {
     target = nodetron.startPeerConnection(target.clientId, metadata);
   }
@@ -113,9 +119,15 @@ nodetron.requestPeerResource = function(target,query,callback) {
   else {
     target.send(metadata);
   }
-  //target is now a DataConnection instance
-  responseQueue[eventId] = callback;
-  return target;
+
+  //set callback for any responses that have the requestId
+  if (typeof callback === 'function') {
+    responseQueue[requestId] = callback;
+  }
+  return  {
+    connection: target,
+    requestId: requestId
+  };
 };
 
 /**
@@ -128,16 +140,14 @@ nodetron.requestPeerResource = function(target,query,callback) {
  */
 var Response = function(req, conn) {
   this.connection = conn; //DataConnection
-  this._id = req._id;
+  this._id = req.id;
 };
 //send a response with a message and data.
 Response.prototype.send = function(msg,data) {
   var obj = {
-    _id:this._id,
-    body:{
-      msg:msg,
-      data:data
-    }
+    id:this._id,
+    msg:msg,
+    data:data
   };
   this.connection.send(obj);
 };
