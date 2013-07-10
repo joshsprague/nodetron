@@ -116,7 +116,7 @@ module.exports = function (grunt) {
     },
     watch: {
       nodetron: {
-        files:['client/*.js', 'background/*.js', 'webrtc/dist/*.js'],
+        files:['client/*.js', 'client/background/*.js', 'webrtc/dist/*.js'],
         tasks:['build']
       },
       client: {
