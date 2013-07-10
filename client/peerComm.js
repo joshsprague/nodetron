@@ -6,7 +6,7 @@ var requestQueue = {
     delete:[]
   };
 
-// response listeners (added after a request has been sent)
+// response listeners (listeners added to this object after a request has been sent)
 var responseQueue = {};
 
 // peerjs doesn't conform to its api: metadata isn't actually passed in to the callback
@@ -43,11 +43,6 @@ var connectionHandler = function(conn){
       responseQueue[id](data.body);
       responseQueue[id] = null;
     }
-    // var callback = data._id && conn.idQueue[data._id];
-    // if (callback) {
-    //   callback(data.data);
-    //   conn.idQueue[data._id] = null;
-    // }
     //handle other requests
     else {
       requestHandler(data,conn);
@@ -106,7 +101,6 @@ nodetron.requestPeerResource = function(target,query,callback) {
   }
   //default method is 'get'
   query.method = query.method || 'get';
-  // var eventId = target.eventBucket;
   var eventId = nodetron.uuid.v4();
   var metadata = {_id:eventId, query:query};
 
@@ -121,8 +115,6 @@ nodetron.requestPeerResource = function(target,query,callback) {
   }
   //target is now a DataConnection instance
   responseQueue[eventId] = callback;
-  // target.idQueue[eventId] = callback;
-  // target.eventBucket++;
   return target;
 };
 
@@ -180,52 +172,3 @@ nodetron.registerForPeerRequests = function(method,handler) {
   }
   requestQueue[method].push(handler);
 };
-
-/*
-WIP - unreleased
-
-access permissions:
-deny takes precedence over allow
-everything is by default denied, except for getting the list of users.
-this only applies to public info - publicAllow and publicDeny allow any outside party
-to get all elements of a resource from your database.
-to customize allow/deny, call registerForPeerRequests
-Note that the allow/deny lists take precedence over
-var publicAllow = {
-  get:{
-    users:true
-  },
-  post:{
-  },
-  put:{
-  },
-  delete:{
-  }
-};
-var publicDeny = {
-  get:{
-  },
-  post:{
-  },
-  put:{
-  },
-  delete:{
-  }
-};
-
-//if resource is undefined, all resources under that method will be toggled
-nodetron.publicAllow = function(method,resource) {
-  if (!allow[method]) {
-    console.error('nodetron.allow: ', 'No such resource method.');
-    return;
-  }
-  allow[method][resource] = true;
-};
-nodetron.publicDeny = function(method,resource) {
-  if (!deny[method]) {
-    console.error('nodetron.allow: ', 'No such resource method.');
-    return;
-  }
-  deny[method][resource] = true;
-};
-*/
