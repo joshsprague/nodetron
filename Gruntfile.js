@@ -133,7 +133,7 @@ module.exports = function (grunt) {
     //Note: concat also has a footer and banner property.
     concat: {
       basic: {
-        dest:'nodetron.js',
+        dest:'dist/nodetron.js',
         src: ['client/webrtc/dist/peer.js','client/background/workerExternalEvents.js','client/intro.js','client/*.js','!client/debug.js','!client/outro.js','client/background/workerExternal.js','client/outro.js']
       }
     },
@@ -143,7 +143,7 @@ module.exports = function (grunt) {
           preserveComments: false
         },
         files: {
-          'nodetron.min.js': '<%= concat.basic.dest %>'
+          'dist/nodetron.min.js': '<%= concat.basic.dest %>'
         }
       }
     }
