@@ -101,3 +101,8 @@ The client-side WebRTC code includes a forked version of PeerJS (<https://github
 
 The Nodetron server code is also a heavily modified fork of PeerJS's PeerServer (<https://github.com/peers/peerjs-server>). Thanks to their great work!
 
+##License:
+
+[Nodetron is released under the MIT license](https://github.com/bchu/nodetron/blob/master/LICENSE).
+
+
