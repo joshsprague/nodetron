@@ -9,7 +9,7 @@ A peer-to-peer, rich-client web app library that uses HTML5 WebRTC and Web Worke
 ####[Future Roadmap](https://github.com/bchu/nodetron/blob/master/docs/Roadmap.md/)
 
 <br>
-####[Play with a demo app](http://demo.nodetron.com)
+####[Play with the demo app](http://demo.nodetron.com)
 <br>
 
 ###Overview
@@ -65,13 +65,6 @@ If you get a `Error: Cannot find module './build/Debug/DTraceProviderBindings'` 
 More resources:
 
 1. Workflow instructions at <https://github.com/bchu/nodetron/wiki/Workflow>
-
-###Deployment Instructions (Nodejitsu)
-1. Install the jitsu package using `npm install -g jitsu`
-  * supply any necessary credentials.
-2. Login using `jitsu login`
-3. Deploy using `jitsu deploy`.
-4. Current domain: http://bsalazar91-server.jit.su at port:80 and http://nodetron.jit.su at port:80.
 
 **Browser Compatibility**
 
