@@ -3,3 +3,5 @@ client/
 demo/
 test/
 karma*
+server/peer.js
+docs/

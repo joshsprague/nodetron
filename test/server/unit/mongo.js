@@ -8,7 +8,7 @@ describe("Mongo", function() {
     socket = io.connect("127.0.0.1:5000", options);
     socket.emit("login", {
       key: "default",
-      id: "1",
+      id: 1,
       token: 2,
       metadata: {firstName:"Foo", lastName:"bar", email:"foo.bar@gmail.com", city: "San Francisco", state: "CA",  country:"USA"}
     });
@@ -25,9 +25,8 @@ describe("Mongo", function() {
   it("should insert metadata into database", function(done){
     socket.once("users", function(data){
       Peer = mongoose.model("Peer");
-      Peer.find(function(err, data) {
+      Peer.find({firstName: "Foo"}, function(err, data) {
         if(err) console.log(err);
-        expect(data.length).to.equal(1);
         expect(data[0].firstName).to.equal("Foo");
       });
       done();

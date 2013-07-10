@@ -19,7 +19,7 @@ var util = {
     }
     return dest;
   },
-  prettyError: function (msg) {
+  prettyError: function(msg) {
     if (util.debug) {
       console.log('ERROR PeerServer: ', msg);
     }
