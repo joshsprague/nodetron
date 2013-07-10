@@ -1,6 +1,6 @@
 {
   "name": "nodetron",
-  "version": "0.0.1",
+  "version": "0.0.12",
   "description": "A peer-to-peer, nearly-server-less, rich-client web app library using WebRTC.",
   "keywords": [
     "webrtc",
@@ -26,7 +26,7 @@
     "url": "https://github.com/bchu/nodetron/issues"
   },
   "readmeFilename": "README.md",
-  "main": "server/peer.js",
+  "main": "server/server.js",
   "scripts": {
     "test": "grunt server:unit",
     "start": "node server/peer.js"
