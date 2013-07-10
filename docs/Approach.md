@@ -1,3 +1,11 @@
+#Notes on Different Approaches
+
+*This doc is somewhat outdated (i.e. some of these approaches are considered unfeasible)*.
+
+**Challenges:**
+
+1. In most WebRTC implementations, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One challenge is to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.
+
 ##Project Goals
 
 At the outset of this program, we set out to create:
@@ -15,14 +23,6 @@ At the outset of this program, we set out to create:
     * if decentralized, bootstraps nodes
     * depending on protocol, routes requests
     * allows peers to discover each-other based on the metadata they make public.
-
-##High-level approach
-
-There are many ways to try and solve the challenge listed above.  Potential approaches include:
-
-* Use a central server to get an MVP out the door. This enables lots of coding right out of the gate.
-
-* Go with the de-centralized approach first, explore the technology, read lots and produce small technical demos.
 
 ###Potential solutions and their associated benefits / disadvantages
 
