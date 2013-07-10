@@ -1,31 +1,34 @@
 var util = require('./util'),
 restify = require('restify'),
-http = require('http'),
 EventEmitter = require('events').EventEmitter,
-url = require('url'),
 io = require('socket.io'),
-mongoose = require("mongoose"),
-peerSchema = require("./models/Peer.js");
+mongoose = require("mongoose");
 
-function PeerServer(options) {
-  if (!(this instanceof PeerServer)) return new PeerServer(options);
+function NodetronServer(options) {
+  if (!(this instanceof NodetronServer)) return new NodetronServer(options);
   EventEmitter.call(this);
 
   //Server Options defaults; overwritten by passed in options if available
   this._options = util.extend({
     port: 80,
     debug: false,
-    timeout: 5000,
     key: 'default',
     ipLimit: 5000,
     concurrentLimit: 5000,
     ssl: {},
-    mongo: "mongodb://localhost/test",
-    userSchema: false,
+    mongo: "mongodb://localhost/nodetron",
+    userSchema: {use: false, path: null},
     transports: ["websocket", "htmlfile", "xhr-polling", "jsonp-polling"],
   }, options);
 
   util.debug = this._options.debug;
+
+  //Determine to user auto schema or user defined schema
+  if(!this._options.userSchema.use){
+    this.peerSchema = require("./models/Peer.js");
+  }else {
+    this.peerSchema = require(this._options.userSchema.path);
+  }
 
   //Connect to user specified mongo db
   mongoose.connect(this._options.mongo);
@@ -36,11 +39,11 @@ function PeerServer(options) {
   var secure = this._options.ssl.key && this._options.ssl.certificate;
   // Print warning if only one of the two is given.
   if (Object.keys(this._options.ssl).length === 1) {
-    util.prettyError('Warning: PeerServer will not run on an HTTPS server'
+    util.prettyError('Warning: NodetronServer will not run on an HTTPS server'
         + ' because either the key or the certificate has not been provided.');
   }
 
-  this._options.ssl['name'] = 'PeerServer';
+  this._options.ssl['name'] = 'NodetronServer';
   this._app = restify.createServer(this._options.ssl);
   // Connected clients
   this._clients = {};
@@ -60,24 +63,25 @@ function PeerServer(options) {
   this._setCleanupIntervals();
 }
 
-util.inherits(PeerServer, EventEmitter);
+util.inherits(NodetronServer, EventEmitter);
 
 /** Initialize WebSocket server. */
-PeerServer.prototype._initializeWSS = function() {
+NodetronServer.prototype._initializeWSS = function() {
   var self = this;
 
   //Socket IO setup
   this.sio = io.listen(this._app);
   this.sio.set("transports", this._options.transports);
-  this.sio.set("destroy upgrade", false);
 
   this.sio.sockets.on('connection', function(socket) {
+    //Login socket event
     socket.on('login', function(data) {
       var id = data.id,
       token = data.token,
       key = data.key,
       ip = socket.manager.handshaken[socket.id].address.address,
       meta = data.metadata;
+      util.log("Socket Open: ", id);
 
       if (!id || !token || !key) {
         socket.send(JSON.stringify({ type: 'ERROR', payload: { msg: 'No id, token, or key supplied to websocket server' } }));
@@ -103,10 +107,10 @@ PeerServer.prototype._initializeWSS = function() {
         self._configureWS(socket, key, id, token);
       }
 
-      // Insert metadata into mongo for user discovery
-      self.dbHandler.insert(meta, data.id, self);
+      // Insert metadata into db for user discovery
+      self.dbHandler.insert(meta, id, self);
 
-      //Send current client list to all peers
+      //Send current client list to all peers on peer login
       self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
         if(key === "res" || key === "socket"){
           return;
@@ -117,7 +121,7 @@ PeerServer.prototype._initializeWSS = function() {
   });
 };
 
-PeerServer.prototype._configureWS = function(socket, key, id, token) {
+NodetronServer.prototype._configureWS = function(socket, key, id, token) {
   var self = this,
   client = this._clients[key][id];
 
@@ -143,7 +147,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
     if (client.socket == socket) {
       self._removePeer(key, id);
     }
-    //Resend current client list to all peers
+    //Resend current client list to all peers on peer disconnect
     self.sio.sockets.emit("users", JSON.stringify(self._clients, function(key, value){
       if(key === "res" || key === "socket"){
         return;
@@ -196,7 +200,7 @@ PeerServer.prototype._configureWS = function(socket, key, id, token) {
 
 //checks that proper api key is provided, initializes and updates the cache of client/outstanding keys
 //stores ips
-PeerServer.prototype._checkKey = function(key, ip, cb) {
+NodetronServer.prototype._checkKey = function(key, ip, cb) {
   if (key == this._options.key) {
     if (!this._clients[key]) {
       this._clients[key] = {};
@@ -223,7 +227,7 @@ PeerServer.prototype._checkKey = function(key, ip, cb) {
 };
 
 /** Initialize HTTP server routes. */
-PeerServer.prototype._initializeHTTP = function() {
+NodetronServer.prototype._initializeHTTP = function() {
   var self = this;
 
   //maps posted data to req.body instead of req.params
@@ -294,17 +298,12 @@ PeerServer.prototype._initializeHTTP = function() {
 
   this._app.post('/:key/:id/:token/leave', handle);
 
-  this._app.get('/', function(req, res, next){
-    //TODO: serve static
-    return next();
-  });
-
   // Listen on user-specified port.
   this._app.listen(this._options.port);
 };
 
 /** Saves a streaming response and takes care of timeouts and headers. */
-PeerServer.prototype._startStreaming = function(res, key, id, token, open) {
+NodetronServer.prototype._startStreaming = function(res, key, id, token, open) {
   var self = this;
 
   res.writeHead(200, {'Content-Type': 'application/octet-stream'});
@@ -341,7 +340,7 @@ PeerServer.prototype._startStreaming = function(res, key, id, token, open) {
   }
 };
 
-PeerServer.prototype._pruneOutstanding = function() {
+NodetronServer.prototype._pruneOutstanding = function() {
   var keys = Object.keys(this._outstanding);
   for (var k = 0, kk = keys.length; k < kk; k += 1) {
     var key = keys[k];
@@ -362,7 +361,7 @@ PeerServer.prototype._pruneOutstanding = function() {
 };
 
 /** Cleanup */
-PeerServer.prototype._setCleanupIntervals = function() {
+NodetronServer.prototype._setCleanupIntervals = function() {
   var self = this;
 
   // Clean up ips every 10 minutes
@@ -383,7 +382,7 @@ PeerServer.prototype._setCleanupIntervals = function() {
 };
 
 /** Process outstanding peer offers. */
-PeerServer.prototype._processOutstanding = function(key, id) {
+NodetronServer.prototype._processOutstanding = function(key, id) {
   var offers = this._outstanding[key][id];
   if (!offers) {
     return;
@@ -394,7 +393,7 @@ PeerServer.prototype._processOutstanding = function(key, id) {
   delete this._outstanding[key][id];
 };
 
-PeerServer.prototype._removePeer = function(key, id) {
+NodetronServer.prototype._removePeer = function(key, id) {
   if (this._clients[key] && this._clients[key][id]) {
     this._ips[this._clients[key][id].ip]--;
     delete this._clients[key][id];
@@ -402,7 +401,7 @@ PeerServer.prototype._removePeer = function(key, id) {
 };
 
 /** Handles passing on a message. */
-PeerServer.prototype._handleTransmission = function(key, message) {
+NodetronServer.prototype._handleTransmission = function(key, message) {
   var type = message.type,
   src = message.src,
   dst = message.dst,
@@ -453,10 +452,11 @@ PeerServer.prototype._handleTransmission = function(key, message) {
   }
 };
 
-PeerServer.prototype.dbHandler = {
+NodetronServer.prototype.dbHandler = {
+  //Insert metadata into db
   insert: function(meta, id, self){
     //Automated Schema
-    if(!self._options.userSchema){
+    if(!self._options.userSchema.use){
       meta.clientId = id;
       var schemaObject = {};
 
@@ -465,28 +465,28 @@ PeerServer.prototype.dbHandler = {
       }
 
       //Add to schema based on metadata passed up
-      peerSchema.add(schemaObject);
-      Peer = mongoose.model("Peer", peerSchema);
+      self.peerSchema.add(schemaObject);
+      Peer = mongoose.model("Peer", self.peerSchema);
 
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
-        if(err) util.log(err);
+        if(err) console.log(err);
       });
     //Pre defined Schema
     }else {
-      //TODO: Insert into db with pre defined schema
-      Peer = mongoose.model("Peer", peerSchema);
+      Peer = mongoose.model("Peer", self.peerSchema);
       Peer.findOneAndUpdate({clientId: meta.clientId}, meta, {upsert: true}, function(err, data){
-        if(err) util.log(err);
+        if(err) console.log(err);
       });
     }
   },
 
+  //Query for other connected peers
   query: function(param, id, socket) {
     var response = {};
     response.queryId = id;
     Peer.find(param, function(err, users) {
       if(err) {
-        util.log(err);
+        console.log(err);
       } else {
         response.users = users;
         socket.emit("query_response", response);
@@ -494,12 +494,12 @@ PeerServer.prototype.dbHandler = {
     });
   },
 
+  //Update metadata for specified client
   update: function(id, meta) {
-    //Update metadata for specified client
     Peer.findOneAndUpdate({"clientId": id}, meta, function(err, data) {
-      if(err) util.log(err);
+      if(err) console.log(err);
     });
   }
 };
 
-exports.PeerServer = PeerServer;
+exports.NodetronServer = NodetronServer;
