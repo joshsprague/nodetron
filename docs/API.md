@@ -106,6 +106,8 @@ Since multiple request handlers can be registered on a method, the requestHandle
     * __accept(data)__: an alias for {msg: 'accept', data: data}
     * __deny(data)__: an alias for {msg: 'deny', data: data}
 
+**To access the underlying 
+
 ### Other Nodetron properties exposed:
 
 * __nodetron.self__: retrieve current Peer object.
