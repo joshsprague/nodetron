@@ -1,10 +1,10 @@
 // request listeners
 var requestQueue = {
-    get:[],
-    post:[],
-    put:[],
-    delete:[]
-  };
+  get:[],
+  post:[],
+  put:[],
+  delete:[]
+};
 
 // response listeners (listeners added to this object after a request has been sent)
 var responseQueue = {};
@@ -25,7 +25,7 @@ var eventifyConnection = function(conn, ignoreMetadata) {
   // self-initiated connections are passed back to the peer.on('connection') callback,
   if (!ignoreMetadata) {
     var data = conn.metadata;
-    data && requestHandler(data,conn);
+    data && requestHandler(data, conn);
   }
 };
 // Handler for connection events. Handles 'data', 'open', and 'error' events.
@@ -89,10 +89,8 @@ nodetron.startPeerConnection = function(peerId, metadata){
  * @param  {Peer, string, DataConnection} target Peer object, peer uuid,
  *                                               or raw DataConnection
  * @param  {Object}   query Request query object.
- * @param  {Function} callback Callback on response that received the response
- *                             object
- * @return {Object} Two return values: connection, the underlying DataConnection, and 
- *                  requestId, the id unique to this request and the subsequent response
+ * @param  {Function} callback Callback on response that received the response object
+ * @return {Object} Two return values: connection, the underlying DataConnection, and requestId, the id unique to this request and the subsequent response
  */
 nodetron.requestPeerResource = function(target,query,callback) {
   if (typeof query.resource === 'undefined' && typeof query.id === 'undefined') {
@@ -101,7 +99,6 @@ nodetron.requestPeerResource = function(target,query,callback) {
   //default method is 'get'
   query.method = query.method || 'get';
   //unique id for the request
-  debugger;
   var requestId = query.id || nodetron.uuid.v4();
   var metadata = {
     method:query.method,
@@ -111,6 +108,7 @@ nodetron.requestPeerResource = function(target,query,callback) {
     id:requestId
   };
 
+  //target is now a DataConnection instance
   if (typeof target === 'object') {
     target = nodetron.startPeerConnection(target.clientId, metadata);
   }
@@ -120,13 +118,12 @@ nodetron.requestPeerResource = function(target,query,callback) {
   else {
     target.send(metadata);
   }
-  //target is now a DataConnection instance
 
   //set callback for any responses that have the requestId
   if (typeof callback === 'function') {
     responseQueue[requestId] = callback;
   }
-  return  {
+  return {
     connection: target,
     requestId: requestId
   };

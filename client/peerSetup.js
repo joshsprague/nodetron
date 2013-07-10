@@ -20,21 +20,19 @@ nodetron.registerWithServer = function(options){
   var host = options.host;
   var port = options.port || 80; //development: 5000, production:80
   var config = options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-  var debug = options.debug || false;
-  nodetron.debug = debug;
-  var socket = io.connect(host+':'+port);
-  nodetron.socket = socket;
+  var debug = nodetron.debug = options.debug || false;
+  var socket = nodetron.socket = io.connect(host+':'+port);
 
   //data stored for the login function, should not be modified
   nodetron._options = {
-    port:port,
-    config:config,
-    host:host,
-    debug:debug
+    port: port,
+    config: config,
+    host: host,
+    debug: debug
   };
 
   socket.on('users', function (data) {
-    if(options.debug){console.log(data);}
+    if (options.debug) console.log(data);
     socket.emit('acknowledge', {received: true});
   });
   if (options.debug) {

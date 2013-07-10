@@ -2288,11 +2288,11 @@ window.nodetron = (function(window) {
 
 // request listeners
 var requestQueue = {
-    get:[],
-    post:[],
-    put:[],
-    delete:[]
-  };
+  get:[],
+  post:[],
+  put:[],
+  delete:[]
+};
 
 // response listeners (listeners added to this object after a request has been sent)
 var responseQueue = {};
@@ -2313,7 +2313,7 @@ var eventifyConnection = function(conn, ignoreMetadata) {
   // self-initiated connections are passed back to the peer.on('connection') callback,
   if (!ignoreMetadata) {
     var data = conn.metadata;
-    data && requestHandler(data,conn);
+    data && requestHandler(data, conn);
   }
 };
 // Handler for connection events. Handles 'data', 'open', and 'error' events.
@@ -2377,10 +2377,8 @@ nodetron.startPeerConnection = function(peerId, metadata){
  * @param  {Peer, string, DataConnection} target Peer object, peer uuid,
  *                                               or raw DataConnection
  * @param  {Object}   query Request query object.
- * @param  {Function} callback Callback on response that received the response
- *                             object
- * @return {Object} Two return values: connection, the underlying DataConnection, and 
- *                  requestId, the id unique to this request and the subsequent response
+ * @param  {Function} callback Callback on response that received the response object
+ * @return {Object} Two return values: connection, the underlying DataConnection, and requestId, the id unique to this request and the subsequent response
  */
 nodetron.requestPeerResource = function(target,query,callback) {
   if (typeof query.resource === 'undefined' && typeof query.id === 'undefined') {
@@ -2389,7 +2387,6 @@ nodetron.requestPeerResource = function(target,query,callback) {
   //default method is 'get'
   query.method = query.method || 'get';
   //unique id for the request
-  debugger;
   var requestId = query.id || nodetron.uuid.v4();
   var metadata = {
     method:query.method,
@@ -2399,6 +2396,7 @@ nodetron.requestPeerResource = function(target,query,callback) {
     id:requestId
   };
 
+  //target is now a DataConnection instance
   if (typeof target === 'object') {
     target = nodetron.startPeerConnection(target.clientId, metadata);
   }
@@ -2408,13 +2406,12 @@ nodetron.requestPeerResource = function(target,query,callback) {
   else {
     target.send(metadata);
   }
-  //target is now a DataConnection instance
 
   //set callback for any responses that have the requestId
   if (typeof callback === 'function') {
     responseQueue[requestId] = callback;
   }
-  return  {
+  return {
     connection: target,
     requestId: requestId
   };
@@ -2503,21 +2500,19 @@ nodetron.registerWithServer = function(options){
   var host = options.host;
   var port = options.port || 80; //development: 5000, production:80
   var config = options.config || {'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }]};
-  var debug = options.debug || false;
-  nodetron.debug = debug;
-  var socket = io.connect(host+':'+port);
-  nodetron.socket = socket;
+  var debug = nodetron.debug = options.debug || false;
+  var socket = nodetron.socket = io.connect(host+':'+port);
 
   //data stored for the login function, should not be modified
   nodetron._options = {
-    port:port,
-    config:config,
-    host:host,
-    debug:debug
+    port: port,
+    config: config,
+    host: host,
+    debug: debug
   };
 
   socket.on('users', function (data) {
-    if(options.debug){console.log(data);}
+    if (options.debug) console.log(data);
     socket.emit('acknowledge', {received: true});
   });
   if (options.debug) {

@@ -2,7 +2,7 @@
 var socketStub =  {};
 socketStub.triggers = {};
 
-socketStub.on =  function(trigger, callback){
+socketStub.on = function(trigger, callback){
   socketStub.triggers[trigger] = callback;
 };
 
@@ -16,7 +16,6 @@ describe('registerWithServer', function(){
     expect(nodetron.socket).to.exist;
     expect(nodetron.self).to.exist;
   });
-
 });
 
 describe('findPeer', function(){

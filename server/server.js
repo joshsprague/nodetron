@@ -2,7 +2,7 @@ var util = require('./util'),
 restify = require('restify'),
 EventEmitter = require('events').EventEmitter,
 io = require('socket.io'),
-mongoose = require("mongoose");
+mongoose = require('mongoose');
 
 function NodetronServer(options) {
   if (!(this instanceof NodetronServer)) return new NodetronServer(options);
@@ -201,7 +201,7 @@ NodetronServer.prototype._configureWS = function(socket, key, id, token) {
 //checks that proper api key is provided, initializes and updates the cache of client/outstanding keys
 //stores ips
 NodetronServer.prototype._checkKey = function(key, ip, cb) {
-  if (key == this._options.key) {
+  if (key === this._options.key) {
     if (!this._clients[key]) {
       this._clients[key] = {};
     }

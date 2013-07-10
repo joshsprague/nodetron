@@ -140,7 +140,10 @@ module.exports = function (grunt) {
     uglify: {
       min: {
         options: {
-          preserveComments: false
+          preserveComments: false,
+          banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+                  '* <%= pkg.homepage %>/\n' +
+                  '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>; Licensed <%= pkg.license %> */\n'
         },
         files: {
           'nodetron.min.js': '<%= concat.basic.dest %>'

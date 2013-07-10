@@ -10,7 +10,7 @@ describe('WorkerEvents', function() {
 
   it('should handle a simple request for data', function(done) {
     worker.postMessageWithCallback('getUsers', function(users) {
-      expect(users).to.be.an.intanceof([]);
+      expect(users).to.be.an.intanceof(Array);
       done();
     });
   });

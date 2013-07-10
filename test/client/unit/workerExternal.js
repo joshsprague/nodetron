@@ -18,7 +18,6 @@ describe('WebWorker', function() {
     };
     worker.postMessage(JSON.stringify(msg));
     expect(worker.postMessage).to.exist;
-
   });
 
 });

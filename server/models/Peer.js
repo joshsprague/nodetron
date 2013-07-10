@@ -1,9 +1,12 @@
 var mongoose = require("mongoose");
 
 var peerSchema = new mongoose.Schema({
-  clientId: String
+  clientId: {
+    type: String,
+    index: {
+      unique: true
+    }
+  }
 });
-
-peerSchema.path("clientId").index({unique: true});
 
 module.exports = peerSchema;
