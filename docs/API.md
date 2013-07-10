@@ -1,6 +1,6 @@
 ##Nodetron API Reference
 
-A comprehensive reference to Nodetron APIs.  This document is divided into two sections: __Section 1__ covers interactions between the client and the server.  __Section 2__ covers clients communicating directly with eachother over WebRTC.  __Section 3__ covers setting up the server.
+A comprehensive reference to Nodetron APIs.  This document is divided into two sections: __Section 1__ covers interactions between the client and the server.  __Section 2__ covers clients communicating directly with eachother over WebRTC. __Section 3__ covers setting up the server.
 
 ###SECTION 1: Server-client communication:
 
@@ -127,9 +127,9 @@ Since multiple request handlers can be registered on a method, the requestHandle
 * __nodetron.socket__: retrieve the current socket.io object.
 * __nodetron.debug__: flag that indicates whether Nodetron is in debug mode. Toggle this to enable/disable verbose logging.
 
-###Section 3: Setting up the server:
+###SECTION 3: Setting up the server:
 #####Installation
-[Install Mongodb](http://docs.mongodb.org/manual/installation/). If you're on Mac, use homebrew.  
+[Install MongoDB](http://docs.mongodb.org/manual/installation/). If you're on Mac, we recommend you use homebrew.
 Run `npm install nodetron`
 
 #####Creating the server
@@ -137,25 +137,26 @@ Run `npm install nodetron`
     var Nodetron = require('nodetron').NodetronServer;
     var options = {port: 5000, debug: true};
     var server = new Nodetron(options);
+
 Other options can be passed into the nodetron server:
 
-**port:**
+* __port__:
   Set port for your server. Default is `process.env.PORT || 80`.
 
-**key:**
+* __key__:
   A string that can be used to segment users. Only users with the same key can contact each other. Should match client side key. Default is `default`.
 
-**debug:**
+* __debug__:
   Enables verbose server logging. Default is `false`.
 
-**concurrentLimit:**
+* __concurrentLimit__:
   Sets limit of how many users can be connect at a time. Default is `5000`.
 
-**ipLimit:**
+* __ipLimit__:
   Sets limit of how many users per ip address can connect at a time. Default is `5000`.
 
-**mongo:**
+* __mongo__:
   Sets which mongo db to connect to. Default is `"mongodb://localhost/nodetron"`.
 
-**userSchema:**
+* __userSchema__:
   The database schema is created based on the metadata the app maker decides to use. Default is `{use: false, path: null}`. Change to `{user: true, path: "mongodb://path of your schema here"}`
