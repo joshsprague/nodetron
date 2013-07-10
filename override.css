@@ -1,0 +1,17 @@
+body {
+  color: #222;
+  /*text-shadow: 0 1px  rgba(255, 255, 255, 0.8);*/
+  /*font-weight: normal;*/
+}
+
+.wrapper {
+  width:700px;
+}
+
+code {
+  background-color: #fdfdfd;
+  padding:2px 5px;
+  -webkit-border-radius:3px;
+  -moz-border-radius:3px;
+  border-radius:3px;
+}
