@@ -18,7 +18,7 @@
     <div class="wrapper">
       <header>
         <h1>Nodetron</h1>
-        <p>A peer-to-peer, nearly-serverless, rich-client web app library using HTML5 WebRTC, WebWorkers, and IndexedDB.</p>
+        <p>A peer-to-peer, rich-client web app library that uses HTML5 WebRTC and Web Workers to reduce reliance on central servers.</p>
         <p class="view"><a href="https://github.com/bchu/nodetron">View the Project on GitHub <small>bchu/nodetron</small></a></p>
         <ul>
           <li><a href="https://github.com/bchu/nodetron/zipball/master">Download <strong>ZIP File</strong></a></li>
@@ -32,29 +32,62 @@
 
 <p><strong>This project is under heavy development. Its API is subject to major, breaking changes.</strong></p>
 
-<p>A peer-to-peer, nearly-serverless, rich-client web app library using HTML5, WebRTC, WebWorkers, and IndexedDB.</p>
+<p>A peer-to-peer, rich-client web app library that uses HTML5 WebRTC and Web Workers to reduce reliance on central servers and enable greater decentralization by routing requests directly to peers.</p>
 
 <h4>
 <a name="full-api-documentation" class="anchor" href="#full-api-documentation"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/API.md/">Full API Documentation</a>
 </h4>
 
 <h4>
-<a name="a-discussion-of-our-approach" class="anchor" href="#a-discussion-of-our-approach"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/Approach.md/">A Discussion of Our Approach</a>
+<a name="notes-on-different-approaches" class="anchor" href="#notes-on-different-approaches"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/Approach.md/">Notes on Different Approaches</a>
+</h4>
+
+<h4>
+<a name="future-roadmap" class="anchor" href="#future-roadmap"><span class="octicon octicon-link"></span></a><a href="https://github.com/bchu/nodetron/blob/master/docs/Roadmap.md/">Future Roadmap</a>
 </h4>
 
 <p><br></p>
 
 <h4>
-<a name="play-with-a-demo-app" class="anchor" href="#play-with-a-demo-app"><span class="octicon octicon-link"></span></a><a href="http://demo.nodetron.com">Play with a demo app</a>
+<a name="play-with-the-demo-app" class="anchor" href="#play-with-the-demo-app"><span class="octicon octicon-link"></span></a><a href="http://demo.nodetron.com">Play with the demo app</a>
 </h4>
 
 <p><br></p>
 
 <h3>
-<a name="build-and-run-instructions" class="anchor" href="#build-and-run-instructions"><span class="octicon octicon-link"></span></a>Build and Run Instructions</h3>
+<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>Nodetron helps you easily create peer-to-peer applications that do more than just send chats or transfer files. Nodetron consists of a routing and discovery system with which developers can build rich client-side apps that control all user data locally. With Nodetron, all data validation and access permissions are delegated to and handled by the client. Developers are encouraged to then take advantage of IndexedDB, AppCache, and other HTML 5 APIs. In the future, Nodetron will feature tighter integration with those kinds of rich-client APIs.</p>
+
+<p>In more detail:</p>
+
+<ol>
+<li>Clients store all of their own data.</li>
+<li>Clients make certain pieces of data public available so that other clients can discover them. This data can be stored by other clients and central servers.</li>
+<li>Clients discover other clients by querying a local cache, other clients, or a central server.
 
 <ul>
-<li><code>npm install &amp;&amp; bower install</code></li>
+<li>the current implementation only allows for querying a central server. This will change in the future.</li>
+</ul>
+</li>
+<li>Clients access another client's non-public data by directly sending requests to that other client, with associated metadata.</li>
+<li>Clients handle those requests and determine their response. Clients are responsible for authentication of requests. Nodetron will include authentication mechanisms in the future.</li>
+</ol><p>Technologies used: WebRTC, socket.io, MongoDB, node-restify.</p>
+
+<h3>
+<a name="getting-started" class="anchor" href="#getting-started"><span class="octicon octicon-link"></span></a>Getting Started</h3>
+
+<p><em>Note: only recent versions of Chrome and Firefox are currently supported</em></p>
+
+<ol>
+<li>On the client side: Include the <code>nodetron.js</code> (or <code>nodetron.min.js</code>) scripts manually or use <code>bower install nodetron</code>.</li>
+<li>On the server side: <code>npm install nodetron</code>.</li>
+</ol><h3>
+<a name="development-instructions" class="anchor" href="#development-instructions"><span class="octicon octicon-link"></span></a>Development Instructions</h3>
+
+<ul>
+<li>
+<code>npm install &amp;&amp; bower install</code> in the project root.</li>
 <li>
 <code>git submodule init &amp;&amp; git submodule update --remote</code>
 
@@ -64,7 +97,7 @@
 <li>Since this project is under continuous development, you may need to re-run the above the commands after pulling the lastest upstream changes.</li>
 </ul>
 </li>
-<li><code>grunt concat &amp;&amp; grunt uglify</code></li>
+<li>To build the project (the client-side portion), run <code>grunt build</code>.</li>
 <li>To run the server, <a href="http://docs.mongodb.org/manual/installation/">install MongoDB</a>. If you're on a Mac, use homebrew!</li>
 <li>For debugging, install global dependencies: <code>npm -g install node-inspector</code>
 </li>
@@ -75,10 +108,9 @@
 <li>For <code>client/webrtc</code>, checkout <code>master</code>.</li>
 </ul>
 </li>
-<li>If you intend to run the <code>demo</code> app, be sure to follow <a href="https://github.com/bchu/nodetron-standhub">the submodule README instructions</a>.</li>
-</ul><ol>
+<li><p>If you intend to run the <code>demo</code> app, be sure to follow <a href="https://github.com/bchu/nodetron-standhub">the submodule README instructions</a>.</p></li>
 <li>
-<code>grunt all</code> to run the server and the <code>demo</code> client-side app.
+<p><code>grunt all</code> to run the server and the <code>demo</code> client-side app, with livereload.</p>
 
 <ul>
 <li>Append <code>:&lt;number&gt;</code> to specify how many demo client-side instances you want to run.</li>
@@ -87,74 +119,30 @@
 </ul>
 </li>
 <li>
-<code>grunt client</code> to serve the demo client-side app.
+<p><code>grunt client</code> to serve the demo client-side app, with livereload.</p>
 
 <ul>
 <li>Append <code>:unit</code> to run unit tests.</li>
 </ul>
 </li>
 <li>
-<code>grunt server</code> to run the server.
+<p><code>grunt server</code> to run the server, with reloading.</p>
 
 <ul>
 <li>Append <code>:unit</code> to run unit tests.</li>
 <li>Append <code>:debug</code> to run node-inspector.</li>
 </ul>
 </li>
-<li>
-<code>grunt e2e</code> to run client e2e tests on Chrome (not implemented yet).</li>
-<li>
-<code>grunt cross</code> to run client e2e tests on Firefox as well as Chrome (not implemented yet).</li>
-</ol><p>If you get a <code>Error: Cannot find module './build/Debug/DTraceProviderBindings'</code> error, remove <code>restify</code> from your local <code>node_modules</code> folder and re-run <code>npm install</code> in the project root.</p>
+<li><p><code>grunt e2e</code> to run client e2e tests on Chrome (not implemented yet).</p></li>
+<li><p><code>grunt cross</code> to run client e2e tests on Firefox as well as Chrome (not implemented yet).</p></li>
+</ul><p>If you get a <code>Error: Cannot find module './build/Debug/DTraceProviderBindings'</code> error, remove <code>restify</code> from your local <code>node_modules</code> folder and re-run <code>npm install</code> in the project root.</p>
 
 <p>More resources:</p>
 
 <ol>
 <li>Workflow instructions at <a href="https://github.com/bchu/nodetron/wiki/Workflow">https://github.com/bchu/nodetron/wiki/Workflow</a>
 </li>
-</ol><h3>
-<a name="deployment-instructions-jitsu" class="anchor" href="#deployment-instructions-jitsu"><span class="octicon octicon-link"></span></a>Deployment Instructions (Jitsu)</h3>
-
-<ol>
-<li>Install the jitsu package using <code>npm install -g jitsu</code>
-
-<ul>
-<li>supply any necessary credentials.</li>
-</ul>
-</li>
-<li>Login using <code>jitsu login</code>
-</li>
-<li>Deploy using <code>jitsu deploy</code>.</li>
-<li>Current domain: <a href="http://bsalazar91-server.jit.su">http://bsalazar91-server.jit.su</a> at port:80 and <a href="http://nodetron.jit.su">http://nodetron.jit.su</a> at port:80.</li>
-</ol><h3>
-<a name="overview" class="anchor" href="#overview"><span class="octicon octicon-link"></span></a>Overview</h3>
-
-<p>A peer-to-peer, nearly-serverless, rich client web app library using WebRTC, WebWorkers, and IndexedDB. Developers can use this to easily create peer-to-peer applications that do more than just transfer files. Developers will build rich client apps that control and store ALL user state/data locally (through HTML5 IndexedDB and/or the filesystem sandbox). All data validation and access permissions are handled by the client.</p>
-
-<p><strong>Challenges:</strong></p>
-
-<ol>
-<li>In most WebRTC implementations, a central server is necessary as a standard "signaling" server that passes along users' requests for connections with each other (there are libraries for this). In the standard model of web applications, that server also is going to store personally identifiable and private info about you - phone numbers, emails, passwords, etc. We want an approach that minimizes involvement of a central server. One challenge is to find a way for one app to somehow run a query (either p2p or through a server) like so: "connect me with the user whose email is __," since we want data to be decentralized, it would be ideal if the server didn't know the email.</li>
-</ol><p>Technologies: WebRTC, HTML5 IndexedDB, Socket.io, MongoDB, Express.js, and/or some implementation of a DHT (Kademlia).</p>
-
-<h3>
-<a name="current-architecture" class="anchor" href="#current-architecture"><span class="octicon octicon-link"></span></a>Current Architecture</h3>
-
-<p>Clients send 'discovery queries' to a central server/database. The server responds with potential matches. Clients then contact the matches directly over WebRTC and exchange information. Clients specify what information they make publicly available for discovery on the central server. Clients are also responsible for granting, denying, or upgrading access over WebRTC.</p>
-
-<h3>
-<a name="value-proposition" class="anchor" href="#value-proposition"><span class="octicon octicon-link"></span></a>Value proposition:</h3>
-
-<ul>
-<li>privacy - outside parties cannot inspect private info</li>
-<li>(server) access redundancy - if central server goes down you can still exchange data with others.</li>
-<li>(server) discovery redundancy - if central server goes down you can still discover other clients.</li>
-<li>security - no single point of attack.</li>
-</ul><p><strong>Inherent drawbacks:</strong></p>
-
-<ul>
-<li>Client must be active (browser window open) to send/receive requests.</li>
-</ul><p><strong>Browser Compatibility</strong></p>
+</ol><p><strong>Browser Compatibility</strong></p>
 
 <ul>
 <li>Web Workers: IE10+</li>
@@ -165,10 +153,34 @@
 </ul>
 </li>
 <li>WebRTC: no IE, FF20+, CH26+, no Safari.</li>
+</ul><h3>
+<a name="current-prototype-implementation" class="anchor" href="#current-prototype-implementation"><span class="octicon octicon-link"></span></a>Current Prototype Implementation</h3>
+
+<p>Clients send 'discovery queries' to a central server/database. The server responds with potential matches. Clients then contact the matches directly over a WebRTC connection that is brokered by the server. Clients then freely exchange information. Clients specify what information they make publicly available for discovery on the central server. Clients are also responsible for granting or denying access over WebRTC.</p>
+
+<h3>
+<a name="possible-advantages" class="anchor" href="#possible-advantages"><span class="octicon octicon-link"></span></a>Possible Advantages:</h3>
+
+<ul>
+<li>Privacy - outside parties cannot inspect private info</li>
+<li>Data access redundancy - if central server goes down you can still exchange data with others.</li>
+<li>User discovery redundancy - if central server goes down you can still discover other clients.</li>
+</ul><p><strong>Inherent drawbacks:</strong></p>
+
+<ul>
+<li>Client must be active (browser window open) to send/receive requests.</li>
+<li>Greater decentralization exposes the peer network (as a whole) to malicious attacks.</li>
 </ul><h2>
 <a name="acknowledgments" class="anchor" href="#acknowledgments"><span class="octicon octicon-link"></span></a>Acknowledgments:</h2>
 
-<p>90% of server code is forked from PeerJS Server (<a href="https://github.com/peers/peerjs-server">https://github.com/peers/peerjs-server</a>). Thanks to their great work!</p>
+<p>The client-side WebRTC code includes a forked version of PeerJS (<a href="https://github.com/peers/peerjs">https://github.com/peers/peerjs</a>).</p>
+
+<p>The Nodetron server code is also a heavily modified fork of PeerJS's PeerServer (<a href="https://github.com/peers/peerjs-server">https://github.com/peers/peerjs-server</a>). Thanks to their great work!</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License:</h2>
+
+<p><a href="https://github.com/bchu/nodetron/blob/master/LICENSE">Nodetron is released under the MIT license</a>.</p>
       </section>
     </div>
     <footer>
