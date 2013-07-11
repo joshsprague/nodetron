@@ -16,6 +16,11 @@ nodetron.registerWithServer = function(options){
   }
 
   nodetron.id = localStorage.getItem('_nodetron_uuid');
+  // localStorage only returns strings
+  // localStorage returns 'null' for both undefined and null values of items.
+  if (nodetron.id === 'null') {
+    nodetron.id = null;
+  }
 
   var host = options.host;
   var port = options.port || 80; //development: 5000, production:80
@@ -53,7 +58,7 @@ var token = null;
  */
 nodetron.login = function(options) {
   var id = options.id || nodetron.id;
-  if (options.newId || typeof id === 'undefined') {
+  if (options.newId || !id) {
     id = nodetron.uuid.v4();
     token = nodetron.uuid.v4();
   }
